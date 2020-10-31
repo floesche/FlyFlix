@@ -12,6 +12,7 @@ socketio = SocketIO(app)
 def handle_my_custom_event(json):
     print('received json: ' + str(json))
 
+
 @app.route('/')
 def hello_world():
     return render_template('index.html')
