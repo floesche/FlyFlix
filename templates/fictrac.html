@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/static/socket.io.slim.js"></script>
+    <script>
+        var socket = io();
+        socket.on('connect', function(){
+            // socket.emit('my event', {data: 'I\'m !'});
+        });
+        socket.on('event', function(data){});
+        socket.on('disconnect', function(){});
+        socket.on('direction', function(data){
+            runBarUpdate(data);
+        });
+    </script>
+    <style>
+        html,
+        body {
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .box {
+            background-color: #000;
+            width: 5vw;
+            height: 100vh;
+            position: absolute;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="container"></div>
+
+    <script>
+        var counter = 500;
+        var SENSITIVITY = 100;
+        (function () {
+            cont = document.getElementById("container");
+            for (num = -1; num < 10; num++) {
+                bx = document.createElement("div");
+                bx.id = "b" + num;
+                bx.className = "box";
+                bx.style.left = num * 10 + "vw";
+                cont.appendChild(bx);
+            }
+        })();
+
+        function runBarUpdate(countdiff) {
+            console.log(counter, " diff ", countdiff * SENSITIVITY);
+            counter = counter + countdiff * 100;
+            if (counter < 200 || counter > 1000) {
+                counter = (counter % 100) + 500;
+            }
+            for (num = -1; num < 10; num++) {
+                bx = document.getElementById("b" + num);
+                bx.style.left = num * 10 + (counter % 100) / 10 + "vw";
+            }
+        }
+
+        function error() {
+            alert('Stream generation failed.');
+        }
+
+    </script>
+
+</body>
+
+</html>

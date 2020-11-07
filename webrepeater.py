@@ -1,12 +1,50 @@
 #!/bin/env python
 
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, request
 from flask_socketio import SocketIO
+from threading import Thread
+import socket
 
 app = Flask(__name__)
+app.config.update(
+    FICTRAC_HOST = '127.0.0.1',
+    FICTRAC_PORT = 1717
+)
+
 socketio = SocketIO(app)
 
 # url_for('static', filename='socket.io.slim.js')
+
+def listenFictrac():
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        sock.bind((app.config['FICTRAC_HOST'], app.config['FICTRAC_PORT']))
+        data = ""
+        prevheading = 0
+        while True:
+            new_data = sock.recv(1024)
+            if not new_data:
+                break
+            data += new_data.decode('UTF-8')
+            # Find the first frame of data
+            endline = data.find("\n")
+            line = data[:endline]       # copy first frame
+            data = data[endline+1:]     # delete first frame
+            # Tokenise
+            toks = line.split(", ")
+		    # Check that we have sensible tokens
+            if ((len(toks) < 24) | (toks[0] != "FT")):
+                continue
+            heading = float(toks[17])
+            socketio.emit('direction', (heading-prevheading,))
+            prevheading = heading
+
+@socketio.on("connect")
+def connect():
+    print("Client connected", request.sid)
+
+@socketio.on("disconnect")
+def disconnect():
+    print("Client disconnected", request.sid)
 
 @socketio.on('my event')
 def handle_my_custom_event(json):
@@ -20,10 +58,13 @@ def hello_world():
 def playback():
     return render_template('playback.html')
 
-@app.route('/hello/')
+@app.route('/fictrac/')
 def hello():
-    return render_template('hello.html')
+    return render_template('fictrac.html')
 
 
 if __name__ == '__main__':
+    thread = Thread(target=listenFictrac)
+    thread.daemon = True
+    thread.start()
     socketio.run(app)
