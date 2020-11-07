@@ -1,19 +1,24 @@
 #!/bin/env python
 
-from flask import Flask, render_template, url_for, request
+
+
+from flask import Flask, render_template, url_for, request, abort
 from flask_socketio import SocketIO
+from jinja2 import TemplateNotFound
 from threading import Thread
 import socket
 
 app = Flask(__name__)
+
+import eventlet
+eventlet.monkey_patch()
+# socketio = SocketIO(app, async_mode='threading')
+socketio = SocketIO(app)
+
 app.config.update(
     FICTRAC_HOST = '127.0.0.1',
     FICTRAC_PORT = 1717
 )
-
-socketio = SocketIO(app)
-
-# url_for('static', filename='socket.io.slim.js')
 
 def listenFictrac():
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
@@ -35,7 +40,7 @@ def listenFictrac():
             if ((len(toks) < 24) | (toks[0] != "FT")):
                 continue
             heading = float(toks[17])
-            socketio.emit('direction', (heading-prevheading,))
+            socketio.emit('direction', heading-prevheading)
             prevheading = heading
 
 @socketio.on("connect")
@@ -60,8 +65,10 @@ def playback():
 
 @app.route('/fictrac/')
 def hello():
-    return render_template('fictrac.html')
-
+    try:
+        return render_template('fictrac.html')
+    except TemplateNotFound:
+        abort(404)
 
 if __name__ == '__main__':
     thread = Thread(target=listenFictrac)

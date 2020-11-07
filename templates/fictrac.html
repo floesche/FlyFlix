@@ -50,7 +50,7 @@
         })();
 
         function runBarUpdate(countdiff) {
-            console.log(counter, " diff ", countdiff * SENSITIVITY);
+            // console.log(counter, " diff ", countdiff * SENSITIVITY);
             counter = counter + countdiff * 100;
             if (counter < 200 || counter > 1000) {
                 counter = (counter % 100) + 500;
@@ -62,7 +62,7 @@
         }
 
         function error() {
-            alert('Stream generation failed.');
+            console.error('Stream generation failed.');
         }
 
     </script>
