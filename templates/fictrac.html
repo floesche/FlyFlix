@@ -28,7 +28,7 @@
     <div id="container"></div>
 
     <script>
-        var SENSITIVITY = 100;
+        var SENSITIVITY = -100;
         var socket = io();
 
         var counter = 500;
@@ -59,7 +59,7 @@
 
         function runBarUpdate(countdiff) {
             // console.log(counter, " diff ", countdiff * SENSITIVITY);
-            counter = counter + countdiff * 100;
+            counter = counter + countdiff * SENSITIVITY;
             if (counter < 200){
                 counter = counter + 300;
             } else if (counter > 1000){

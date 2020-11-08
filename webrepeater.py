@@ -46,7 +46,7 @@ def before_first_request():
         FICTRAC_HOST = '127.0.0.1',
         FICTRAC_PORT = 1717
     )
-    csv_handler = FileHandler("repeater.csv")
+    csv_handler = FileHandler("repeater_{}.csv".format(time.strftime("%Y%m%d_%H%M%S")))
     csv_handler.setFormatter(CsvFormatter())
 
     app.logger.removeHandler(default_handler)
