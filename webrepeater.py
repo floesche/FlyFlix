@@ -1,24 +1,63 @@
 #!/bin/env python
 
 
-
 from flask import Flask, render_template, url_for, request, abort
 from flask_socketio import SocketIO
 from jinja2 import TemplateNotFound
 from threading import Thread
 import socket
+import csv
+import io
+import time
+import logging
+from logging import FileHandler
+from flask.logging import default_handler
 
 app = Flask(__name__)
 
+# Using eventlet breaks UDP reading thread unless patched. See http://eventlet.net/doc/basic_usage.html?highlight=monkey_patch#patching-functions for more.
+#
+# Alternatively disable eventlet and use development libraries via `socketio = SocketIO(app, async_mode='threading')`
 import eventlet
 eventlet.monkey_patch()
-# socketio = SocketIO(app, async_mode='threading')
 socketio = SocketIO(app)
 
-app.config.update(
-    FICTRAC_HOST = '127.0.0.1',
-    FICTRAC_PORT = 1717
-)
+
+# from https://stackoverflow.com/questions/19765139/what-is-the-proper-way-to-do-logging-in-csv-file
+class CsvFormatter(logging.Formatter):
+    def __init__(self):
+        super().__init__()
+        self.output = io.StringIO()
+        self.writer = csv.writer(self.output, quoting=csv.QUOTE_ALL)
+
+    def format(self, record):
+        # self.writer.writerow([record.levelname] + [v for k,v in record.msg.items()])
+        #self.writer.writerow([v for k,v in record.msg.items()])
+        self.writer.writerow([time.monotonic_ns()] + record.msg)
+        # self.writer.writerow([record.levelname, record.msg])
+        data = self.output.getvalue()
+        self.output.truncate(0)
+        self.output.seek(0)
+        return data.strip()
+
+@app.before_first_request
+def before_first_request():
+    app.config.update(
+        FICTRAC_HOST = '127.0.0.1',
+        FICTRAC_PORT = 1717
+    )
+    csv_handler = FileHandler("repeater.csv")
+    csv_handler.setFormatter(CsvFormatter())
+
+    app.logger.removeHandler(default_handler)
+    app.logger.setLevel(logging.INFO)
+    app.logger.addHandler(csv_handler)
+    # app.logger.info("some text")
+
+    thread = Thread(target=listenFictrac)
+    thread.daemon = True
+    thread.start()
+
 
 def listenFictrac():
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
@@ -39,8 +78,12 @@ def listenFictrac():
 		    # Check that we have sensible tokens
             if ((len(toks) < 24) | (toks[0] != "FT")):
                 continue
+            cnt = int(toks[1])
             heading = float(toks[17])
-            socketio.emit('direction', heading-prevheading)
+            ts = float(toks[22])
+            socketio.emit('direction', (cnt, ts, heading-prevheading))
+            #json = {'d': 's', 'cnt': cnt, 'ts': ts, 'head': heading}
+            app.logger.info(['s', cnt, ts, heading])
             prevheading = heading
 
 @socketio.on("connect")
@@ -54,6 +97,14 @@ def disconnect():
 @socketio.on('my event')
 def handle_my_custom_event(json):
     print('received json: ' + str(json))
+
+@socketio.on('display')
+def display_event(json):
+    # print("Display is " + str(json))
+    # app.logger.info("Display: %s", str(json))
+    #json['d'] = "r"
+    app.logger.info(["r", json['cnt'], json['counter']])
+    
 
 @app.route('/')
 def hello_world():
@@ -71,7 +122,4 @@ def hello():
         abort(404)
 
 if __name__ == '__main__':
-    thread = Thread(target=listenFictrac)
-    thread.daemon = True
-    thread.start()
-    socketio.run(app)
+    socketio.run(app, host='0.0.0.0', port = 17000)
