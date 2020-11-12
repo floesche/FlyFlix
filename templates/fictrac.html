@@ -39,6 +39,7 @@
         socket.on('event', function(data){});
         socket.on('disconnect', function(){});
         socket.on('direction', function(cnt, ts, diff){
+            console.log(cnt, ts, diff, counter);
             runBarUpdate(diff);
             socket.emit('display', {cnt: cnt, counter: counter});
         });

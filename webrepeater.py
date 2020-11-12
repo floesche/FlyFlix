@@ -10,17 +10,23 @@ import csv
 import io
 import time
 import logging
+import atexit
 from logging import FileHandler
 from flask.logging import default_handler
+
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 
 app = Flask(__name__)
 
 # Using eventlet breaks UDP reading thread unless patched. See http://eventlet.net/doc/basic_usage.html?highlight=monkey_patch#patching-functions for more.
 #
 # Alternatively disable eventlet and use development libraries via `socketio = SocketIO(app, async_mode='threading')`
-import eventlet
-eventlet.monkey_patch()
-socketio = SocketIO(app)
+# import eventlet
+# eventlet.monkey_patch()
+# socketio = SocketIO(app)
+
+socketio = SocketIO(app, async_mode='threading')
 
 
 # from https://stackoverflow.com/questions/19765139/what-is-the-proper-way-to-do-logging-in-csv-file
@@ -53,11 +59,34 @@ def before_first_request():
     app.logger.setLevel(logging.INFO)
     app.logger.addHandler(csv_handler)
     # app.logger.info("some text")
+    app.logger.info(["a", "request", "start"])
 
     thread = Thread(target=listenFictrac)
     thread.daemon = True
     thread.start()
 
+@app.before_first_request
+def start_scheduler():
+    #app.logger.info(["a", "background", "start"])
+    scheduler = BackgroundScheduler()
+    trigger = IntervalTrigger(seconds=5)
+    scheduler.add_job(func=print_date_time, trigger=trigger)
+    scheduler.start()
+    # Shut down the scheduler when exiting the app
+    atexit.register(lambda: scheduler.shutdown())
+
+def runleft():
+    for i in range(100):
+        socketio.emit('direction', (i, 0, -.03))
+        time.sleep(0.01)
+    
+    
+
+def print_date_time():
+    app.logger.info(["time", "XXX", time.strftime("%A, %d. %B %Y %I:%M:%S %p")])
+    thread = Thread(target=runleft)
+    thread.daemon = True
+    thread.start()
 
 def listenFictrac():
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
