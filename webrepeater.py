@@ -57,6 +57,7 @@ def runleft():
 def experiment():
     app.logger.info(["Left", "", ""])
     rotateStripes(3000)
+    turnOffScreen(500)
     app.logger.info(["Right", "", ""])
     socketio.emit('spatfreq', 10);
     rotateStripes(3000, 0.01)
@@ -70,6 +71,13 @@ def rotateStripes(duration=3000, direction=-0.03):
     while datetime.now() < ttime:
         socketio.emit('direction', (0, 0, direction))
         time.sleep(0.01)
+
+def turnOffScreen(duration=1000, background="#000000"):
+    ttime = datetime.now() + timedelta(milliseconds=duration)
+    socketio.emit('screen', (0, background))
+    while datetime.now() < ttime:
+        time.sleep(0.01)
+    socketio.emit('screen', 1)
 
 def listenFictrac(duration=3000):
     ttime = datetime.now() + timedelta(milliseconds=duration)

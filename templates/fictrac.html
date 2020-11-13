@@ -34,6 +34,7 @@
         var counter = 500;
 
         var spatFreq = 5;
+        var onBarColor = "#FFFFFF";
 
         socket.on('connect', function(){
             // socket.emit('my event', {data: 'I\'m !'});
@@ -49,6 +50,20 @@
         socket.on('spatfreq', function(newfreq){
             spatFreq = newfreq;
             redrawSpatialFreq();
+        });
+
+        socket.on('screen', function(onoff, blackout){
+            cont = document.getElementById("container");
+            if (blackout == undefined){
+                document.body.style.background = onBarColor;
+            } else {
+                document.body.style.background = blackout;
+            }
+            if (onoff == 0) {
+                cont.style.visibility = 'hidden';
+            } else {
+                cont.style.visibility = 'visible';
+            }
         });
 
         (function () {
