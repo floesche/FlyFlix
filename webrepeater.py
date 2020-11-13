@@ -47,26 +47,39 @@ def before_first_request():
     # app.logger.info("some text")
     app.logger.info(["a", "request", "start"])
 
-
+def savedata(shared, key, value=0):
+    app.logger.info([shared, key, value])
 
 def runleft():
     for i in range(100):
         socketio.emit('direction', (i, 0, -.03))
         time.sleep(0.01)
 
-def experiment():
-    app.logger.info(["Left", "", ""])
-    rotateStripes(3000)
-    turnOffScreen(500)
-    app.logger.info(["Right", "", ""])
-    socketio.emit('spatfreq', 10);
-    rotateStripes(3000, 0.01)
-    app.logger.info(["Fictrac", "", ""])
-    listenFictrac()
-    app.logger.info(["Right", "", ""])
-    rotateStripes(3000, 0.08)
+def trial(spatial, temporal):
+    startOffTime = 500
+    trialLength = 3000
+    endOffTime = 500
+    closedLoopTime = 2000
 
-def rotateStripes(duration=3000, direction=-0.03):
+    sharedKey = int(time.time())
+    savedata(sharedKey, "screen-spat-off", startOffTime)
+    changeSpatOff(spatial, startOffTime)
+    savedata(sharedKey, "move-speed", trialLength)
+    savedata(sharedKey, "move-duration", trialLength)
+    rotateStripes(trialLength, temporal)
+    savedata(sharedKey, "screen-off-end", endOffTime)
+    turnOffScreen(endOffTime)
+    savedata(sharedKey, "screen-on-end")
+    socketio.emit('screen', 1)
+    #TODO: turnOnFICTRAC
+
+def experiment():
+    trial(10, 3)
+    trial(5, -1)
+    trial(5, -3)
+    trial(3, -10)
+
+def rotateStripes(duration=3000, direction=1):
     ttime = datetime.now() + timedelta(milliseconds=duration)
     while datetime.now() < ttime:
         socketio.emit('direction', (0, 0, direction))
@@ -77,7 +90,24 @@ def turnOffScreen(duration=1000, background="#000000"):
     socketio.emit('screen', (0, background))
     while datetime.now() < ttime:
         time.sleep(0.01)
+    # socketio.emit('screen', 1)
+
+def changeSpatOff(spatial, duration=1000, background="#000000"):
+    sharedKey = int(time.time())
+    ttime = datetime.now() + timedelta(milliseconds=duration)
+    savedata(sharedKey, "changeSpatOff-duration", duration)
+    socketio.emit('screen', (0, background))
+    time.sleep(0.01)
+    savedata(sharedKey, "changeSpatOff-spatial", spatial)
+    socketio.emit('spatfreq', spatial)
+    while datetime.now() < ttime:
+        time.sleep(0.01)
+    savedata(sharedKey, "changeSpatOff-on")
     socketio.emit('screen', 1)
+
+def turnOnFictrac(duration=3000):
+    #TODO
+    pass
 
 def listenFictrac(duration=3000):
     ttime = datetime.now() + timedelta(milliseconds=duration)
@@ -116,8 +146,6 @@ def listenFictrac(duration=3000):
             app.logger.info(['s', cnt, ts, heading])
             prevheading = heading
 
-
-
 @socketio.on("connect")
 def connect():
     print("Client connected", request.sid)
@@ -136,7 +164,6 @@ def display_event(json):
     # app.logger.info("Display: %s", str(json))
     #json['d'] = "r"
     app.logger.info(["r", json['cnt'], json['counter']])
-    
 
 @app.route('/')
 def hello_world():

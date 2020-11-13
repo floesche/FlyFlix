@@ -28,7 +28,7 @@
     <div id="container"></div>
 
     <script>
-        var SENSITIVITY = -100;
+        var gain = 1;
         var socket = io();
 
         var counter = 500;
@@ -70,7 +70,6 @@
             redrawSpatialFreq();
         })();
 
-        
         function redrawSpatialFreq(){
             cont = document.getElementById("container");
             cont.innerHTML = '';
@@ -86,7 +85,7 @@
 
         function runBarUpdate(countdiff) {
             // console.log(counter, " diff ", countdiff * SENSITIVITY);
-            counter = counter + countdiff * SENSITIVITY;
+            counter = counter + countdiff * gain;
             if (counter < 200){
                 counter = counter + 300;
             } else if (counter > 1000){
