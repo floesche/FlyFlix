@@ -33,30 +33,41 @@
 
         var counter = 500;
 
+        var spatFreq = 5;
+
         socket.on('connect', function(){
             // socket.emit('my event', {data: 'I\'m !'});
         });
         socket.on('event', function(data){});
         socket.on('disconnect', function(){});
         socket.on('direction', function(cnt, ts, diff){
-            console.log(cnt, ts, diff, counter);
+            // console.log(cnt, ts, diff, counter);
             runBarUpdate(diff);
             socket.emit('display', {cnt: cnt, counter: counter});
         });
 
+        socket.on('spatfreq', function(newfreq){
+            spatFreq = newfreq;
+            redrawSpatialFreq();
+        });
+
         (function () {
-            cont = document.getElementById("container");
-            for (num = -1; num < 10; num++) {
-                bx = document.createElement("div");
-                bx.id = "b" + num;
-                bx.className = "box";
-                bx.style.left = num * 10 + "vw";
-                cont.appendChild(bx);
-            }
+            redrawSpatialFreq();
         })();
 
         
-        
+        function redrawSpatialFreq(){
+            cont = document.getElementById("container");
+            cont.innerHTML = '';
+            for (num = -1; num < spatFreq; num++) {
+                bx = document.createElement("div");
+                bx.id = "b" + num;
+                bx.className = "box";
+                bx.style.width = 50/spatFreq + "vw";
+                bx.style.left = num * (100/spatFreq) + "vw";
+                cont.appendChild(bx);
+            }
+        }
 
         function runBarUpdate(countdiff) {
             // console.log(counter, " diff ", countdiff * SENSITIVITY);
@@ -66,9 +77,9 @@
             } else if (counter > 1000){
                 counter = counter - 300;
             }
-            for (num = -1; num < 10; num++) {
+            for (num = -1; num < spatFreq; num++) {
                 bx = document.getElementById("b" + num);
-                bx.style.left = num * 10 + (counter % 100) / 10 + "vw";
+                bx.style.left = num * (100/spatFreq) + (counter % 100) / spatFreq + "vw";
             }
         }
 

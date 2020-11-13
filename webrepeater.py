@@ -10,12 +10,15 @@ import csv
 import io
 import time
 import logging
+from datetime import datetime, timedelta
 import atexit
 from logging import FileHandler
 from flask.logging import default_handler
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+
+from csv_formatter import CsvFormatter
 
 app = Flask(__name__)
 
@@ -28,23 +31,6 @@ app = Flask(__name__)
 
 socketio = SocketIO(app, async_mode='threading')
 
-
-# from https://stackoverflow.com/questions/19765139/what-is-the-proper-way-to-do-logging-in-csv-file
-class CsvFormatter(logging.Formatter):
-    def __init__(self):
-        super().__init__()
-        self.output = io.StringIO()
-        self.writer = csv.writer(self.output, quoting=csv.QUOTE_ALL)
-
-    def format(self, record):
-        # self.writer.writerow([record.levelname] + [v for k,v in record.msg.items()])
-        #self.writer.writerow([v for k,v in record.msg.items()])
-        self.writer.writerow([time.monotonic_ns()] + record.msg)
-        # self.writer.writerow([record.levelname, record.msg])
-        data = self.output.getvalue()
-        self.output.truncate(0)
-        self.output.seek(0)
-        return data.strip()
 
 @app.before_first_request
 def before_first_request():
@@ -61,39 +47,46 @@ def before_first_request():
     # app.logger.info("some text")
     app.logger.info(["a", "request", "start"])
 
-    thread = Thread(target=listenFictrac)
-    thread.daemon = True
-    thread.start()
 
-@app.before_first_request
-def start_scheduler():
-    #app.logger.info(["a", "background", "start"])
-    scheduler = BackgroundScheduler()
-    trigger = IntervalTrigger(seconds=5)
-    scheduler.add_job(func=print_date_time, trigger=trigger)
-    scheduler.start()
-    # Shut down the scheduler when exiting the app
-    atexit.register(lambda: scheduler.shutdown())
 
 def runleft():
     for i in range(100):
         socketio.emit('direction', (i, 0, -.03))
         time.sleep(0.01)
-    
-    
 
-def print_date_time():
-    app.logger.info(["time", "XXX", time.strftime("%A, %d. %B %Y %I:%M:%S %p")])
-    thread = Thread(target=runleft)
-    thread.daemon = True
-    thread.start()
+def experiment():
+    app.logger.info(["Left", "", ""])
+    rotateStripes(3000)
+    app.logger.info(["Right", "", ""])
+    socketio.emit('spatfreq', 10);
+    rotateStripes(3000, 0.01)
+    app.logger.info(["Fictrac", "", ""])
+    listenFictrac()
+    app.logger.info(["Right", "", ""])
+    rotateStripes(3000, 0.08)
 
-def listenFictrac():
+def rotateStripes(duration=3000, direction=-0.03):
+    ttime = datetime.now() + timedelta(milliseconds=duration)
+    while datetime.now() < ttime:
+        socketio.emit('direction', (0, 0, direction))
+        time.sleep(0.01)
+
+def listenFictrac(duration=3000):
+    ttime = datetime.now() + timedelta(milliseconds=duration)
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-        sock.bind((app.config['FICTRAC_HOST'], app.config['FICTRAC_PORT']))
-        data = ""
+        sock.settimeout(0.1)
         prevheading = 0
-        while True:
+        data = ""
+        try:
+            sock.bind((app.config['FICTRAC_HOST'], app.config['FICTRAC_PORT']))
+            new_data = sock.recv(1)
+            data = new_data.decode('UTF-8')
+        except: # If Fictrac doesn't exist
+            while datetime.now() < ttime: # wait nevertheless
+                pass
+            return
+
+        while datetime.now() < ttime:
             new_data = sock.recv(1024)
             if not new_data:
                 break
@@ -114,6 +107,8 @@ def listenFictrac():
             #json = {'d': 's', 'cnt': cnt, 'ts': ts, 'head': heading}
             app.logger.info(['s', cnt, ts, heading])
             prevheading = heading
+
+
 
 @socketio.on("connect")
 def connect():
@@ -145,6 +140,9 @@ def playback():
 
 @app.route('/fictrac/')
 def hello():
+    ethread = Thread(target=experiment)
+    ethread.daemon = True
+    ethread.start()
     try:
         return render_template('fictrac.html')
     except TemplateNotFound:
