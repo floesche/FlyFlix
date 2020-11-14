@@ -22,12 +22,23 @@ from csv_formatter import CsvFormatter
 
 app = Flask(__name__)
 
+start = False
+updateFictrac = False
+fictracGain = 100
+
+
+
+from engineio.payload import Payload
+Payload.max_decode_packets = 500
+
+
 # Using eventlet breaks UDP reading thread unless patched. See http://eventlet.net/doc/basic_usage.html?highlight=monkey_patch#patching-functions for more.
 #
 # Alternatively disable eventlet and use development libraries via `socketio = SocketIO(app, async_mode='threading')`
 # import eventlet
 # eventlet.monkey_patch()
 # socketio = SocketIO(app)
+
 
 socketio = SocketIO(app, async_mode='threading')
 
@@ -44,23 +55,16 @@ def before_first_request():
     app.logger.removeHandler(default_handler)
     app.logger.setLevel(logging.INFO)
     app.logger.addHandler(csv_handler)
-    # app.logger.info("some text")
-    app.logger.info(["a", "request", "start"])
+    app.logger.info(["shared", "key", "value"])
 
 def savedata(shared, key, value=0):
     app.logger.info([shared, key, value])
 
-def runleft():
-    for i in range(100):
-        socketio.emit('direction', (i, 0, -.03))
-        time.sleep(0.01)
-
-def trial(spatial, temporal):
+def trial(spatial, temporal, fictracGain):
     startOffTime = 500
     trialLength = 3000
     endOffTime = 500
     closedLoopTime = 2000
-
     sharedKey = int(time.time())
     savedata(sharedKey, "screen-spat-off", startOffTime)
     changeSpatOff(spatial, startOffTime)
@@ -71,13 +75,21 @@ def trial(spatial, temporal):
     turnOffScreen(endOffTime)
     savedata(sharedKey, "screen-on-end")
     socketio.emit('screen', 1)
-    #TODO: turnOnFICTRAC
+    savedata(sharedKey, "fictrac-on", fictracGain)
+    turnOnFictrac(closedLoopTime, fictracGain)
+    savedata(sharedKey, "fictrac-off")
+    
 
 def experiment():
-    trial(10, 3)
-    trial(5, -1)
-    trial(5, -3)
-    trial(3, -10)
+    while not start:
+        time.sleep(0.1)
+    savedata(0, "screen-off-experiment-start", 5000)
+    turnOffScreen(5000)
+    trial(5, -0.1, 100)
+    trial(10, 3, 50)
+    trial(5, -1, 20)
+    trial(5, -3, 10)
+    trial(3, -10, 50)
 
 def rotateStripes(duration=3000, direction=1):
     ttime = datetime.now() + timedelta(milliseconds=duration)
@@ -105,9 +117,17 @@ def changeSpatOff(spatial, duration=1000, background="#000000"):
     savedata(sharedKey, "changeSpatOff-on")
     socketio.emit('screen', 1)
 
-def turnOnFictrac(duration=3000):
-    #TODO
-    pass
+def turnOnFictrac(duration=3000, gain=100):
+    ttime = datetime.now() + timedelta(milliseconds=duration)
+    global updateFictrac
+    global fictracGain
+    updateFictrac = True
+    fictracGain = gain
+    while datetime.now() < ttime:
+        time.sleep(0.01)
+    updateFictrac = False
+    
+    
 
 def listenFictrac(duration=3000):
     ttime = datetime.now() + timedelta(milliseconds=duration)
@@ -124,7 +144,7 @@ def listenFictrac(duration=3000):
                 pass
             return
 
-        while datetime.now() < ttime:
+        while True:
             new_data = sock.recv(1024)
             if not new_data:
                 break
@@ -141,9 +161,11 @@ def listenFictrac(duration=3000):
             cnt = int(toks[1])
             heading = float(toks[17])
             ts = float(toks[22])
-            socketio.emit('direction', (cnt, ts, heading-prevheading))
-            #json = {'d': 's', 'cnt': cnt, 'ts': ts, 'head': heading}
-            app.logger.info(['s', cnt, ts, heading])
+            updateval = (heading-prevheading) * fictracGain * -1
+            savedata(ts, "heading", heading)
+            if updateFictrac:
+                savedata(cnt, "updateval", updateval)
+                socketio.emit('direction', (cnt, ts, updateval))
             prevheading = heading
 
 @socketio.on("connect")
@@ -158,12 +180,21 @@ def disconnect():
 def handle_my_custom_event(json):
     print('received json: ' + str(json))
 
+@socketio.on('start-experiment')
+def finally_start(number):
+    # FIXME: bad practice. Will break at some point
+    global start
+    start = True
+
+@socketio.on('slog')
+def server_log(key, value):
+    sharedKey = time.time()
+    savedata(sharedKey, "slog-key", key)
+    savedata(sharedKey, "slog-val", value)
+
 @socketio.on('display')
 def display_event(json):
-    # print("Display is " + str(json))
-    # app.logger.info("Display: %s", str(json))
-    #json['d'] = "r"
-    app.logger.info(["r", json['cnt'], json['counter']])
+    savedata(json['cnt'], "display-receive", json['counter'])
 
 @app.route('/')
 def hello_world():
@@ -178,6 +209,9 @@ def hello():
     ethread = Thread(target=experiment)
     ethread.daemon = True
     ethread.start()
+    fthread = Thread(target=listenFictrac)
+    fthread.daemon = True
+    fthread.start()
     try:
         return render_template('fictrac.html')
     except TemplateNotFound:

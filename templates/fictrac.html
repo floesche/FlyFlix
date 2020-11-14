@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
     <script src="/static/socket.io.slim.js"></script>
     <script>
        
@@ -14,18 +16,57 @@
             overflow: hidden;
         }
 
+        #container {
+            overflow:hidden;
+            background-color:#000;
+            }
+        
+        *:fullscreen, *:-webkit-full-screen, *:-moz-full-screen {
+            background-color: rgba(255,255,255,0);
+        }
+
         .box {
-            background-color: #000;
+            background-color: #FFF;
             width: 5vw;
             height: 100vh;
             position: absolute;
         }
+        
+        #start, #restart {
+            position: absolute;
+            background-color: #CCCA;
+            margin: 20px;
+            padding: 20px;
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            margin-right: -50%;
+            transform: translate(-50%, -50%);
+        }
+        #start #btn, #restart #btn {
+            text-align:center;
+            color: green;
+            font-size: 5em;
+        }
+
+        #restart{
+            visibility: hidden;
+            top: 10%;
+            left: 80%;
+        }
+
     </style>
 </head>
 
 <body>
-
     <div id="container"></div>
+    <div id="start">
+    Start the experiment
+    <div id="btn">Start</div></div>
+    <div id="restart">
+        <div id="btn">reload</div>
+    </div>
+
 
     <script>
         var gain = 1;
@@ -37,12 +78,13 @@
         var onBarColor = "#FFFFFF";
 
         socket.on('connect', function(){
-            // socket.emit('my event', {data: 'I\'m !'});
         });
         socket.on('event', function(data){});
-        socket.on('disconnect', function(){});
+        socket.on('disconnect', function(){
+            let elem = document.getElementById('restart');
+            elem.style.visibility = "visible";
+        });
         socket.on('direction', function(cnt, ts, diff){
-            // console.log(cnt, ts, diff, counter);
             runBarUpdate(diff);
             socket.emit('display', {cnt: cnt, counter: counter});
         });
@@ -68,9 +110,18 @@
 
         (function () {
             redrawSpatialFreq();
+            document.getElementById('start').addEventListener('click', function () {
+                document.body.requestFullscreen();
+                this.style.visibility = "hidden";
+                socket.emit('start-experiment', 1);
+            });
+            document.getElementById('restart').addEventListener('click', function () {
+                window.location.reload(true);
+            });
         })();
 
         function redrawSpatialFreq(){
+            socket.emit('slog', 'redraw-spatial-freq', spatFreq);
             cont = document.getElementById("container");
             cont.innerHTML = '';
             for (num = -1; num < spatFreq; num++) {
@@ -81,15 +132,15 @@
                 bx.style.left = num * (100/spatFreq) + "vw";
                 cont.appendChild(bx);
             }
+            socket.emit('slog', 'redraw-spatial-counter', counter);
         }
 
         function runBarUpdate(countdiff) {
-            // console.log(counter, " diff ", countdiff * SENSITIVITY);
             counter = counter + countdiff * gain;
             if (counter < 200){
-                counter = counter + 300;
+                counter = 700 + counter%100;
             } else if (counter > 1000){
-                counter = counter - 300;
+                counter = 300 + counter%100;
             }
             for (num = -1; num < spatFreq; num++) {
                 bx = document.getElementById("b" + num);
@@ -106,3 +157,4 @@
 </body>
 
 </html>
+998.1400000
