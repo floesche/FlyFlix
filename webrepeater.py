@@ -35,12 +35,12 @@ Payload.max_decode_packets = 500
 # Using eventlet breaks UDP reading thread unless patched. See http://eventlet.net/doc/basic_usage.html?highlight=monkey_patch#patching-functions for more.
 #
 # Alternatively disable eventlet and use development libraries via `socketio = SocketIO(app, async_mode='threading')`
-# import eventlet
-# eventlet.monkey_patch()
-# socketio = SocketIO(app)
+import eventlet
+eventlet.monkey_patch()
+socketio = SocketIO(app)
 
 
-socketio = SocketIO(app, async_mode='threading')
+# socketio = SocketIO(app, async_mode='threading')
 
 
 @app.before_first_request
@@ -61,11 +61,11 @@ def savedata(shared, key, value=0):
     app.logger.info([shared, key, value])
 
 def trial(spatial, temporal, fictracGain):
-    startOffTime = 500
+    startOffTime = 1000
     trialLength = 3000
-    endOffTime = 500
-    closedLoopTime = 2000
-    sharedKey = int(time.time())
+    endOffTime = 1000
+    closedLoopTime = 5000
+    sharedKey = time.time()
     savedata(sharedKey, "screen-spat-off", startOffTime)
     changeSpatOff(spatial, startOffTime)
     savedata(sharedKey, "move-speed", trialLength)
@@ -78,18 +78,46 @@ def trial(spatial, temporal, fictracGain):
     savedata(sharedKey, "fictrac-on", fictracGain)
     turnOnFictrac(closedLoopTime, fictracGain)
     savedata(sharedKey, "fictrac-off")
-    
+
+def calibrate():
+    sharedKey = time.time()
+    savedata(sharedKey, "protocol", "calibration-closed-loop")
+    changeSpatOff(3, 3000)
+    turnOnFictrac(60000, 50)
+    savedata(sharedKey, "screen-off")
+    socketio.emit('screen', 0)
+
 
 def experiment():
+    sharedKey = time.time()
+    savedata(sharedKey, "init-screen-off")
+    socketio.emit('screen', 0)
     while not start:
         time.sleep(0.1)
-    savedata(0, "screen-off-experiment-start", 5000)
-    turnOffScreen(5000)
-    trial(5, -0.1, 100)
-    trial(10, 3, 50)
-    trial(5, -1, 20)
-    trial(5, -3, 10)
-    trial(3, -10, 50)
+    savedata(sharedKey, "init-screen-on")
+    socketio.emit('screen', 1)
+    savedata(sharedKey, "distance", 35)
+    savedata(sharedKey, "fly", 7)
+    savedata(sharedKey, "fly-strain", "DL")
+    savedata(sharedKey, "display", "fire")
+    savedata(sharedKey, "color", "#00FF00")
+    savedata(sharedKey, "temperature", 34)
+    savedata(sharedKey, "screen-brightness", 25)
+    savedata(sharedKey, "protocol", 1)
+    # ### Experiment
+    startOffTime = 15000
+    savedata(0, "screen-off-experiment-start", startOffTime)
+    turnOffScreen(startOffTime)
+    for i in [10, 7, 5, 3, 2, 1, 3, 5, 7, 10]:
+        for j in [1, 0.5, 2, 0.3, 3]:
+            for k in [-1, 1]:
+                trial(i, j*k, 50)
+    savedata(sharedKey, "end-screen-off")
+    socketio.emit('screen', 0)
+    ### Calibration
+    # calibrate()
+    
+    
 
 def rotateStripes(duration=3000, direction=1):
     ttime = datetime.now() + timedelta(milliseconds=duration)
@@ -105,7 +133,7 @@ def turnOffScreen(duration=1000, background="#000000"):
     # socketio.emit('screen', 1)
 
 def changeSpatOff(spatial, duration=1000, background="#000000"):
-    sharedKey = int(time.time())
+    sharedKey = time.time()
     ttime = datetime.now() + timedelta(milliseconds=duration)
     savedata(sharedKey, "changeSpatOff-duration", duration)
     socketio.emit('screen', (0, background))
@@ -118,14 +146,17 @@ def changeSpatOff(spatial, duration=1000, background="#000000"):
     socketio.emit('screen', 1)
 
 def turnOnFictrac(duration=3000, gain=100):
+    sharedKey = time.time()
     ttime = datetime.now() + timedelta(milliseconds=duration)
     global updateFictrac
     global fictracGain
     updateFictrac = True
     fictracGain = gain
+    savedata(sharedKey, "fictrac-gain", gain)
     while datetime.now() < ttime:
         time.sleep(0.01)
     updateFictrac = False
+    savedata(sharedKey, "fictrac-off")
     
     
 
