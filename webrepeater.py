@@ -68,7 +68,7 @@ def trial(spatial, temporal, fictracGain):
     sharedKey = time.time()
     savedata(sharedKey, "screen-spat-off", startOffTime)
     changeSpatOff(spatial, startOffTime)
-    savedata(sharedKey, "move-speed", trialLength)
+    savedata(sharedKey, "move-speed", temporal)
     savedata(sharedKey, "move-duration", trialLength)
     rotateStripes(trialLength, temporal)
     savedata(sharedKey, "screen-off-end", endOffTime)
@@ -97,13 +97,15 @@ def experiment():
     savedata(sharedKey, "init-screen-on")
     socketio.emit('screen', 1)
     savedata(sharedKey, "distance", 35)
-    savedata(sharedKey, "fly", 7)
-    savedata(sharedKey, "fly-strain", "DL")
+    savedata(sharedKey, "fly", 13)
+    savedata(sharedKey, "temperature", 35)
+    savedata(sharedKey, "starvation-start", "11:50:00")
+    savedata(sharedKey, "fly-strain", "empty-split")
     savedata(sharedKey, "display", "fire")
     savedata(sharedKey, "color", "#00FF00")
-    savedata(sharedKey, "temperature", 34)
     savedata(sharedKey, "screen-brightness", 25)
     savedata(sharedKey, "protocol", 1)
+    
     # ### Experiment
     startOffTime = 15000
     savedata(0, "screen-off-experiment-start", startOffTime)
