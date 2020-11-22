@@ -10,6 +10,7 @@ import csv
 import io
 import time
 import logging
+import random
 from datetime import datetime, timedelta
 import atexit
 from logging import FileHandler
@@ -63,8 +64,8 @@ def savedata(shared, key, value=0):
 def trial(spatial, temporal, fictracGain):
     startOffTime = 1000
     trialLength = 3000
-    endOffTime = 1000
-    closedLoopTime = 5000
+    endOffTime = 500
+    closedLoopTime = 1500
     sharedKey = time.time()
     savedata(sharedKey, "screen-spat-off", startOffTime)
     changeSpatOff(spatial, startOffTime)
@@ -91,29 +92,46 @@ def calibrate():
 def experiment():
     sharedKey = time.time()
     savedata(sharedKey, "init-screen-off")
+    
+
+    savedata(sharedKey, "starvation-start", "2020-11-22 11:40:00")
+    savedata(sharedKey, "fly-strain", "DL")
+    savedata(sharedKey, "fly", 70)
+    #savedata(sharedKey, "tether-start", "15:05:00")
+    #savedata(sharedKey, "sex", "")
+    
+
+    savedata(sharedKey, "temperature", 34)
+    savedata(sharedKey, "distance", 35)
+
     socketio.emit('screen', 0)
     while not start:
         time.sleep(0.1)
     savedata(sharedKey, "init-screen-on")
     socketio.emit('screen', 1)
-    savedata(sharedKey, "distance", 35)
-    savedata(sharedKey, "fly", 13)
-    savedata(sharedKey, "temperature", 35)
-    savedata(sharedKey, "starvation-start", "11:50:00")
-    savedata(sharedKey, "fly-strain", "empty-split")
     savedata(sharedKey, "display", "fire")
     savedata(sharedKey, "color", "#00FF00")
     savedata(sharedKey, "screen-brightness", 25)
-    savedata(sharedKey, "protocol", 1)
+    savedata(sharedKey, "protocol", 3)
     
     # ### Experiment
     startOffTime = 15000
     savedata(0, "screen-off-experiment-start", startOffTime)
     turnOffScreen(startOffTime)
-    for i in [10, 7, 5, 3, 2, 1, 3, 5, 7, 10]:
-        for j in [1, 0.5, 2, 0.3, 3]:
-            for k in [-1, 1]:
-                trial(i, j*k, 50)
+    trialnr = 1
+    conditionnr = 1
+    while trialnr < 5:
+        trialnr = trialnr + 1
+        savedata(sharedKey, "trial-nr-start", trialnr)
+        for i in random.sample([10, 7, 15, 5, 2, 20, 1], k=7):
+            for j in random.sample([1, 0.5, 2, 0.3, 3, 0.1, 5], k=7):
+                for k in random.sample([-1, 1], k=2):
+                    savedata(sharedKey, "condition-nr-start", conditionnr)
+                    trial(i, j*k, random.randrange(10, 100, 10))
+                    savedata(sharedKey, "condition-nr-end", conditionnr)
+                    conditionnr = conditionnr + 1
+        savedata(sharedKey, "trial-nr-end", trialnr)
+        
     savedata(sharedKey, "end-screen-off")
     socketio.emit('screen', 0)
     ### Calibration
@@ -124,7 +142,9 @@ def experiment():
 def rotateStripes(duration=3000, direction=1):
     ttime = datetime.now() + timedelta(milliseconds=duration)
     while datetime.now() < ttime:
-        socketio.emit('direction', (0, 0, direction))
+        sharedKey = time.time_ns()
+        savedata(sharedKey, "send-stripe-update", direction)
+        socketio.emit('direction', (sharedKey, 0, direction))
         time.sleep(0.01)
 
 def turnOffScreen(duration=1000, background="#000000"):
@@ -158,7 +178,7 @@ def turnOnFictrac(duration=3000, gain=100):
     while datetime.now() < ttime:
         time.sleep(0.01)
     updateFictrac = False
-    savedata(sharedKey, "fictrac-off")
+    savedata(sharedKey, "fictrac-end")
     
     
 
@@ -199,6 +219,7 @@ def listenFictrac(duration=3000):
             if updateFictrac:
                 savedata(cnt, "updateval", updateval)
                 socketio.emit('direction', (cnt, ts, updateval))
+
             prevheading = heading
 
 @socketio.on("connect")
@@ -222,8 +243,7 @@ def finally_start(number):
 @socketio.on('slog')
 def server_log(key, value):
     sharedKey = time.time()
-    savedata(sharedKey, "slog-key", key)
-    savedata(sharedKey, "slog-val", value)
+    savedata(sharedKey, key, value)
 
 @socketio.on('display')
 def display_event(json):
