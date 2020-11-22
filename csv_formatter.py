@@ -14,7 +14,7 @@ class CsvFormatter(logging.Formatter):
     def format(self, record):
         # self.writer.writerow([record.levelname] + [v for k,v in record.msg.items()])
         #self.writer.writerow([v for k,v in record.msg.items()])
-        self.writer.writerow([time.monotonic_ns()] + record.msg)
+        self.writer.writerow([time.time_ns()] + record.msg)
         # self.writer.writerow([record.levelname, record.msg])
         data = self.output.getvalue()
         self.output.truncate(0)
