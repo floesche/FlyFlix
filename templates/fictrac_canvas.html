@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+    <script src="/static/socket.io.slim.js"></script>
+    <script>
+       
+    </script>
+    <style>
+        html,
+        body {
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: hidden;
+            background-color:#000000;
+        }
+        #fullscreen, #restart{
+            color:#CC0000;
+            font-size:50pt;
+            position:absolute;
+            top: 10%;
+            left: 50%;
+            margin-right: -50%;
+            transform: translate(-50%, -50%);
+        }
+        #restart { visibility: hidden; }
+        #container{
+            visibility:hidden;
+            position:absolute;
+            left:0;
+            top:0;
+            width:100%;
+            height:100%;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="container"></canvas>
+    <p id="fullscreen">Start</p>
+    <p id="restart">Restart</p>
+    
+    <script>
+        var gain = 1;
+        var socket = io();
+
+        let serverCounter = 0;
+        let serverTimestamp;
+
+        let spatialCycle = 5;
+        let onBarColor = "#00FF00";
+        let centerLine;
+        let offset = 0;
+        let screenOn = true;
+
+        let canvas; 
+        let ctx;
+
+        let bars  = [];
+
+        socket.on('connect', function(){});
+        socket.on('event', function(data){});
+        socket.on('disconnect', function(){
+            if(typeof(canvas) != 'undefined'){
+            canvas.style.visibility = "hidden";
+            let elem = document.getElementById('restart');
+            elem.style.visibility = "visible";
+            }
+        });
+
+        socket.on('direction', function(cnt, ts, diff){
+            if(typeof(canvas) != 'undefined'){
+                let barWidth = (canvas.width/spatialCycle)/2;
+                offset = (offset + barWidth * diff/100) % (2*barWidth);
+                serverCounter = cnt;
+                serverTimestamp = ts;
+            }
+        });
+
+        socket.on('spatfreq', function(newCycle){
+            if(typeof(canvas) != 'undefined'){
+                spatialCycle = newCycle;
+                updateBarStorage();
+            }
+        });
+
+        socket.on('screen', function(onoff){
+            if (onoff == 0){
+                screenOn = false;
+            } else {
+                screenOn = true;
+            }
+
+        });
+
+        function drawBars(timestamp) {
+            ctx.fillStyle = onBarColor;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (screenOn){
+                bars.forEach(function(i){
+                    ctx.fillRect(offset + i[0], 0, i[1], canvas.height);
+                });
+                socket.emit('display', {cnt: serverCounter, counter: offset});
+            }
+            window.requestAnimationFrame(drawBars);
+        }
+
+        function updateBarStorage(){
+            let barWidth = (canvas.width/spatialCycle)/2;
+            bars = [];
+            for (let i = -1; i< spatialCycle + 1; i++){
+                bars.push([i*2*barWidth, barWidth] );
+            }
+        }
+
+        function initCanvas(){
+            canvas = document.getElementById("container");
+            canvas.style.visibility = "visible";
+            canvas.width = window.innerWidth; //document.width is obsolete
+            canvas.height = window.innerHeight; //document.height is obsolete
+            centerLine = Math.round(canvas.width/2);
+
+            ctx = canvas.getContext("2d");
+            updateBarStorage();
+            window.requestAnimationFrame(drawBars);
+        }
+
+        (function () {
+            document.getElementById('fullscreen').addEventListener('click', function () {
+                 document.body.requestFullscreen();
+                 this.style.visibility = "hidden";
+                 socket.emit('start-experiment', 1);
+                 initCanvas();
+            });
+            document.getElementById('restart').addEventListener('click', function () {
+                window.location.reload(true);
+            });
+        })();
+
+    </script>
+
+</body>
+
+</html>
