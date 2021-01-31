@@ -154,3 +154,6 @@ dmypy.json
 
 
 repeater*csv
+
+
+.autoenv*

@@ -266,9 +266,29 @@ def hello():
     fthread.daemon = True
     fthread.start()
     try:
-        return render_template('fictrac.html')
+        #return render_template('fictrac.html')
+        return render_template('fictrac_canvas.html')
     except TemplateNotFound:
         abort(404)
+
+def localmove():
+    while True:
+        nmbr = random.randint(1, 20)
+        socketio.emit('screen', 0)
+        socketio.emit('spatfreq', nmbr)
+        time.sleep(0.5)
+        socketio.emit('screen', 1)
+        dstn = random.choice([1, 0.5, 2, 0.3, 3])
+        direction = random.choice([-1, 1])
+        rotateStripes(10000, dstn * direction)
+
+
+@app.route('/ldev/')
+def local_dev():
+    mthread = Thread(target=localmove)
+    mthread.daemon = True
+    mthread.start()
+    return render_template('fictrac_canvas.html')
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port = 17000)
