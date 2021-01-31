@@ -100,6 +100,23 @@ def experiment():
     #savedata(sharedKey, "tether-start", "15:05:00")
     #savedata(sharedKey, "sex", "")
     
+    # savedata(sharedKey, "fly-strain", "empty-split")
+    # savedata(sharedKey, "ball", "13")
+    # savedata(sharedKey, "air", "pump")
+    # savedata(sharedKey, "glue", "KOA")    
+    # savedata(sharedKey, "starvation-start", "2020-11-29 16:25:00")
+    
+    # savedata(sharedKey, "fly", 130)
+    # savedata(sharedKey, "tether-start", "2020-11-29 16:45:00")
+    # savedata(sharedKey, "fly", 131)
+    # savedata(sharedKey, "tether-start", "2020-11-29 16:50:00")
+    # savedata(sharedKey, "fly", 132)
+    # savedata(sharedKey, "tether-start", "2020-11-29 16:55:00")
+    # savedata(sharedKey, "fly", 133)
+    # savedata(sharedKey, "tether-start", "2020-11-29 17:00:00")
+    # savedata(sharedKey, "fly", 134)
+    # savedata(sharedKey, "tether-start", "2020-11-29 17:05:00")
+
 
     savedata(sharedKey, "temperature", 34)
     savedata(sharedKey, "distance", 35)
