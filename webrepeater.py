@@ -132,7 +132,8 @@ def experiment():
     savedata(sharedKey, "protocol", 3)
     
     # ### Experiment
-    startOffTime = 15000
+    # FIXME: reactivate startOffTime = 15000
+    startOffTime = 150
     savedata(0, "screen-off-experiment-start", startOffTime)
     turnOffScreen(startOffTime)
     trialnr = 1
@@ -162,6 +163,7 @@ def rotateStripes(duration=3000, direction=1):
         sharedKey = time.time_ns()
         savedata(sharedKey, "send-stripe-update", direction)
         socketio.emit('direction', (sharedKey, 0, direction))
+        socketio.emit('speed', direction*100)
         time.sleep(0.01)
 
 def turnOffScreen(duration=1000, background="#000000"):

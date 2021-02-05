@@ -49,6 +49,9 @@
         let serverCounter = 0;
         let serverTimestamp;
 
+        let previousFrameTS;
+        let barSpeed = 100;
+
         let spatialCycle = 5;
         let onBarColor = "#00FF00";
         let centerLine;
@@ -71,12 +74,16 @@
         });
 
         socket.on('direction', function(cnt, ts, diff){
-            if(typeof(canvas) != 'undefined'){
-                let barWidth = (canvas.width/spatialCycle)/2;
-                offset = (offset + barWidth * diff/100) % (2*barWidth);
-                serverCounter = cnt;
-                serverTimestamp = ts;
-            }
+            // if(typeof(canvas) != 'undefined'){
+            //     let barWidth = (canvas.width/spatialCycle)/2;
+            //     offset = (offset + barWidth * diff/100) % (2*barWidth);
+            //     serverCounter = cnt;
+            //     serverTimestamp = ts;
+            // }
+        });
+
+        socket.on('speed', function(speed){
+            barSpeed = speed;
         });
 
         socket.on('spatfreq', function(newCycle){
@@ -96,14 +103,23 @@
         });
 
         function drawBars(timestamp) {
+            if (previousFrameTS === undefined)
+                previousFrameTS = timestamp;
+            const elapsedTime = (timestamp - previousFrameTS)/1000;
+
             ctx.fillStyle = onBarColor;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (screenOn){
+                
+                let barWidth = (canvas.width/spatialCycle)/2;
+                offset = (offset + barWidth * barSpeed*elapsedTime/100) % (2*barWidth);
+
                 bars.forEach(function(i){
                     ctx.fillRect(offset + i[0], 0, i[1], canvas.height);
                 });
                 socket.emit('display', {cnt: serverCounter, counter: offset});
             }
+            previousFrameTS = timestamp;
             window.requestAnimationFrame(drawBars);
         }
 
