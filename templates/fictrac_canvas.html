@@ -46,13 +46,13 @@
         var gain = 1;
         var socket = io();
 
-        let serverCounter = 0;
-        let serverTimestamp;
+        let sharedKey = 0;
 
         let previousFrameTS;
         let barSpeed = 100;
 
         let spatialCycle = 5;
+        let barWidth = 200 ;
         let onBarColor = "#00FF00";
         let centerLine;
         let offset = 0;
@@ -73,22 +73,15 @@
             }
         });
 
-        socket.on('direction', function(cnt, ts, diff){
-            // if(typeof(canvas) != 'undefined'){
-            //     let barWidth = (canvas.width/spatialCycle)/2;
-            //     offset = (offset + barWidth * diff/100) % (2*barWidth);
-            //     serverCounter = cnt;
-            //     serverTimestamp = ts;
-            // }
-        });
-
-        socket.on('speed', function(speed){
+        socket.on('speed', function(key, speed){ // in Hz
+            sharedKey = key;
             barSpeed = speed;
         });
 
         socket.on('spatfreq', function(newCycle){
             if(typeof(canvas) != 'undefined'){
                 spatialCycle = newCycle;
+                barWidth = (canvas.width/spatialCycle)/2;
                 updateBarStorage();
             }
         });
@@ -102,6 +95,8 @@
 
         });
 
+
+
         function drawBars(timestamp) {
             if (previousFrameTS === undefined)
                 previousFrameTS = timestamp;
@@ -111,20 +106,20 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (screenOn){
                 
-                let barWidth = (canvas.width/spatialCycle)/2;
-                offset = (offset + barWidth * barSpeed*elapsedTime/100) % (2*barWidth);
+                
+                offset = (offset + barWidth * barSpeed*elapsedTime) % (2*barWidth);
 
                 bars.forEach(function(i){
                     ctx.fillRect(offset + i[0], 0, i[1], canvas.height);
                 });
-                socket.emit('display', {cnt: serverCounter, counter: offset});
+                socket.emit('display', {cnt: sharedKey, counter: offset});
             }
             previousFrameTS = timestamp;
+            
             window.requestAnimationFrame(drawBars);
         }
 
         function updateBarStorage(){
-            let barWidth = (canvas.width/spatialCycle)/2;
             bars = [];
             for (let i = -1; i< spatialCycle + 1; i++){
                 bars.push([i*2*barWidth, barWidth] );

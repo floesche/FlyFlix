@@ -73,6 +73,7 @@ def trial(spatial, temporal, fictracGain):
     savedata(sharedKey, "move-duration", trialLength)
     rotateStripes(trialLength, temporal)
     savedata(sharedKey, "screen-off-end", endOffTime)
+    socketio.emit('speed', (sharedKey, 0))
     turnOffScreen(endOffTime)
     savedata(sharedKey, "screen-on-end")
     socketio.emit('screen', 1)
@@ -132,8 +133,7 @@ def experiment():
     savedata(sharedKey, "protocol", 3)
     
     # ### Experiment
-    # FIXME: reactivate startOffTime = 15000
-    startOffTime = 150
+    startOffTime = 15000
     savedata(0, "screen-off-experiment-start", startOffTime)
     turnOffScreen(startOffTime)
     trialnr = 1
@@ -141,13 +141,19 @@ def experiment():
     while trialnr < 5:
         trialnr = trialnr + 1
         savedata(sharedKey, "trial-nr-start", trialnr)
-        for i in random.sample([10, 7, 15, 5, 2, 20, 1], k=7):
-            for j in random.sample([1, 0.5, 2, 0.3, 3, 0.1, 5], k=7):
-                for k in random.sample([-1, 1], k=2):
-                    savedata(sharedKey, "condition-nr-start", conditionnr)
-                    trial(i, j*k, random.randrange(10, 100, 10))
-                    savedata(sharedKey, "condition-nr-end", conditionnr)
-                    conditionnr = conditionnr + 1
+        trials = list()
+        for i in [10, 7, 15, 5, 2, 20, 1]:
+            for j in [1, 0.5, 2, 0.3, 3, 0.1, 5]:
+                for k in [-1, 1]:
+                    trials.append([i, j*k])
+
+        trials = random.sample(trials, k=len(trials))
+
+        for currentTrial in trials:
+            savedata(sharedKey, "condition-nr-start", conditionnr)
+            trial(currentTrial[0], currentTrial[1], random.randrange(10, 100, 10))
+            savedata(sharedKey, "condition-nr-end", conditionnr)
+            conditionnr = conditionnr + 1
         savedata(sharedKey, "trial-nr-end", trialnr)
         
     savedata(sharedKey, "end-screen-off")
@@ -159,11 +165,10 @@ def experiment():
 
 def rotateStripes(duration=3000, direction=1):
     ttime = datetime.now() + timedelta(milliseconds=duration)
+    sharedKey = time.time_ns()
+    savedata(sharedKey, "send-stripe-update", direction)
+    socketio.emit('speed', (sharedKey, direction))
     while datetime.now() < ttime:
-        sharedKey = time.time_ns()
-        savedata(sharedKey, "send-stripe-update", direction)
-        socketio.emit('direction', (sharedKey, 0, direction))
-        socketio.emit('speed', direction*100)
         time.sleep(0.01)
 
 def turnOffScreen(duration=1000, background="#000000"):
@@ -237,7 +242,7 @@ def listenFictrac(duration=3000):
             savedata(ts, "heading", heading)
             if updateFictrac:
                 savedata(cnt, "updateval", updateval)
-                socketio.emit('direction', (cnt, ts, updateval))
+                socketio.emit('speed', (cnt, updateval))
 
             prevheading = heading
 
