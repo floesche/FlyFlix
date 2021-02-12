@@ -94,33 +94,46 @@ def experiment():
     sharedKey = time.time()
     savedata(sharedKey, "init-screen-off")
     
-
-    savedata(sharedKey, "starvation-start", "2020-11-22 11:40:00")
+    
+    savedata(sharedKey, "day-start", "7:00:00")
     savedata(sharedKey, "fly-strain", "DL")
-    savedata(sharedKey, "fly", 70)
-    #savedata(sharedKey, "tether-start", "15:05:00")
-    #savedata(sharedKey, "sex", "")
-    
-    # savedata(sharedKey, "fly-strain", "empty-split")
-    # savedata(sharedKey, "ball", "13")
-    # savedata(sharedKey, "air", "pump")
-    # savedata(sharedKey, "glue", "KOA")    
-    # savedata(sharedKey, "starvation-start", "2020-11-29 16:25:00")
-    
-    # savedata(sharedKey, "fly", 130)
-    # savedata(sharedKey, "tether-start", "2020-11-29 16:45:00")
-    # savedata(sharedKey, "fly", 131)
-    # savedata(sharedKey, "tether-start", "2020-11-29 16:50:00")
-    # savedata(sharedKey, "fly", 132)
-    # savedata(sharedKey, "tether-start", "2020-11-29 16:55:00")
-    # savedata(sharedKey, "fly", 133)
-    # savedata(sharedKey, "tether-start", "2020-11-29 17:00:00")
-    # savedata(sharedKey, "fly", 134)
-    # savedata(sharedKey, "tether-start", "2020-11-29 17:05:00")
-
-
-    savedata(sharedKey, "temperature", 34)
     savedata(sharedKey, "distance", 35)
+
+    savedata(sharedKey, "temperature", 32)
+    savedata(sharedKey, "ball", "1")
+    savedata(sharedKey, "air", "wall")
+    savedata(sharedKey, "glue", "KOA")    
+    
+    savedata(sharedKey, "starvation-start", "2021-02-11 14:00:00")
+    savedata(sharedKey, "fly-batch", "2021-01-23")
+    # savedata(sharedKey, "fly", 230)
+    # savedata(sharedKey, "tether-start", "2012-02-11 15:55:00")
+    # savedata(sharedKey, "sex", "")
+
+    # savedata(sharedKey, "fly", 231)
+    # savedata(sharedKey, "tether-start", "2012-02-11 16:00:00")
+    # savedata(sharedKey, "sex", "")
+
+    # savedata(sharedKey, "fly", 232)
+    # savedata(sharedKey, "tether-start", "2012-02-11 16:09:00")
+    # savedata(sharedKey, "sex", "")
+
+    # savedata(sharedKey, "fly", 233)
+    # savedata(sharedKey, "tether-start", "2012-02-11 18:52:00")
+    # savedata(sharedKey, "sex", "")
+
+    # savedata(sharedKey, "fly", 234)
+    # savedata(sharedKey, "tether-start", "2012-02-11 18:56:00")
+    # savedata(sharedKey, "sex", "")
+
+    # savedata(sharedKey, "fly", 235)
+    # savedata(sharedKey, "tether-start", "2012-02-11 19:04:00")
+    # savedata(sharedKey, "sex", "")
+
+    savedata(sharedKey, "fly", 236)
+    savedata(sharedKey, "tether-start", "2012-02-11 19:09:00")
+    savedata(sharedKey, "sex", "")
+
 
     socketio.emit('screen', 0)
     while not start:
@@ -130,7 +143,7 @@ def experiment():
     savedata(sharedKey, "display", "fire")
     savedata(sharedKey, "color", "#00FF00")
     savedata(sharedKey, "screen-brightness", 25)
-    savedata(sharedKey, "protocol", 3)
+    savedata(sharedKey, "protocol", 4)
     
     # ### Experiment
     startOffTime = 15000
@@ -142,9 +155,9 @@ def experiment():
         trialnr = trialnr + 1
         savedata(sharedKey, "trial-nr-start", trialnr)
         trials = list()
-        for i in [10, 7, 15, 5, 2, 20, 1]:
-            for j in [1, 0.5, 2, 0.3, 3, 0.1, 5]:
-                for k in [-1, 1]:
+        for i in [1, 2, 4, 8, 16]: # Nr of bars
+            for j in [0.1, 0.5, 1, 2, 4, 8, 16, 32]: # in Hz
+                for k in [-1, 1]: # direction
                     trials.append([i, j*k])
 
         trials = random.sample(trials, k=len(trials))
