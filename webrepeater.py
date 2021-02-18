@@ -143,7 +143,7 @@ def experiment():
     savedata(sharedKey, "display", "fire")
     savedata(sharedKey, "color", "#00FF00")
     savedata(sharedKey, "screen-brightness", 25)
-    savedata(sharedKey, "protocol", 4)
+    savedata(sharedKey, "protocol", 5)
     
     # ### Experiment
     startOffTime = 15000
@@ -309,15 +309,23 @@ def hello():
         abort(404)
 
 def localmove():
+    while not start:
+        time.sleep(0.1)
     while True:
-        nmbr = random.randint(1, 20)
-        socketio.emit('screen', 0)
-        socketio.emit('spatfreq', nmbr)
-        time.sleep(0.5)
-        socketio.emit('screen', 1)
-        dstn = random.choice([1, 0.5, 2, 0.3, 3])
+        #nmbr = random.randint(1, 20)
+        spatial = 1
+        frequency = 1 #0.1, 0.5, 1, 2, 4, 8, 16, 32
+
+        changeSpatOff(spatial, 500)
+        # socketio.emit('screen', 0)
+        # time.sleep(0.05)
+        # socketio.emit('spatfreq', spatial)
+        # time.sleep(0.5)
+        # socketio.emit('screen', 1)
+        #dstn = random.choice([1, 0.5, 2, 0.3, 3])
         direction = random.choice([-1, 1])
-        rotateStripes(10000, dstn * direction)
+        direction=1
+        rotateStripes(10000, frequency * direction)
 
 
 @app.route('/ldev/')

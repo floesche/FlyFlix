@@ -75,7 +75,7 @@
 
         socket.on('speed', function(key, speed){ // in Hz
             sharedKey = key;
-            barSpeed = speed;
+            barSpeed = speed*2;
         });
 
         socket.on('spatfreq', function(newCycle){
