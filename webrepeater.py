@@ -1,6 +1,5 @@
 #!/bin/env python
 
-
 from flask import Flask, render_template, url_for, request, abort
 from flask_socketio import SocketIO
 from jinja2 import TemplateNotFound
@@ -27,11 +26,8 @@ start = False
 updateFictrac = False
 fictracGain = 100
 
-
-
 from engineio.payload import Payload
 Payload.max_decode_packets = 500
-
 
 # Using eventlet breaks UDP reading thread unless patched. See http://eventlet.net/doc/basic_usage.html?highlight=monkey_patch#patching-functions for more.
 #
@@ -40,9 +36,7 @@ import eventlet
 eventlet.monkey_patch()
 socketio = SocketIO(app)
 
-
 # socketio = SocketIO(app, async_mode='threading')
-
 
 @app.before_first_request
 def before_first_request():
@@ -62,24 +56,24 @@ def savedata(shared, key, value=0):
     app.logger.info([shared, key, value])
 
 def trial(spatial, temporal, fictracGain):
-    startOffTime = 1000
-    trialLength = 3000
-    endOffTime = 500
+    preTrialDuration = 1000
+    trialDuration = 3000
+    postTrialDuration = 500
     closedLoopTime = 1500
     sharedKey = time.time()
-    savedata(sharedKey, "screen-spat-off", startOffTime)
-    changeSpatOff(spatial, startOffTime)
+    savedata(sharedKey, "pre-trial-duration", preTrialDuration)
+    changeSpatOff(spatial, preTrialDuration)
     savedata(sharedKey, "move-speed", temporal)
-    savedata(sharedKey, "move-duration", trialLength)
-    rotateStripes(trialLength, temporal)
-    savedata(sharedKey, "screen-off-end", endOffTime)
+    savedata(sharedKey, "open-loop-duration", trialDuration)
+    rotateStripes(trialDuration, temporal)
+    savedata(sharedKey, "post-trial-duration", postTrialDuration)
     socketio.emit('speed', (sharedKey, 0))
-    turnOffScreen(endOffTime)
-    savedata(sharedKey, "screen-on-end")
+    turnOffScreen(postTrialDuration)
+    savedata(sharedKey, "post-trial-end")
     socketio.emit('screen', 1)
-    savedata(sharedKey, "fictrac-on", fictracGain)
+    savedata(sharedKey, "closed-loop-start", fictracGain)
     turnOnFictrac(closedLoopTime, fictracGain)
-    savedata(sharedKey, "fictrac-off")
+    savedata(sharedKey, "closed-loop-end")
 
 def calibrate():
     sharedKey = time.time()
@@ -92,7 +86,7 @@ def calibrate():
 
 def experiment():
     sharedKey = time.time()
-    savedata(sharedKey, "init-screen-off")
+    savedata(sharedKey, "pre-experiment-begin")
     
     
     savedata(sharedKey, "day-start", "7:00:00")
@@ -102,8 +96,11 @@ def experiment():
     savedata(sharedKey, "temperature", 32)
     savedata(sharedKey, "ball", "1")
     savedata(sharedKey, "air", "wall")
-    savedata(sharedKey, "glue", "KOA")    
-    
+    savedata(sharedKey, "glue", "KOA")
+
+
+    savedata(sharedKey, "birthdate-from", "2021-02-17 19:00:00")
+    savedata(sharedKey, "birthdate-to", "2021-02-18 20:00:00")
     savedata(sharedKey, "starvation-start", "2021-02-11 14:00:00")
     savedata(sharedKey, "fly-batch", "2021-01-23")
     # savedata(sharedKey, "fly", 230)
@@ -134,26 +131,28 @@ def experiment():
     savedata(sharedKey, "tether-start", "2012-02-11 19:09:00")
     savedata(sharedKey, "sex", "")
 
-
-    socketio.emit('screen', 0)
-    while not start:
-        time.sleep(0.1)
-    savedata(sharedKey, "init-screen-on")
-    socketio.emit('screen', 1)
     savedata(sharedKey, "display", "fire")
     savedata(sharedKey, "color", "#00FF00")
     savedata(sharedKey, "screen-brightness", 25)
-    savedata(sharedKey, "protocol", 5)
+    savedata(sharedKey, "protocol", 6)
+
+
+    savedata(sharedKey, "pre-experiment-screen-off")
+    socketio.emit('screen', 0)
+    while not start:
+        time.sleep(0.1)
+    savedata(sharedKey, "pre-experiment-screen-on")
+    socketio.emit('screen', 1)
     
     # ### Experiment
-    startOffTime = 15000
-    savedata(0, "screen-off-experiment-start", startOffTime)
-    turnOffScreen(startOffTime)
-    trialnr = 1
-    conditionnr = 1
-    while trialnr < 5:
-        trialnr = trialnr + 1
-        savedata(sharedKey, "trial-nr-start", trialnr)
+    preExperimentDuration = 15000
+    savedata(0, "pre-experiment-duration", preExperimentDuration)
+    turnOffScreen(preExperimentDuration)
+    blockRepetitionCount = 1
+    trialCount = 1
+    while blockRepetitionCount < 5:
+        blockRepetitionCount = blockRepetitionCount + 1
+        savedata(sharedKey, "block-repetition-count-start", blockRepetitionCount)
         trials = list()
         for i in [1, 2, 4, 8, 16]: # Nr of bars
             for j in [0.1, 0.5, 1, 2, 4, 8, 16, 32]: # in Hz
@@ -163,11 +162,11 @@ def experiment():
         trials = random.sample(trials, k=len(trials))
 
         for currentTrial in trials:
-            savedata(sharedKey, "condition-nr-start", conditionnr)
+            savedata(sharedKey, "trial-count-start", trialCount)
             trial(currentTrial[0], currentTrial[1], random.randrange(10, 100, 10))
-            savedata(sharedKey, "condition-nr-end", conditionnr)
-            conditionnr = conditionnr + 1
-        savedata(sharedKey, "trial-nr-end", trialnr)
+            savedata(sharedKey, "trial-count-end", trialCount)
+            trialCount = trialCount + 1
+        savedata(sharedKey, "block-repetition-count-end", blockRepetitionCount)
         
     savedata(sharedKey, "end-screen-off")
     socketio.emit('screen', 0)
@@ -216,8 +215,6 @@ def turnOnFictrac(duration=3000, gain=100):
         time.sleep(0.01)
     updateFictrac = False
     savedata(sharedKey, "fictrac-end")
-    
-    
 
 def listenFictrac(duration=3000):
     ttime = datetime.now() + timedelta(milliseconds=duration)
@@ -313,8 +310,8 @@ def localmove():
         time.sleep(0.1)
     while True:
         #nmbr = random.randint(1, 20)
-        spatial = 1
-        frequency = 1 #0.1, 0.5, 1, 2, 4, 8, 16, 32
+        spatial = 0.05
+        frequency = 0.5 #0.1, 0.5, 1, 2, 4, 8, 16, 32
 
         changeSpatOff(spatial, 500)
         # socketio.emit('screen', 0)
@@ -324,7 +321,7 @@ def localmove():
         # socketio.emit('screen', 1)
         #dstn = random.choice([1, 0.5, 2, 0.3, 3])
         direction = random.choice([-1, 1])
-        direction=1
+        direction=-1
         rotateStripes(10000, frequency * direction)
 
 

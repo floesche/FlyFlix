@@ -57,6 +57,7 @@
         let centerLine;
         let offset = 0;
         let screenOn = true;
+        let followObject = false;
 
         let canvas; 
         let ctx;
@@ -65,26 +66,18 @@
 
         socket.on('connect', function(){});
         socket.on('event', function(data){});
+
         socket.on('disconnect', function(){
             if(typeof(canvas) != 'undefined'){
-            canvas.style.visibility = "hidden";
-            let elem = document.getElementById('restart');
-            elem.style.visibility = "visible";
+                canvas.style.visibility = "hidden";
+                let elem = document.getElementById('restart');
+                elem.style.visibility = "visible";
             }
         });
 
-        socket.on('speed', function(key, speed){ // in Hz
-            sharedKey = key;
-            barSpeed = speed*2;
-        });
+        socket.on('speed', (key, speed) => {setSharedKey(key); setSpeed(speed);});
 
-        socket.on('spatfreq', function(newCycle){
-            if(typeof(canvas) != 'undefined'){
-                spatialCycle = newCycle;
-                barWidth = (canvas.width/spatialCycle)/2;
-                updateBarStorage();
-            }
-        });
+        socket.on('spatfreq', data => {setSpatial(data);});
 
         socket.on('screen', function(onoff){
             if (onoff == 0){
@@ -92,10 +85,30 @@
             } else {
                 screenOn = true;
             }
-
         });
 
+        function setSharedKey(key){
+            sharedKey = key;
+        }
 
+        function setSpeed(speed){
+            barSpeed = speed*2;
+        }
+
+        function setSpatial(newCycle){
+            if(typeof(canvas) != 'undefined'){
+                if (newCycle < 1){
+                    followObject = true;
+                    spatialCycle = 1;
+                    barWidth = newCycle * canvas.width;
+                } else {
+                    followObject = false;
+                    spatialCycle = newCycle;
+                    barWidth = (canvas.width/spatialCycle)/2;
+                }
+                updateBarStorage();
+            }
+        }
 
         function drawBars(timestamp) {
             if (previousFrameTS === undefined)
@@ -105,13 +118,17 @@
             ctx.fillStyle = onBarColor;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (screenOn){
-                
-                
+                if (followObject){
+                    offset = ((offset + canvas.width/2 * barSpeed * elapsedTime) + canvas.width) % canvas.width;
+                    ctx.fillRect(offset, 0, barWidth, canvas.height);
+
+                } else {
                 offset = (offset + barWidth * barSpeed*elapsedTime) % (2*barWidth);
 
                 bars.forEach(function(i){
                     ctx.fillRect(offset + i[0], 0, i[1], canvas.height);
                 });
+                }
                 socket.emit('display', {cnt: sharedKey, counter: offset});
             }
             previousFrameTS = timestamp;
