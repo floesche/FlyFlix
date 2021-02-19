@@ -56,8 +56,12 @@
         let onBarColor = "#00FF00";
         let centerLine;
         let offset = 0;
+        let paintoffset = 0;
         let screenOn = true;
-        let followObject = false;
+        let showSingleBar = false;
+        let sweepcount = 0;
+        let nthframe = 1;
+        let framecounter = 0;
 
         let canvas; 
         let ctx;
@@ -79,6 +83,17 @@
 
         socket.on('spatfreq', data => {setSpatial(data);});
 
+        socket.on('sweepcount', data => {setSweepCount(data);});
+
+        socket.on('nthframe', data => {setNthFrame(data);});
+
+        // socket.on('spatial-temporal', (key, spatial, temporal) => {
+        //     setSharedKey(key);
+        //     if (temporal < 0){offset = canvas.width;}
+        //     setSpatial(spatial);
+        //     setSpeed(temporal);
+        // })
+
         socket.on('screen', function(onoff){
             if (onoff == 0){
                 screenOn = false;
@@ -86,6 +101,14 @@
                 screenOn = true;
             }
         });
+
+        function setSweepCount(counter){
+            sweepcount = counter;
+        }
+
+        function setNthFrame(counter){
+            nthframe = counter;
+        }
 
         function setSharedKey(key){
             sharedKey = key;
@@ -98,11 +121,11 @@
         function setSpatial(newCycle){
             if(typeof(canvas) != 'undefined'){
                 if (newCycle < 1){
-                    followObject = true;
+                    showSingleBar = true;
                     spatialCycle = 1;
                     barWidth = newCycle * canvas.width;
                 } else {
-                    followObject = false;
+                    showSingleBar = false;
                     spatialCycle = newCycle;
                     barWidth = (canvas.width/spatialCycle)/2;
                 }
@@ -111,28 +134,47 @@
         }
 
         function drawBars(timestamp) {
-            if (previousFrameTS === undefined)
+            if (previousFrameTS === undefined){
                 previousFrameTS = timestamp;
+                if(barSpeed < 0){
+                    offset = canvas.width - 0.001;
+                } else {
+                    offset = 0;
+                }
+            }
             const elapsedTime = (timestamp - previousFrameTS)/1000;
 
             ctx.fillStyle = onBarColor;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            framecounter = (framecounter + 1) % nthframe;
+
             if (screenOn){
-                if (followObject){
-                    offset = ((offset + canvas.width/2 * barSpeed * elapsedTime) + canvas.width) % canvas.width;
-                    ctx.fillRect(offset, 0, barWidth, canvas.height);
-
+                if (showSingleBar){
+                    let updateval = (offset + canvas.width/2 * barSpeed * elapsedTime);
+                    offset = ( updateval + canvas.width) % canvas.width;
+                    if (framecounter == 0){
+                        paintoffset = offset;
+                    }
+                    ctx.fillRect(paintoffset, 0, barWidth, canvas.height);
+                    if (updateval < 0 || updateval > canvas.width){
+                        sweepcount = sweepcount - 1;
+                        if (sweepcount == 0){
+                            socket.emit('sweep-counter', sweepcount);
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        }
+                    } 
                 } else {
-                offset = (offset + barWidth * barSpeed*elapsedTime) % (2*barWidth);
-
-                bars.forEach(function(i){
-                    ctx.fillRect(offset + i[0], 0, i[1], canvas.height);
-                });
+                    offset = (offset + barWidth * barSpeed*elapsedTime) % (2*barWidth);
+                    if (framecounter == 0){
+                        paintoffset = offset;
+                    }
+                    bars.forEach(function(i){
+                        ctx.fillRect(paintoffset + i[0], 0, i[1], canvas.height);
+                    });
                 }
-                socket.emit('display', {cnt: sharedKey, counter: offset});
+                socket.emit('display', {cnt: sharedKey, counter: paintoffset});
             }
             previousFrameTS = timestamp;
-            
             window.requestAnimationFrame(drawBars);
         }
 

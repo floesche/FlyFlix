@@ -25,6 +25,7 @@ app = Flask(__name__)
 start = False
 updateFictrac = False
 fictracGain = 100
+sweepCounterReached = False
 
 from engineio.payload import Payload
 Payload.max_decode_packets = 500
@@ -65,7 +66,7 @@ def trial(spatial, temporal, fictracGain):
     changeSpatOff(spatial, preTrialDuration)
     savedata(sharedKey, "move-speed", temporal)
     savedata(sharedKey, "open-loop-duration", trialDuration)
-    rotateStripes(trialDuration, temporal)
+    moveOpenLoop(trialDuration, temporal)
     savedata(sharedKey, "post-trial-duration", postTrialDuration)
     socketio.emit('speed', (sharedKey, 0))
     turnOffScreen(postTrialDuration)
@@ -172,16 +173,30 @@ def experiment():
     socketio.emit('screen', 0)
     ### Calibration
     # calibrate()
-    
-    
 
-def rotateStripes(duration=3000, direction=1):
+def moveOpenLoop(duration=3000, direction=1, nthframe = 1):
     ttime = datetime.now() + timedelta(milliseconds=duration)
     sharedKey = time.time_ns()
     savedata(sharedKey, "send-stripe-update", direction)
     socketio.emit('speed', (sharedKey, direction))
+    savedata(sharedKey, "show-only-nth-frame", nthframe)
+    socketio.emit('nthframe', nthframe)
     while datetime.now() < ttime:
         time.sleep(0.01)
+
+def moveSweep(sweepCount=1, direction=1, nthframe = 1):
+    sharedKey = time.time_ns()
+    savedata(sharedKey, "send-stripe-update", direction)
+    socketio.emit('speed', (sharedKey, direction))
+    savedata(sharedKey, "send-sweep-reset", sweepCount)
+    socketio.emit('sweepcount', 1)
+    savedata(sharedKey, "show-only-nth-frame", nthframe)
+    socketio.emit('nthframe', nthframe)
+    global sweepCounterReached
+    sweepCounterReached = False
+    while not sweepCounterReached:
+        time.sleep(0.01)
+
 
 def turnOffScreen(duration=1000, background="#000000"):
     ttime = datetime.now() + timedelta(milliseconds=duration)
@@ -251,7 +266,7 @@ def listenFictrac(duration=3000):
             updateval = (heading-prevheading) * fictracGain * -1
             savedata(ts, "heading", heading)
             if updateFictrac:
-                savedata(cnt, "updateval", updateval)
+                savedata(cnt, "fictrac-change-speed", updateval)
                 socketio.emit('speed', (cnt, updateval))
 
             prevheading = heading
@@ -264,10 +279,6 @@ def connect():
 def disconnect():
     print("Client disconnected", request.sid)
 
-@socketio.on('my event')
-def handle_my_custom_event(json):
-    print('received json: ' + str(json))
-
 @socketio.on('start-experiment')
 def finally_start(number):
     # FIXME: bad practice. Will break at some point
@@ -275,13 +286,18 @@ def finally_start(number):
     start = True
 
 @socketio.on('slog')
-def server_log(key, value):
+def server_log(json):
     sharedKey = time.time()
-    savedata(sharedKey, key, value)
+    savedata(sharedKey, json['key'], json['value'])
 
 @socketio.on('display')
 def display_event(json):
-    savedata(json['cnt'], "display-receive", json['counter'])
+    savedata(json['cnt'], "display-offset", json['counter'])
+
+@socketio.on('sweep-counter')
+def sweepCounterReached(counter):
+    global sweepCounterReached
+    sweepCounterReached = True
 
 @app.route('/')
 def hello_world():
@@ -310,19 +326,30 @@ def localmove():
         time.sleep(0.1)
     while True:
         #nmbr = random.randint(1, 20)
-        spatial = 0.05
-        frequency = 0.5 #0.1, 0.5, 1, 2, 4, 8, 16, 32
+        # spatial = 0.25
+        # frequency = 1 #0.1, 0.5, 1, 2, 4, 8, 16, 32
+        # direction = random.choice([-1, 1])
+        # direction=-1
 
-        changeSpatOff(spatial, 500)
-        # socketio.emit('screen', 0)
-        # time.sleep(0.05)
-        # socketio.emit('spatfreq', spatial)
-        # time.sleep(0.5)
-        # socketio.emit('screen', 1)
-        #dstn = random.choice([1, 0.5, 2, 0.3, 3])
-        direction = random.choice([-1, 1])
-        direction=-1
-        rotateStripes(10000, frequency * direction)
+        # changeSpatOff(spatial, 500)
+        # # socketio.emit('screen', 0)
+        # # time.sleep(0.05)
+        # # socketio.emit('spatfreq', spatial)
+        # # time.sleep(0.5)
+        # # socketio.emit('screen', 1)
+        # #dstn = random.choice([1, 0.5, 2, 0.3, 3])
+        
+        # #moveOpenLoop(10000, frequency * direction)
+        # moveSweep(1, frequency * direction)
+        # time.sleep(1)
+        # socketio.emit('spatfreq', 2)
+        # time.sleep(1)
+
+        #trial(currentTrial[0], currentTrial[1], random.randrange(10, 100, 10))
+        trial(0.25, 1, 10)
+        
+        #moveOpenLoop(1000, frequency * direction)
+        
 
 
 @app.route('/ldev/')
