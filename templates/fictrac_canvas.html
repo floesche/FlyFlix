@@ -124,6 +124,11 @@
                     showSingleBar = true;
                     spatialCycle = 1;
                     barWidth = newCycle * canvas.width;
+                    if(barSpeed < 0){
+                        offset = canvas.width - 0.001;
+                    } else {
+                        offset = 0;
+                    }
                 } else {
                     showSingleBar = false;
                     spatialCycle = newCycle;
@@ -150,19 +155,20 @@
 
             if (screenOn){
                 if (showSingleBar){
-                    let updateval = (offset + canvas.width/2 * barSpeed * elapsedTime);
+                    //let updateval = (offset + canvas.width/2 * barSpeed * elapsedTime);
+                    let updateval = (offset + barWidth * barSpeed * elapsedTime);
                     offset = ( updateval + canvas.width) % canvas.width;
-                    if (framecounter == 0){
-                        paintoffset = offset;
-                    }
-                    ctx.fillRect(paintoffset, 0, barWidth, canvas.height);
+                    
                     if (updateval < 0 || updateval > canvas.width){
                         sweepcount = sweepcount - 1;
                         if (sweepcount == 0){
                             socket.emit('sweep-counter', sweepcount);
-                            ctx.clearRect(0, 0, canvas.width, canvas.height);
                         }
-                    } 
+                        offset = paintoffset;
+                    } else if (framecounter == 0){
+                        paintoffset = offset;
+                    }
+                    ctx.fillRect(paintoffset, 0, barWidth, canvas.height);
                 } else {
                     offset = (offset + barWidth * barSpeed*elapsedTime) % (2*barWidth);
                     if (framecounter == 0){

@@ -56,20 +56,25 @@ def before_first_request():
 def savedata(shared, key, value=0):
     app.logger.info([shared, key, value])
 
-def trial(spatial, temporal, fictracGain):
-    preTrialDuration = 1000
+def trial(spatial, temporal, fictracGain, nthframe=1):
+    preTrialDuration = 500
     trialDuration = 3000
     postTrialDuration = 500
-    closedLoopTime = 1500
+    closedLoopTime = 5000
     sharedKey = time.time()
     savedata(sharedKey, "pre-trial-duration", preTrialDuration)
-    changeSpatOff(spatial, preTrialDuration)
+    socketio.emit('speed', (sharedKey, 0))
+    changeSpatOff(spatial, preTrialDuration, 1)
     savedata(sharedKey, "move-speed", temporal)
     savedata(sharedKey, "open-loop-duration", trialDuration)
-    moveOpenLoop(trialDuration, temporal)
+    if spatial<1 :
+        moveSweep(2, temporal, nthframe)
+    else :
+        moveOpenLoop(trialDuration, temporal, nthframe)
+    
     savedata(sharedKey, "post-trial-duration", postTrialDuration)
     socketio.emit('speed', (sharedKey, 0))
-    turnOffScreen(postTrialDuration)
+    turnOffScreen(postTrialDuration, 1)
     savedata(sharedKey, "post-trial-end")
     socketio.emit('screen', 1)
     savedata(sharedKey, "closed-loop-start", fictracGain)
@@ -189,7 +194,7 @@ def moveSweep(sweepCount=1, direction=1, nthframe = 1):
     savedata(sharedKey, "send-stripe-update", direction)
     socketio.emit('speed', (sharedKey, direction))
     savedata(sharedKey, "send-sweep-reset", sweepCount)
-    socketio.emit('sweepcount', 1)
+    socketio.emit('sweepcount', sweepCount)
     savedata(sharedKey, "show-only-nth-frame", nthframe)
     socketio.emit('nthframe', nthframe)
     global sweepCounterReached
@@ -198,18 +203,18 @@ def moveSweep(sweepCount=1, direction=1, nthframe = 1):
         time.sleep(0.01)
 
 
-def turnOffScreen(duration=1000, background="#000000"):
+def turnOffScreen(duration=1000, offvalue=0, background="#000000"):
     ttime = datetime.now() + timedelta(milliseconds=duration)
-    socketio.emit('screen', (0, background))
+    socketio.emit('screen', (offvalue, background))
     while datetime.now() < ttime:
         time.sleep(0.01)
     # socketio.emit('screen', 1)
 
-def changeSpatOff(spatial, duration=1000, background="#000000"):
+def changeSpatOff(spatial, duration=1000, offvalue=0, background="#000000"):
     sharedKey = time.time()
     ttime = datetime.now() + timedelta(milliseconds=duration)
     savedata(sharedKey, "changeSpatOff-duration", duration)
-    socketio.emit('screen', (0, background))
+    socketio.emit('screen', (offvalue, background))
     time.sleep(0.01)
     savedata(sharedKey, "changeSpatOff-spatial", spatial)
     socketio.emit('spatfreq', spatial)
@@ -217,6 +222,7 @@ def changeSpatOff(spatial, duration=1000, background="#000000"):
         time.sleep(0.01)
     savedata(sharedKey, "changeSpatOff-on")
     socketio.emit('screen', 1)
+
 
 def turnOnFictrac(duration=3000, gain=100):
     sharedKey = time.time()
@@ -346,7 +352,14 @@ def localmove():
         # time.sleep(1)
 
         #trial(currentTrial[0], currentTrial[1], random.randrange(10, 100, 10))
-        trial(0.25, 1, 10)
+        #trial(0.25, -1, 10)
+
+        #trial(2, -1, 10)
+        socketio.emit('spatfreq', 0.25)
+        moveSweep(1, 1)
+        time.sleep(1)
+        moveSweep(1, -1)
+        time.sleep(1)
         
         #moveOpenLoop(1000, frequency * direction)
         
@@ -358,6 +371,13 @@ def local_dev():
     mthread.daemon = True
     mthread.start()
     return render_template('fictrac_canvas.html')
+
+@app.route('/bdev/')
+def threedee_dev():
+    mthread = Thread(target=localmove)
+    mthread.daemon = True
+    mthread.start()
+    return render_template('bars.html')
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port = 17000)
