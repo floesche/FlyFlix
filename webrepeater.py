@@ -368,8 +368,9 @@ def localmove():
         #cond1.trigger(socketio)
         cond2.trigger(socketio)
 
-        socketio.emit('rotate-to', (0, math.pi/2))
+        socketio.emit('rotate-to', (0, (-math.pi/2) - 10/180*math.pi))
         time.sleep(3)
+        socketio.emit('spatial-setup', (0, 1, 1))
         #socketio.emit('rotate-by', (2, -0.01));
 
         #trial(2, -1, 10)

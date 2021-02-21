@@ -1,4 +1,4 @@
-import { Group, MathUtils, PlaneBufferGeometry, MeshBasicMaterial, Mesh, BackSide } from '/static/vendor/three.module.js';
+import { Group, MathUtils, PlaneBufferGeometry, CylinderBufferGeometry, MeshBasicMaterial, Mesh, BackSide } from '/static/vendor/three.module.js';
 
 
 
@@ -10,25 +10,24 @@ class Panels extends Group {
         this.arenaRadius = arenaRadius;
         this.arenaHeight = arenaHeight;
 
-        const panelWidth = Math.atan(MathUtils.degToRad(panelAngle / 2)) * arenaRadius * 2;//Math.atan((angle / 2) * Math.PI / 180) * radius * 2;
+        this._setup(panelAngle, intervalAngle);
 
-        const geometry = new PlaneBufferGeometry(panelWidth, arenaHeight)
+    }
+
+    _setup(panelAngle, intervalAngle){
+        const geometry = new CylinderBufferGeometry(this.arenaRadius, this.arenaRadius,this.arenaHeight, 12, 1, true, 0, MathUtils.degToRad(panelAngle))
         const material = new MeshBasicMaterial({ color: 0x00ff00, side:BackSide });
 
         for (let alpha = 0; alpha < 360; alpha += panelAngle + intervalAngle) {
             const bar = new Mesh(geometry, material);
             bar.rotation.y = MathUtils.degToRad(alpha);
-
-            bar.position.x = Math.sin(MathUtils.degToRad(alpha)) * arenaRadius;
-            bar.position.z = Math.cos(MathUtils.degToRad(alpha)) * arenaRadius;
-
             this.add(bar);
         }
-
     }
 
-    update(panelAngle, intervalAngle) {
+    changePanels(panelAngle, intervalAngle) {
         this.clear();
+        this._setup(panelAngle, intervalAngle);
     }
 
     tick(delta){}

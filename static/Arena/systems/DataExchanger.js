@@ -26,7 +26,7 @@ class DataExchanger{
         });
 
         socket.on('spatial-setup', (id, barWidth, spaceWidth) => {
-            panels.update(barWidth, spaceWidth);
+            panels.changePanels(barWidth, spaceWidth);
         });
 
     }
