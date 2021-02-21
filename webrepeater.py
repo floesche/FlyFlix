@@ -301,6 +301,10 @@ def server_log(json):
     sharedKey = time.time()
     savedata(sharedKey, json['key'], json['value'])
 
+@socketio.on('dl')
+def data_logger(clientTS, requestTS, key, value):
+    print(f"{time.time()} | {requestTS} | Key: {key} | value: {value} at {clientTS}")
+
 @socketio.on('display')
 def display_event(json):
     savedata(json['cnt'], "display-offset", json['counter'])
@@ -333,8 +337,11 @@ def hello():
         abort(404)
 
 def localmove():
+    print(start)
+    print("AAAAAAAAAA")
     while not start:
         time.sleep(0.1)
+    print("HHHHH")
     while True:
         #nmbr = random.randint(1, 20)
         # spatial = 0.25
@@ -370,7 +377,7 @@ def localmove():
 
         socketio.emit('rotate-to', (0, (-math.pi/2) - 10/180*math.pi))
         time.sleep(3)
-        socketio.emit('spatial-setup', (0, 1, 1))
+        socketio.emit('spatial-setup', (time.time(), 1, 1))
         #socketio.emit('rotate-by', (2, -0.01));
 
         #trial(2, -1, 10)

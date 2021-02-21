@@ -11,7 +11,6 @@ class Panels extends Group {
         this.arenaHeight = arenaHeight;
 
         this._setup(panelAngle, intervalAngle);
-
     }
 
     _setup(panelAngle, intervalAngle){

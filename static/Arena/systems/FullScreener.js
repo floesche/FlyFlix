@@ -3,6 +3,7 @@ class FullScreener{
         const fullscreenButton = document.createElement("button");
         fullscreenButton.innerHTML = "Fullscreen";
         fullscreenButton.id = "fullscreen";
+        fullscreenButton.classList.add("experiment-controller");
         fullscreenButton.style.position = "absolute";
         fullscreenButton.style.top = "20%";
         fullscreenButton.style.left = "20%";

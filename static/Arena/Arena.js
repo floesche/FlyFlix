@@ -33,6 +33,8 @@ class Arena {
 
         io = new DataExchanger(camera, loop, panels);
 
+        camera.loggable = io;
+
         const resizer = new Resizer(container, camera, renderer);
         // resizer.onResize = () => { this.render(); }
     }

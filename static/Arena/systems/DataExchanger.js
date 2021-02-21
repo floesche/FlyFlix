@@ -4,31 +4,47 @@
 class DataExchanger{
     constructor(camera, loop, panels){
 
-        const socket = io("http://localhost:17000");
+        this.socket = io("http://localhost:17000");
+        this.lid = 0;
 
-        socket.emit('start-experiment', 1);
-        console.log("sent start");
+        // this.socket.emit('start-experiment', 1);
+        
 
-        socket.onAny((event, ...args) => {
+        this.socket.onAny((event, ...args) => {
             console.log(event, args);
           });
 
-        socket.on('speed', (id, speed) => {
+        this.socket.on('disconnect', () => {
+            const endEvent = new Event('end-experiment');
+            camera.setRotateRadHz(0);
+            window.dispatchEvent(endEvent);
+        });
+
+        this.socket.on('speed', (lid, speed) => {
+            this.lid = lid;
             camera.setRotateRadHz(speed);
         });
 
-        socket.on('rotate-to', (id, targetRotationRad) => {
+        this.socket.on('rotate-to', (lid, targetRotationRad) => {
+            this.lid = lid;
             camera.setRotationRad(targetRotationRad);
         })
 
-        socket.on('fps', (id, fps) => {
+        this.socket.on('fps', (lid, fps) => {
+            this.lid = lid;
             loop.setFPS(fps);
         });
 
-        socket.on('spatial-setup', (id, barWidth, spaceWidth) => {
+        this.socket.on('spatial-setup', (lid, barWidth, spaceWidth) => {
+            this.lid = lid;
+            this.log('changerequest-barwidth', barWidth);
             panels.changePanels(barWidth, spaceWidth);
         });
 
+    }
+
+    log(key, value){
+        this.socket.emit('dl', performance.now(), this.lid, key, value);
     }
 
 }
