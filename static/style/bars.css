@@ -20,6 +20,12 @@ body {
     /* make sure that the heading is drawn on top */
     z-index: 1;
   }
+
+  #start{
+    z-index: 1;
+    position: absolute;
+    top: 10%;
+  }
   
   #scene-container {
     /* tell our scene container to take up the full page */

@@ -15,7 +15,7 @@ class Resizer {
         });
     }
       
-    onResize(){}
+    onResize(){};
 }
 
 export { Resizer };

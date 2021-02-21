@@ -3,15 +3,15 @@ import { PlaneBufferGeometry, Mesh, MeshBasicMaterial, DoubleSide} from '/static
 function createCube() {
 
   const angle = 9; // in degree
-  const radius = 35; // in 
+  const radius = 0.1525; // in 
 
   const width = Math.atan((angle / 2) * Math.PI / 180) * radius * 2;
 
   // const geometry = new BoxBufferGeometry(4, 2, 2);
-  const geometry = new PlaneBufferGeometry(width, 150)
+  const geometry = new PlaneBufferGeometry(width, 1)
   const material = new MeshBasicMaterial({ color: 0x00ff00, side: DoubleSide });
   const cube = new Mesh(geometry, material);
-  cube.position.set(0, 10, 100);
+  cube.position.set(0, 0, -0.15);
   return cube;
 }
 

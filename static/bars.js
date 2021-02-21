@@ -1,6 +1,7 @@
 
-import {Arena} from './Arena/Arena.js';
+import { Arena } from './Arena/Arena.js';
 
+import { FullScreener } from './Arena/systems/FullScreener.js';
 
 
 function main() {
@@ -9,6 +10,8 @@ function main() {
   
     // 1. Create an instance of the World app
     const arena = new Arena(container);
+
+    const fullScreenButton = new FullScreener(container);
   
     // 2. Render the scene
     // arena.render();

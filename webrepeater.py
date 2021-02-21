@@ -6,6 +6,7 @@ from jinja2 import TemplateNotFound
 from threading import Thread
 import socket
 import csv
+import math
 import io
 import time
 import logging
@@ -17,6 +18,8 @@ from flask.logging import default_handler
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
+
+from Condition import SpatialTemporal, Duration, OpenLoopCondition
 
 from csv_formatter import CsvFormatter
 
@@ -45,7 +48,7 @@ def before_first_request():
         FICTRAC_HOST = '127.0.0.1',
         FICTRAC_PORT = 1717
     )
-    csv_handler = FileHandler("repeater_{}.csv".format(time.strftime("%Y%m%d_%H%M%S")))
+    csv_handler = FileHandler("data/repeater_{}.csv".format(time.strftime("%Y%m%d_%H%M%S")))
     csv_handler.setFormatter(CsvFormatter())
 
     app.logger.removeHandler(default_handler)
@@ -237,6 +240,7 @@ def turnOnFictrac(duration=3000, gain=100):
     updateFictrac = False
     savedata(sharedKey, "fictrac-end")
 
+
 def listenFictrac(duration=3000):
     ttime = datetime.now() + timedelta(milliseconds=duration)
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
@@ -288,6 +292,7 @@ def disconnect():
 @socketio.on('start-experiment')
 def finally_start(number):
     # FIXME: bad practice. Will break at some point
+    print("Started")
     global start
     start = True
 
@@ -354,12 +359,30 @@ def localmove():
         #trial(currentTrial[0], currentTrial[1], random.randrange(10, 100, 10))
         #trial(0.25, -1, 10)
 
+        sptmp = SpatialTemporal(rotateDegHz = 30)
+        dur = Duration()
+
+        cond1 = OpenLoopCondition(spatialTemporal=sptmp, trialDuration=dur)
+        cond2 = OpenLoopCondition(spatialTemporal=SpatialTemporal(rotateDegHz=-100), trialDuration=dur)
+
+        #cond1.trigger(socketio)
+        cond2.trigger(socketio)
+
+        socketio.emit('rotate-to', (0, math.pi/2))
+        time.sleep(3)
+        #socketio.emit('rotate-by', (2, -0.01));
+
         #trial(2, -1, 10)
-        socketio.emit('spatfreq', 0.25)
-        moveSweep(1, 1)
-        time.sleep(1)
-        moveSweep(1, -1)
-        time.sleep(1)
+        # socketio.emit('spatfreq', 0.25)
+
+        # moveOpenLoop(3000, 1)
+        # moveOpenLoop(3000, -1)
+
+
+        # moveSweep(1, 1)
+        # time.sleep(1)
+        # moveSweep(1, -1)
+        # time.sleep(1)
         
         #moveOpenLoop(1000, frequency * direction)
         
@@ -367,16 +390,21 @@ def localmove():
 
 @app.route('/ldev/')
 def local_dev():
-    mthread = Thread(target=localmove)
-    mthread.daemon = True
-    mthread.start()
+    
+    # mthread = Thread(target=localmove)
+    # mthread.daemon = True
+    # mthread.start()
+    mthread = socketio.start_background_task(target = localmove)
+    
     return render_template('fictrac_canvas.html')
 
 @app.route('/bdev/')
 def threedee_dev():
-    mthread = Thread(target=localmove)
-    mthread.daemon = True
-    mthread.start()
+    mthread = socketio.start_background_task(target=localmove)
+    #mthread = Thread(target=localmove)
+    #mthread.daemon = True
+    #mthread.start()
+    #print(mthread)
     return render_template('bars.html')
 
 if __name__ == '__main__':

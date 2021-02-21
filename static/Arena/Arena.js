@@ -1,15 +1,20 @@
 import { createCamera } from './components/camera.js';
-import { createCube } from './components/environment.js';
 import { createScene } from './components/scene.js';
+
+import { Panels } from './components/Panels.js';
 
 import { createRenderer } from './systems/renderer.js';
 import { Resizer } from './systems/Resizer.js';
 import { Loop } from './systems/Loop.js';
 
+import { DataExchanger } from './systems/DataExchanger.js';
+
 let camera;
 let renderer;
 let scene;
 let loop;
+
+let io;
 
 
 class Arena {
@@ -23,8 +28,10 @@ class Arena {
 
         container.append(renderer.domElement);
 
-        const cube = createCube();
-        scene.add(cube);
+        const panels = new Panels(10, 170);
+        scene.add(panels);
+
+        io = new DataExchanger(camera, loop, panels);
 
         const resizer = new Resizer(container, camera, renderer);
         // resizer.onResize = () => { this.render(); }

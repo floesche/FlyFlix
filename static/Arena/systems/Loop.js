@@ -8,12 +8,17 @@ class Loop {
         this.scene = scene;
         this.renderer = renderer;
         this.updateables = [];
+        this.interval = 1/60;
+        this.rdelta = clock.getDelta();
     }
 
     start() {
         this.renderer.setAnimationLoop(() => {
             this.tick();
-            this.renderer.render(this.scene, this.camera);
+            if( this.rdelta > this.interval){
+                this.renderer.render(this.scene, this.camera);
+                this.rdelta = this.rdelta % this.interval;
+            }
         }
 
         );
@@ -25,10 +30,14 @@ class Loop {
 
     tick() {
         const delta = clock.getDelta();
-
+        this.rdelta += delta;
         for(const object of this.updateables) {
             object.tick(delta);
         }
+    }
+
+    setFPS(fps) {
+        this.interval = 1/fps;
     }
 }
 
