@@ -114,6 +114,10 @@ class SpatialTemporal():
         sharedKey = time.time_ns()
         io.emit('speed', (sharedKey, 0))
 
+    def triggerSpatial(self, io):
+        sharedKey = time.time_ns()
+        io.emit('spatial-setup', (sharedKey, self.barRad, self.spaceRad))
+
 
 class Duration():
 
@@ -148,6 +152,7 @@ class OpenLoopCondition():
 
     def trigger(self, io):
         self.triggerFPS(io)
+        self.spatialTemporal.triggerSpatial(io)
         self.spatialTemporal.triggerStop(io)
         self.preTrialDuration.triggerDelay(io)
         self.spatialTemporal.triggerRotation(io)

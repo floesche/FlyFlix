@@ -54,10 +54,14 @@ def before_first_request():
     app.logger.removeHandler(default_handler)
     app.logger.setLevel(logging.INFO)
     app.logger.addHandler(csv_handler)
-    app.logger.info(["shared", "key", "value"])
+    #app.logger.info(["shared", "key", "value"])
+    app.logger.info(["clientTS", "requestTS", "key", "value"])
 
 def savedata(shared, key, value=0):
     app.logger.info([shared, key, value])
+
+def logdata(clientTS, requestTS, key, value):
+    app.logger.info([clientTS, requestTS, key, value])
 
 def trial(spatial, temporal, fictracGain, nthframe=1):
     preTrialDuration = 500
@@ -303,7 +307,8 @@ def server_log(json):
 
 @socketio.on('dl')
 def data_logger(clientTS, requestTS, key, value):
-    print(f"{time.time()} | {requestTS} | Key: {key} | value: {value} at {clientTS}")
+    #print(f"{time.time()} | {requestTS} | Key: {key} | value: {value} at {clientTS}")
+    logdata(clientTS, requestTS, key, value)
 
 @socketio.on('display')
 def display_event(json):
@@ -338,10 +343,15 @@ def hello():
 
 def localmove():
     print(start)
-    print("AAAAAAAAAA")
     while not start:
         time.sleep(0.1)
-    print("HHHHH")
+
+    sptmp1 = SpatialTemporal(rotateDegHz = 30)
+    sptmp2 = SpatialTemporal(barDeg=10, spaceDeg=10, rotateDegHz=-100)
+    dur = Duration()
+    cond1 = OpenLoopCondition(spatialTemporal=sptmp1, trialDuration=dur)
+    cond2 = OpenLoopCondition(spatialTemporal=sptmp2, trialDuration=dur)
+
     while True:
         #nmbr = random.randint(1, 20)
         # spatial = 0.25
@@ -366,18 +376,14 @@ def localmove():
         #trial(currentTrial[0], currentTrial[1], random.randrange(10, 100, 10))
         #trial(0.25, -1, 10)
 
-        sptmp = SpatialTemporal(rotateDegHz = 30)
-        dur = Duration()
 
-        cond1 = OpenLoopCondition(spatialTemporal=sptmp, trialDuration=dur)
-        cond2 = OpenLoopCondition(spatialTemporal=SpatialTemporal(rotateDegHz=-100), trialDuration=dur)
 
-        #cond1.trigger(socketio)
+        cond1.trigger(socketio)
         cond2.trigger(socketio)
 
-        socketio.emit('rotate-to', (0, (-math.pi/2) - 10/180*math.pi))
-        time.sleep(3)
-        socketio.emit('spatial-setup', (time.time(), 1, 1))
+        # socketio.emit('rotate-to', (0, (-math.pi/2) - 10/180*math.pi))
+        # time.sleep(3)
+        # socketio.emit('spatial-setup', (time.time(), 1, 1))
         #socketio.emit('rotate-by', (2, -0.01));
 
         #trial(2, -1, 10)

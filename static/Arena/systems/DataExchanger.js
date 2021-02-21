@@ -1,18 +1,12 @@
-// import { Loop } from "./Loop.js";
-
-
 class DataExchanger{
     constructor(camera, loop, panels){
 
         this.socket = io("http://localhost:17000");
-        this.lid = 0;
+        this.isLogging = false;
 
-        // this.socket.emit('start-experiment', 1);
-        
-
-        this.socket.onAny((event, ...args) => {
-            console.log(event, args);
-          });
+        // this.socket.onAny((event, ...args) => {
+        //     console.log(event, args);
+        //   });
 
         this.socket.on('disconnect', () => {
             const endEvent = new Event('end-experiment');
@@ -21,30 +15,42 @@ class DataExchanger{
         });
 
         this.socket.on('speed', (lid, speed) => {
-            this.lid = lid;
+            camera.setLid(lid);
             camera.setRotateRadHz(speed);
+            this.log(lid, 'de-speed', speed);
         });
 
         this.socket.on('rotate-to', (lid, targetRotationRad) => {
-            this.lid = lid;
+            camera.setLid(lid);
             camera.setRotationRad(targetRotationRad);
+            this.log(lid, 'de-rotate-to', targetRotationRad);
         })
 
         this.socket.on('fps', (lid, fps) => {
-            this.lid = lid;
+            loop.setLid(lid);
             loop.setFPS(fps);
+            this.log(lid, 'de-fps', fps);
         });
 
         this.socket.on('spatial-setup', (lid, barWidth, spaceWidth) => {
-            this.lid = lid;
-            this.log('changerequest-barwidth', barWidth);
+            panels.setLid(lid);
             panels.changePanels(barWidth, spaceWidth);
+            this.log(lid, 'de-spatial-setup-bar', barWidth);
+            this.log(lid, 'de-spatial-setup-space', spaceWidth);
+        });
+
+        window.addEventListener('start-experiment', () => {
+            this.isLogging = true;
+            this.socket.emit('start-experiment', 1);
+            this.log(0, 'de-start-experiment');
         });
 
     }
 
-    log(key, value){
-        this.socket.emit('dl', performance.now(), this.lid, key, value);
+    log(lid, key, value){
+        if (this.isLogging){
+            this.socket.emit('dl', performance.now(), lid, key, value);
+        }
     }
 
 }
