@@ -50,25 +50,24 @@ class ClosedLoopCondition():
                 warnings.warn("Fictrac is not running on 127.0.0.1:1717")
                 return
 
-        while self.isTriggering:
-            new_data = sock.recv(1024)
-            if not new_data:
-                break
-            data += new_data.decode('UTF-8')
-            endline = data.find("\n")
-            line = data[:endline]
-            data = data[endline+1:]
-            toks = line.split(", ")
-            if ((len(toks) < 24) | (toks[0] != "FT")):
-                continue # This is not the expected fictrac data package
-            cnt = int(toks[1])
-            heading = float(toks[17])
-            ts = float(toks[22])
-            if prevheading:
-                updateval = (heading-prevheading) #* fictracGain * -1
-                #savedata(ts, "heading", heading)
-                #if self.isTriggering:
-                #savedata(cnt, "fictrac-change-speed", updateval)
-                io.emit('speed', (cnt, updateval * self.gain))
-            prevheading = heading
-    
+            while self.isTriggering:
+                new_data = sock.recv(1024)
+                if not new_data:
+                    break
+                data += new_data.decode('UTF-8')
+                endline = data.find("\n")
+                line = data[:endline]
+                data = data[endline+1:]
+                toks = line.split(", ")
+                if ((len(toks) < 24) | (toks[0] != "FT")):
+                    continue # This is not the expected fictrac data package
+                cnt = int(toks[1])
+                heading = float(toks[17])
+                ts = float(toks[22])
+                if prevheading:
+                    updateval = (heading-prevheading) #* fictracGain * -1
+                    #savedata(ts, "heading", heading)
+                    #if self.isTriggering:
+                    #savedata(cnt, "fictrac-change-speed", updateval)
+                    io.emit('speed', (cnt, updateval * self.gain))
+                prevheading = heading
