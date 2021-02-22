@@ -47,7 +47,7 @@ class Panels extends Group {
     tick(delta){}
 
     setLid(lid){
-        this._log('panels-set-lid-old', this.lid);
+        this._log('panels-set-lid-old', lid);
         this.lid = lid;
     }
 

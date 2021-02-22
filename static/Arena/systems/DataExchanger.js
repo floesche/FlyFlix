@@ -1,7 +1,8 @@
 class DataExchanger{
     constructor(camera, loop, panels){
 
-        this.socket = io("http://localhost:17000");
+        const socketurl = window.location.hostname + ":17000";
+        this.socket = io(socketurl);
         this.isLogging = false;
 
         this.socket.onAny((event, ...args) => {

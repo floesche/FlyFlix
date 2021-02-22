@@ -36,7 +36,9 @@ Payload.max_decode_packets = 500
 # Alternatively disable eventlet and use development libraries via `socketio = SocketIO(app, async_mode='threading')`
 import eventlet
 eventlet.monkey_patch()
-socketio = SocketIO(app)
+# socketio = SocketIO(app)
+# FIXME: find out if CORS is needed
+socketio = SocketIO(app, cors_allowed_origins='*')
 
 # socketio = SocketIO(app, async_mode='threading')
 
@@ -353,7 +355,7 @@ def local_dev():
 
 @app.route('/bdev/')
 def threedee_dev():
-    trial = Trial(barDeg=30)
+    trial = Trial(1, barDeg=30)
     mthread = socketio.start_background_task(target=localmove)
     return render_template('bars.html')
 
@@ -421,19 +423,22 @@ def localexperiment():
             t = Trial(counter, barDeg=alpha, spaceDeg=360-alpha, openLoopDuration=None, sweep=1, rotateDegHz=rotationSpeed, clBarDeg=clBar, comment = f"object speed {speed} direction {direction}")
             block.append(t)
 
-    block = random.sample(block, k=len(block))
-
-    for t in block:
-        counter = counter + 1
-        print(f"Condition {counter} of {len(block)}")
-        t.setID(counter)
-        t.trigger(socketio)
+    repetitions = 6
+    for i in range(repetitions):
+        socketio.emit("meta", (time.time_ns(), "block-repetition", i))
+        block = random.sample(block, k=len(block))
+        for t in block:
+            counter = counter + 1
+            print(f"Condition {counter} of {len(block*repetitions)}")
+            t.setID(counter)
+            t.trigger(socketio)
     # while True:
     #     t1.trigger(socketio)
 
 
 @app.route('/edev/')
 def local_experiment_dev():
+    print("Starting edev")
     mthread = socketio.start_background_task(target = localexperiment)
     return render_template('bars.html')
 

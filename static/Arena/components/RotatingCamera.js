@@ -34,7 +34,7 @@ class RotatingCamera extends PerspectiveCamera {
     }
 
     setLid(lid){
-        this._log('camera-set-lid-old', this.lid);
+        this._log('camera-set-lid-old', lid);
         this.lid = lid;
         
     }
