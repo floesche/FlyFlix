@@ -19,7 +19,7 @@ from flask.logging import default_handler
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
-from Condition import SpatialTemporal, Duration, OpenLoopCondition
+from Condition import SpatialTemporal, Duration, OpenLoopCondition, SweepCondition, ClosedLoopCondition
 
 from csv_formatter import CsvFormatter
 
@@ -245,8 +245,7 @@ def turnOnFictrac(duration=3000, gain=100):
     savedata(sharedKey, "fictrac-end")
 
 
-def listenFictrac(duration=3000):
-    ttime = datetime.now() + timedelta(milliseconds=duration)
+def listenFictrac():
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         sock.settimeout(0.1)
         prevheading = 0
@@ -256,9 +255,7 @@ def listenFictrac(duration=3000):
             new_data = sock.recv(1)
             data = new_data.decode('UTF-8')
         except: # If Fictrac doesn't exist
-            while datetime.now() < ttime: # wait nevertheless
-                pass
-            return
+            print("Fictrac is not running.")
 
         while True:
             new_data = sock.recv(1024)
@@ -307,7 +304,6 @@ def server_log(json):
 
 @socketio.on('dl')
 def data_logger(clientTS, requestTS, key, value):
-    #print(f"{time.time()} | {requestTS} | Key: {key} | value: {value} at {clientTS}")
     logdata(clientTS, requestTS, key, value)
 
 @socketio.on('display')
@@ -329,20 +325,14 @@ def playback():
 
 @app.route('/fictrac/')
 def hello():
-    ethread = Thread(target=experiment)
-    ethread.daemon = True
-    ethread.start()
-    fthread = Thread(target=listenFictrac)
-    fthread.daemon = True
-    fthread.start()
+    ethread = socketio.start_background_task(target = experiment)
+    fthread = socketio.start_background_task(target = listenFictrac)
     try:
-        #return render_template('fictrac.html')
         return render_template('fictrac_canvas.html')
     except TemplateNotFound:
         abort(404)
 
 def localmove():
-    print(start)
     while not start:
         time.sleep(0.1)
 
@@ -352,73 +342,33 @@ def localmove():
     cond1 = OpenLoopCondition(spatialTemporal=sptmp1, trialDuration=dur)
     cond2 = OpenLoopCondition(spatialTemporal=sptmp2, trialDuration=dur)
 
-    while True:
-        #nmbr = random.randint(1, 20)
-        # spatial = 0.25
-        # frequency = 1 #0.1, 0.5, 1, 2, 4, 8, 16, 32
-        # direction = random.choice([-1, 1])
-        # direction=-1
+    sweeptmp1 = SpatialTemporal(barDeg=3, spaceDeg=357, rotateDegHz=-30)
+    cond3 = SweepCondition(spatialTemporal=sweeptmp1, fps=10)
 
-        # changeSpatOff(spatial, 500)
-        # # socketio.emit('screen', 0)
-        # # time.sleep(0.05)
-        # # socketio.emit('spatfreq', spatial)
-        # # time.sleep(0.5)
-        # # socketio.emit('screen', 1)
-        # #dstn = random.choice([1, 0.5, 2, 0.3, 3])
-        
-        # #moveOpenLoop(10000, frequency * direction)
-        # moveSweep(1, frequency * direction)
-        # time.sleep(1)
-        # socketio.emit('spatfreq', 2)
-        # time.sleep(1)
-
-        #trial(currentTrial[0], currentTrial[1], random.randrange(10, 100, 10))
-        #trial(0.25, -1, 10)
-
-
-
-        cond1.trigger(socketio)
-        cond2.trigger(socketio)
-
-        # socketio.emit('rotate-to', (0, (-math.pi/2) - 10/180*math.pi))
-        # time.sleep(3)
-        # socketio.emit('spatial-setup', (time.time(), 1, 1))
-        #socketio.emit('rotate-by', (2, -0.01));
-
-        #trial(2, -1, 10)
-        # socketio.emit('spatfreq', 0.25)
-
-        # moveOpenLoop(3000, 1)
-        # moveOpenLoop(3000, -1)
-
-
-        # moveSweep(1, 1)
-        # time.sleep(1)
-        # moveSweep(1, -1)
-        # time.sleep(1)
-        
-        #moveOpenLoop(1000, frequency * direction)
-        
+    cond3.trigger(socketio)
 
 
 @app.route('/ldev/')
 def local_dev():
-    
-    # mthread = Thread(target=localmove)
-    # mthread.daemon = True
-    # mthread.start()
     mthread = socketio.start_background_task(target = localmove)
-    
     return render_template('fictrac_canvas.html')
 
 @app.route('/bdev/')
 def threedee_dev():
     mthread = socketio.start_background_task(target=localmove)
-    #mthread = Thread(target=localmove)
-    #mthread.daemon = True
-    #mthread.start()
-    #print(mthread)
+    return render_template('bars.html')
+
+
+def localfictrac():
+    while not start:
+        time.sleep(0.1)
+    sptmp1 = SpatialTemporal(barDeg=10, spaceDeg=350)
+    ccond = ClosedLoopCondition(spatialTemporal=sptmp1, trialDuration=Duration(5000))
+    ccond.trigger(socketio)
+
+@app.route('/fdev/')
+def local_fictrac_dev():
+    mthread = socketio.start_background_task(target = localfictrac)
     return render_template('bars.html')
 
 if __name__ == '__main__':

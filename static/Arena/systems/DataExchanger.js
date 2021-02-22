@@ -4,9 +4,9 @@ class DataExchanger{
         this.socket = io("http://localhost:17000");
         this.isLogging = false;
 
-        // this.socket.onAny((event, ...args) => {
-        //     console.log(event, args);
-        //   });
+        this.socket.onAny((event, ...args) => {
+            console.log(event, args);
+          });
 
         this.socket.on('disconnect', () => {
             const endEvent = new Event('end-experiment');
