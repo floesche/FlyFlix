@@ -363,8 +363,12 @@ def localfictrac():
     while not start:
         time.sleep(0.1)
     sptmp1 = SpatialTemporal(barDeg=10, spaceDeg=350)
+    sptmp2 = SpatialTemporal(barDeg=10, spaceDeg=10, rotateDegHz=-100)
     ccond = ClosedLoopCondition(spatialTemporal=sptmp1, trialDuration=Duration(5000))
-    ccond.trigger(socketio)
+    ocond = cond2 = OpenLoopCondition(spatialTemporal=sptmp2, trialDuration=Duration())
+    while True:
+        ccond.trigger(socketio)
+        ocond.trigger(socketio)
 
 @app.route('/fdev/')
 def local_fictrac_dev():
