@@ -21,7 +21,7 @@ class Panels extends Group {
         this._log('panels-interval-angle', intervalAngle);
         this._log('panels-arena-radius', this.arenaRadius);
         this._log('panels-arena-height', this.arenaHeight);
-        this._log('panels-type', 'CylinerBufferGeometry');
+        this._log('panels-type', 'CylinderBufferGeometry');
         this._log('panels-horizontal-segments', cylinderHorizSegments);
         this._log('panels-bar-color', barcolor);
 

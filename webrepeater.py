@@ -19,7 +19,7 @@ from flask.logging import default_handler
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 
-from Experiment import SpatialTemporal, Duration, OpenLoopCondition, SweepCondition, ClosedLoopCondition, CsvFormatter
+from Experiment import SpatialTemporal, Duration, OpenLoopCondition, SweepCondition, ClosedLoopCondition, Trial, CsvFormatter
 
 app = Flask(__name__)
 
@@ -341,7 +341,7 @@ def localmove():
     cond2 = OpenLoopCondition(spatialTemporal=sptmp2, trialDuration=dur)
 
     sweeptmp1 = SpatialTemporal(barDeg=3, spaceDeg=357, rotateDegHz=-30)
-    cond3 = SweepCondition(spatialTemporal=sweeptmp1, fps=10)
+    cond3 = SweepCondition(spatialTemporal=sweeptmp1)
 
     cond3.trigger(socketio)
 
@@ -353,6 +353,7 @@ def local_dev():
 
 @app.route('/bdev/')
 def threedee_dev():
+    trial = Trial(barDeg=30)
     mthread = socketio.start_background_task(target=localmove)
     return render_template('bars.html')
 
@@ -371,6 +372,69 @@ def localfictrac():
 @app.route('/fdev/')
 def local_fictrac_dev():
     mthread = socketio.start_background_task(target = localfictrac)
+    return render_template('bars.html')
+
+
+def localexperiment():
+    while not start:
+        time.sleep(0.1)
+    t1 = Trial(1, barDeg=30, rotateDegHz=60)
+
+    block = []
+
+    counter = 0
+
+    ## Grating spatial tuning 1Hz
+    for alpha in [60, 30, 15, 7.5]:
+        for direction in [-1, 1]:
+            speed = 1
+            rotationSpeed = alpha*2*speed*direction
+            clBar = (360 + alpha * direction) % 360
+            t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, comment=f"spatialtuning alpha {alpha} direction {direction}")
+            block.append(t)
+    
+    ## grating 45° soeed tuning
+    for speed in [0.1, 0.5, 1, 2, 5, 10, 15, 30]:
+        for direction in [-1, 1]:
+            alpha = 45
+            rotationSpeed = alpha*2*speed*direction
+            clBar = (360 + alpha * direction*-1) % 360
+            t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, comment=f"speedtuning speed {speed} direction {direction}")
+            block.append(t)
+
+    ## Stepsize tuning
+    for fps in [60, 30, 15, 7.5]:
+        for direction in [-1, 1]:
+            alpha = 30
+            speed = 1
+            rotationSpeed = alpha*2*speed*direction
+            clBar = (360 + alpha * direction) % 360
+            t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, fps=fps, comment = f"stepsize fps {fps} direction {direction}")
+            block.append(t)
+
+    ## BarSweep
+    for speed in [0.1, 0.5, 1, 2, 5, 10, 15, 30]:
+        for direction in [-1, 1]:
+            alpha = 45
+            rotationSpeed = alpha*2*speed*direction
+            clBar = (360 + alpha * direction*-1) % 360
+            t = Trial(counter, barDeg=alpha, spaceDeg=360-alpha, openLoopDuration=None, sweep=1, rotateDegHz=rotationSpeed, clBarDeg=clBar, comment = f"object speed {speed} direction {direction}")
+            block.append(t)
+
+    block = random.sample(block, k=len(block))
+
+    for t in block:
+        counter = counter + 1
+        print(f"Condition {counter} of {len(block)}")
+        t.setID(counter)
+        t.trigger(socketio)
+    # while True:
+    #     t1.trigger(socketio)
+
+
+@app.route('/edev/')
+def local_experiment_dev():
+    mthread = socketio.start_background_task(target = localexperiment)
     return render_template('bars.html')
 
 if __name__ == '__main__':

@@ -1,8 +1,7 @@
 import warnings
 import time
 
-from .Duration import Duration
-from .SpatialTemporal import SpatialTemporal
+from . import Duration, SpatialTemporal
 
 class OpenLoopCondition():
 
@@ -24,6 +23,8 @@ class OpenLoopCondition():
         io.emit('fps', (sharedKey, self.fps))
 
     def trigger(self, io):
+        sharedKey = time.time_ns()
+        io.emit("meta", (sharedKey, "openloop-start", 1))
         self.triggerFPS(io)
         self.spatialTemporal.triggerSpatial(io)
         self.spatialTemporal.triggerStop(io)
@@ -32,3 +33,4 @@ class OpenLoopCondition():
         self.trialDuration.triggerDelay(io)
         self.spatialTemporal.triggerStop(io)
         self.postTrialDuration.triggerDelay(io)
+        io.emit("meta", (sharedKey, "openloop-end", 1))

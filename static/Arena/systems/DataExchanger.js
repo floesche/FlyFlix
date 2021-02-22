@@ -39,6 +39,10 @@ class DataExchanger{
             this.log(lid, 'de-spatial-setup-space', spaceWidth);
         });
 
+        this.socket.on('meta', (lid, key, value) => {
+            this.log(lid, key, value);
+        })
+
         window.addEventListener('start-experiment', () => {
             this.isLogging = true;
             this.socket.emit('start-experiment', 1);

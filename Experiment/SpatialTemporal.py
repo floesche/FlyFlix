@@ -8,7 +8,7 @@ class SpatialTemporal():
         if (barDeg < 0 or spaceDeg <0):
             warnings.war("bar size or space is negative")
         if (360 % (barDeg + spaceDeg) != 0):
-            warnings.warn("Spatial pattern is not seamless")
+            warnings.warn(f"Spatial pattern is not seamless with bar {barDeg}° and space {spaceDeg}")
         if (rotateDegHz is None):
             warnings.warn("temporal components needs to be set.")
         self.barDeg = barDeg

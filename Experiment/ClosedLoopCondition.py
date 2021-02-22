@@ -24,6 +24,8 @@ class ClosedLoopCondition():
         self.isTriggering = False
 
     def trigger(self, io):
+        sharedKey = time.time_ns()
+        io.emit("meta", (sharedKey, "closedloop-start", 1))
         self.triggerFPS(io)
         self.spatialTemporal.triggerSpatial(io)
         self.spatialTemporal.triggerStop(io)
@@ -33,14 +35,17 @@ class ClosedLoopCondition():
         loopthread = io.start_background_task(self.loop, io)
         self.trialDuration.triggerDelay(io)
         self.isTriggering = False
+        loopthread.join()
         self.spatialTemporal.triggerStop(io)
         self.postTrialDuration.triggerDelay(io)
+        io.emit("meta", (sharedKey, "closedloop-start", 1))
 
     def triggerFPS(self, io):
         sharedKey = time.time_ns()
         io.emit('fps', (sharedKey, self.fps))
 
     def loop(self, io):
+        sharedKey = time.time_ns()
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
             sock.settimeout(0.1)
             prevheading = None
@@ -49,7 +54,9 @@ class ClosedLoopCondition():
                 sock.bind(( '127.0.0.1', 1717))
                 new_data = sock.recv(1)
                 data = new_data.decode('UTF-8')
+                io.emit("meta", (sharedKey, "fictrac-connect-ok", 1))
             except: # If Fictrac doesn't exist
+                io.emit("meta", (sharedKey, "fictrac-connect-fail", 0))
                 warnings.warn("Fictrac is not running on 127.0.0.1:1717")
                 return
 
@@ -74,3 +81,4 @@ class ClosedLoopCondition():
                     #savedata(cnt, "fictrac-change-speed", updateval)
                     io.emit('speed', (cnt, updateval * self.gain))
                 prevheading = heading
+        io.emit("meta", (sharedKey, "fictrac-disconnect-ok", 1))
