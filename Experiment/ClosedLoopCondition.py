@@ -2,6 +2,9 @@ import warnings
 import time
 import socket
 
+from .Duration import Duration
+from .SpatialTemporal import SpatialTemporal
+
 
 class ClosedLoopCondition():
 

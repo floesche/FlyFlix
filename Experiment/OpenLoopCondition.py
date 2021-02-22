@@ -1,6 +1,9 @@
 import warnings
 import time
 
+from .Duration import Duration
+from .SpatialTemporal import SpatialTemporal
+
 class OpenLoopCondition():
 
     def __init__(self, spatialTemporal=None, trialDuration=None, fps=60, preTrialDuration=Duration(500), postTrialDuration=Duration(500)) -> None:
