@@ -363,13 +363,10 @@ def threedee_dev():
 def localfictrac():
     while not start:
         time.sleep(0.1)
-    sptmp1 = SpatialTemporal(barDeg=10, spaceDeg=170)
-    sptmp2 = SpatialTemporal(barDeg=10, spaceDeg=10, rotateDegHz=-100)
-    ccond = ClosedLoopCondition(spatialTemporal=sptmp1, trialDuration=Duration(50000))
-    ocond = cond2 = OpenLoopCondition(spatialTemporal=sptmp2, trialDuration=Duration())
-    while True:
-        ccond.trigger(socketio)
-        #ocond.trigger(socketio)
+    sptmp1 = SpatialTemporal(barDeg=30, spaceDeg=20, rotateDegHz=0)
+    ocond = OpenLoopCondition(spatialTemporal=sptmp1, trialDuration=Duration(500))
+    ocond.trigger(socketio)
+    socketio.emit('rotate-to', (0, math.radians(-15)))
 
 @app.route('/fdev/')
 def local_fictrac_dev():
@@ -387,16 +384,16 @@ def localexperiment():
     counter = 0
 
     ## Grating spatial tuning 1Hz
-    for alpha in [60, 30, 15, 7.5]:
+    for alpha in [60, 45,  30, 15, 10]:
         for direction in [-1, 1]:
-            speed = 1
+            speed = 7.5
             rotationSpeed = alpha*2*speed*direction
             clBar = (360 + alpha * direction) % 360
             t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, comment=f"spatialtuning alpha {alpha} direction {direction}")
             block.append(t)
     
     ## grating 45° soeed tuning
-    for speed in [0.1, 0.5, 1, 2, 5, 10, 15, 30]:
+    for speed in [0.25, 1, 2, 4, 7.5, 15, 30]:
         for direction in [-1, 1]:
             alpha = 45
             rotationSpeed = alpha*2*speed*direction
@@ -405,17 +402,17 @@ def localexperiment():
             block.append(t)
 
     ## Stepsize tuning
-    for fps in [60, 30, 15, 7.5]:
+    for fps in [60, 30, 15, 10, 5]:
         for direction in [-1, 1]:
-            alpha = 30
-            speed = 1
+            alpha = 45
+            speed = 7.5
             rotationSpeed = alpha*2*speed*direction
             clBar = (360 + alpha * direction) % 360
             t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, fps=fps, comment = f"stepsize fps {fps} direction {direction}")
             block.append(t)
 
     ## BarSweep
-    for speed in [0.1, 0.5, 1, 2, 5, 10, 15, 30]:
+    for speed in [0.25, 1, 2, 4, 7.5, 15, 30]:
         for direction in [-1, 1]:
             alpha = 45
             rotationSpeed = alpha*2*speed*direction
