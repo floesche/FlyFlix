@@ -441,19 +441,19 @@ def local_experiment_dev():
 def log_metadata():
  
     metadata = {
-        "fly": 241,
+        "fly": 250,
         "tether-start": "2021-02-22 21:01:00",
         "sex": "",
-        "startvation-start": "2021-02-22 20:00:00",
+        "startvation-start": "2021-02-23 15:00:00",
         "birth-start": "2021-02-17 20:00:00",
         "birth-end": "2021-02-18 20:00:00",
-        "fly-batch": "2021-02-06",
+        "fly-batch": "2021-01-23",
         "day-night-since": "2021-02-12",
 
         # "day-start": "7:00:00",
         # "day-end": "19:00:00",
-        "day-start": "21:00:00",
-        "day-end": "13:00:00",
+        "day-start": "07:00:00",
+        "day-end": "19:00:00",
 
         "fly-strain": "DL",
         "ball": "1",
@@ -462,7 +462,7 @@ def log_metadata():
         
         "temperature": 32,
         "distance": 35,
-        "protocol": 5,
+        "protocol": 6,
         "screen-brightness": 25,
         "display": "fire",
         "color": "#00FF00",
