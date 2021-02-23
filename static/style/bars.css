@@ -39,3 +39,8 @@ body {
     */
     background-color: skyblue;
   }
+
+  .experiment-controller{
+    padding: 5%;
+    color:#cc0000;
+  }

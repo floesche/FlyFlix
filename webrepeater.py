@@ -363,13 +363,13 @@ def threedee_dev():
 def localfictrac():
     while not start:
         time.sleep(0.1)
-    sptmp1 = SpatialTemporal(barDeg=10, spaceDeg=350)
+    sptmp1 = SpatialTemporal(barDeg=10, spaceDeg=170)
     sptmp2 = SpatialTemporal(barDeg=10, spaceDeg=10, rotateDegHz=-100)
-    ccond = ClosedLoopCondition(spatialTemporal=sptmp1, trialDuration=Duration(5000))
+    ccond = ClosedLoopCondition(spatialTemporal=sptmp1, trialDuration=Duration(50000))
     ocond = cond2 = OpenLoopCondition(spatialTemporal=sptmp2, trialDuration=Duration())
     while True:
         ccond.trigger(socketio)
-        ocond.trigger(socketio)
+        #ocond.trigger(socketio)
 
 @app.route('/fdev/')
 def local_fictrac_dev():
@@ -380,10 +380,10 @@ def local_fictrac_dev():
 def localexperiment():
     while not start:
         time.sleep(0.1)
-    t1 = Trial(1, barDeg=30, rotateDegHz=60)
+   
+    log_metadata()
 
     block = []
-
     counter = 0
 
     ## Grating spatial tuning 1Hz
@@ -432,8 +432,6 @@ def localexperiment():
             print(f"Condition {counter} of {len(block*repetitions)}")
             t.setID(counter)
             t.trigger(socketio)
-    # while True:
-    #     t1.trigger(socketio)
 
 
 @app.route('/edev/')
@@ -441,6 +439,43 @@ def local_experiment_dev():
     print("Starting edev")
     mthread = socketio.start_background_task(target = localexperiment)
     return render_template('bars.html')
+
+
+def log_metadata():
+ 
+    metadata = {
+        "fly": 241,
+        "tether-start": "2021-02-22 21:01:00",
+        "sex": "",
+        "startvation-start": "2021-02-22 20:00:00",
+        "birth-start": "2021-02-17 20:00:00",
+        "birth-end": "2021-02-18 20:00:00",
+        "fly-batch": "2021-02-06",
+        "day-night-since": "2021-02-12",
+
+        # "day-start": "7:00:00",
+        # "day-end": "19:00:00",
+        "day-start": "21:00:00",
+        "day-end": "13:00:00",
+
+        "fly-strain": "DL",
+        "ball": "1",
+        "air": "wall",
+        "glue": "KOA",
+        
+        "temperature": 32,
+        "distance": 35,
+        "protocol": 5,
+        "screen-brightness": 25,
+        "display": "fire",
+        "color": "#00FF00",
+    }
+    
+    sharedKey = time.time_ns()
+    for key, value in metadata.items():
+        logdata(0, sharedKey, key, value)
+
+
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port = 17000)

@@ -4,6 +4,8 @@ const addRestartButton = (container) => {
         restartExperiment.style.position = "absolute";
         restartExperiment.style.visibility = "hidden";
         restartExperiment.classList.add("experiment-controller");
+        restartExperiment.style.width = "25%";
+        restartExperiment.style.height = "20%";
         restartExperiment.style.top = "20%";
         restartExperiment.style.left = "40%";
         container.appendChild(restartExperiment);
@@ -23,8 +25,10 @@ const addStartButton = (container) => {
     startExperiment.style.position = "absolute";
     startExperiment.style.visibility = "visible";
     startExperiment.classList.add("experiment-controller");
+    startExperiment.style.width = "25%";
+    startExperiment.style.height = "20%";
     startExperiment.style.top = "20%";
-    startExperiment.style.left = "60%";
+    startExperiment.style.left = "70%";
     container.appendChild(startExperiment);
 
     startExperiment.addEventListener('click', function () {

@@ -49,6 +49,7 @@ class ClosedLoopCondition():
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
             sock.settimeout(0.1)
             prevheading = None
+            prevts = None
             data = ""
             try:
                 sock.bind(( '127.0.0.1', 1717))
@@ -75,10 +76,9 @@ class ClosedLoopCondition():
                 heading = float(toks[17])
                 ts = float(toks[22])
                 if prevheading:
-                    updateval = (heading-prevheading) #* fictracGain * -1
-                    #savedata(ts, "heading", heading)
-                    #if self.isTriggering:
-                    #savedata(cnt, "fictrac-change-speed", updateval)
+                    updateval = (heading-prevheading)/((ts-prevts)/1000)
                     io.emit('speed', (cnt, updateval * self.gain))
                 prevheading = heading
+                prevts = ts
+                
         io.emit("meta", (sharedKey, "fictrac-disconnect-ok", 1))
