@@ -383,13 +383,20 @@ def localexperiment():
     block = []
     counter = 0
 
+    gaincount = 0
+    gains = [0, 0.1, 0.25, 0.5, 0.75, 1, 2]
+
+    
+
     ## Grating spatial tuning 1Hz
     for alpha in [60, 45,  30, 15, 10]:
         for direction in [-1, 1]:
             speed = 7.5
             rotationSpeed = alpha*2*speed*direction
             clBar = (360 + alpha * direction) % 360
-            t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, comment=f"spatialtuning alpha {alpha} direction {direction}")
+            gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
+            gaincount += 1
+            t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, gain=gain, comment=f"spatialtuning alpha {alpha} direction {direction} gain {gain}")
             block.append(t)
     
     ## grating 45° soeed tuning
@@ -398,7 +405,9 @@ def localexperiment():
             alpha = 45
             rotationSpeed = alpha*2*speed*direction
             clBar = (360 + alpha * direction*-1) % 360
-            t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, comment=f"speedtuning speed {speed} direction {direction}")
+            gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
+            gaincount += 1
+            t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, gain=gain, comment=f"speedtuning speed {speed} direction {direction} gain {gain}")
             block.append(t)
 
     ## Stepsize tuning
@@ -408,7 +417,9 @@ def localexperiment():
             speed = 7.5
             rotationSpeed = alpha*2*speed*direction
             clBar = (360 + alpha * direction) % 360
-            t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, fps=fps, comment = f"stepsize fps {fps} direction {direction}")
+            gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
+            gaincount += 1
+            t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, fps=fps, gain=gain, comment = f"stepsize fps {fps} direction {direction} gain {gain}")
             block.append(t)
 
     ## BarSweep
@@ -417,10 +428,14 @@ def localexperiment():
             alpha = 45
             rotationSpeed = alpha*2*speed*direction
             clBar = (360 + alpha * direction*-1) % 360
-            t = Trial(counter, barDeg=alpha, spaceDeg=360-alpha, openLoopDuration=None, sweep=1, rotateDegHz=rotationSpeed, clBarDeg=clBar, comment = f"object speed {speed} direction {direction}")
+            gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
+            gaincount += 1
+            t = Trial(counter, barDeg=alpha, spaceDeg=360-alpha, openLoopDuration=None, sweep=1, rotateDegHz=rotationSpeed, clBarDeg=clBar, gain=gain, comment = f"object speed {speed} direction {direction} gain {gain}")
             block.append(t)
 
     repetitions = 6
+    blackBegin = Duration(10000)
+    blackBegin.triggerDelay(socketio)
     for i in range(repetitions):
         socketio.emit("meta", (time.time_ns(), "block-repetition", i))
         block = random.sample(block, k=len(block))
@@ -442,16 +457,29 @@ def log_metadata():
  
     metadata = {
         "fly": 250,
-        "tether-start": "2021-02-22 21:01:00",
-        "sex": "",
+        "tether-end"  : "2021-02-23 15:35:00",
+        "sex": "m",
+
+        # "fly": 251,
+        # "tether-end"  : "2021-02-23 15:38:00",
+        # "sex": "f",
+        "tether-start": "2021-02-23 15:25:00",
+
+        # "fly": 252,
+        # "tether-end"  : "2021-02-23 15:51:00",
+        # "sex": "m",
+
+        # "fly": 253,
+        # "tether-end"  : "2021-02-23 15:55:00",
+        # "sex": "m",
+        # "tether-start": "2021-02-23 15:40:00",
+
         "startvation-start": "2021-02-23 15:00:00",
         "birth-start": "2021-02-17 20:00:00",
         "birth-end": "2021-02-18 20:00:00",
         "fly-batch": "2021-01-23",
         "day-night-since": "2021-02-12",
 
-        # "day-start": "7:00:00",
-        # "day-end": "19:00:00",
         "day-start": "07:00:00",
         "day-end": "19:00:00",
 
