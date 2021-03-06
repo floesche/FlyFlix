@@ -386,8 +386,6 @@ def localexperiment():
     gaincount = 0
     gains = [0, 0.1, 0.25, 0.5, 0.75, 1, 2]
 
-    
-
     ## Grating spatial tuning 1Hz
     for alpha in [60, 45,  30, 15, 10]:
         for direction in [-1, 1]:
@@ -445,6 +443,8 @@ def localexperiment():
             t.setID(counter)
             t.trigger(socketio)
 
+    print(time.strftime("%H:%H:%S", time.localtime()))
+
 
 @app.route('/edev/')
 def local_experiment_dev():
@@ -456,34 +456,31 @@ def local_experiment_dev():
 def log_metadata():
  
     metadata = {
-        "fly": 250,
-        "tether-end"  : "2021-02-23 15:35:00",
-        "sex": "m",
-
-        # "fly": 251,
-        # "tether-end"  : "2021-02-23 15:38:00",
-        # "sex": "f",
-        "tether-start": "2021-02-23 15:25:00",
-
-        # "fly": 252,
-        # "tether-end"  : "2021-02-23 15:51:00",
-        # "sex": "m",
-
-        # "fly": 253,
-        # "tether-end"  : "2021-02-23 15:55:00",
-        # "sex": "m",
-        # "tether-start": "2021-02-23 15:40:00",
-
-        "startvation-start": "2021-02-23 15:00:00",
-        "birth-start": "2021-02-17 20:00:00",
-        "birth-end": "2021-02-18 20:00:00",
-        "fly-batch": "2021-01-23",
+        "fly-strain": "DL",
+        "fly-batch": "2021-02-06",
+        "day-start": "21:00:00",
+        "day-end": "13:00:00",
         "day-night-since": "2021-02-12",
 
-        "day-start": "07:00:00",
-        "day-end": "19:00:00",
+        "birth-start": "2021-02-21 22:00:00",
+        "birth-end": "2021-02-22 20:00:00",
 
-        "fly-strain": "DL",
+        "starvation-start": "2021-02-27 18:15:00",
+
+        "tether-start": "2021-02-27 19:17:00",
+        # "fly": 304,
+        # "tether-end"  : "2021-02-27 19:25:00",
+        # "sex": "f",
+        "fly": 305,
+        "tether-end"  : "2021-02-27 19:29:00",
+        "sex": "m",
+        # "fly": 306,
+        # "tether-end"  : "2021-02-27 19:33:00",
+        # "sex": "f",
+        # "fly": 307,
+        # "tether-end"  : "2021-02-27 19:39:00",
+        # "sex": "f",
+
         "ball": "1",
         "air": "wall",
         "glue": "KOA",
