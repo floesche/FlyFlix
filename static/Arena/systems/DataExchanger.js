@@ -5,9 +5,9 @@ class DataExchanger{
         this.socket = io(socketurl);
         this.isLogging = false;
 
-        this.socket.onAny((event, ...args) => {
-            console.log(event, args);
-          });
+        // this.socket.onAny((event, ...args) => {
+        //     console.log(event, args);
+        //   });
 
         this.socket.on('disconnect', () => {
             const endEvent = new Event('end-experiment');
@@ -19,6 +19,9 @@ class DataExchanger{
             camera.setLid(lid);
             camera.setRotateRadHz(speed);
             this.log(lid, 'de-speed', speed);
+        });
+        this.socket.on('ssync', (lid) => {
+            this.socket.emit('csync', performance.now(), lid, 'de-sync');
         });
 
         this.socket.on('rotate-to', (lid, targetRotationRad) => {

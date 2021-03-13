@@ -302,6 +302,10 @@ def server_log(json):
     sharedKey = time.time()
     savedata(sharedKey, json['key'], json['value'])
 
+@socketio.on('csync')
+def server_client_sync(clientTS, requestTS, key):
+    logdata(clientTS, requestTS, key, time.time_ns())
+
 @socketio.on('dl')
 def data_logger(clientTS, requestTS, key, value):
     logdata(clientTS, requestTS, key, value)
@@ -336,11 +340,13 @@ def localmove():
     while not start:
         time.sleep(0.1)
 
-    sptmp1 = SpatialTemporal(rotateDegHz = 30)
+    sptmp1 = SpatialTemporal(barDeg=10, spaceDeg=10, rotateDegHz = 0)
     sptmp2 = SpatialTemporal(barDeg=10, spaceDeg=10, rotateDegHz=-100)
-    dur = Duration()
+    dur = Duration(500000)
     cond1 = OpenLoopCondition(spatialTemporal=sptmp1, trialDuration=dur)
     cond2 = OpenLoopCondition(spatialTemporal=sptmp2, trialDuration=dur)
+
+    cond1.trigger(socketio)
 
     sweeptmp1 = SpatialTemporal(barDeg=3, spaceDeg=357, rotateDegHz=-30)
     cond3 = SweepCondition(spatialTemporal=sweeptmp1)
@@ -383,52 +389,68 @@ def localexperiment():
     block = []
     counter = 0
 
-    gaincount = 0
-    gains = [0, 0.1, 0.25, 0.5, 0.75, 1, 2]
-
-    ## Grating spatial tuning 1Hz
-    for alpha in [60, 45,  30, 15, 10]:
-        for direction in [-1, 1]:
-            speed = 7.5
-            rotationSpeed = alpha*2*speed*direction
-            clBar = (360 + alpha * direction) % 360
-            gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
-            gaincount += 1
-            t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, gain=gain, comment=f"spatialtuning alpha {alpha} direction {direction} gain {gain}")
-            block.append(t)
     
-    ## grating 45° soeed tuning
-    for speed in [0.25, 1, 2, 4, 7.5, 15, 30]:
-        for direction in [-1, 1]:
-            alpha = 45
-            rotationSpeed = alpha*2*speed*direction
-            clBar = (360 + alpha * direction*-1) % 360
-            gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
-            gaincount += 1
-            t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, gain=gain, comment=f"speedtuning speed {speed} direction {direction} gain {gain}")
-            block.append(t)
 
-    ## Stepsize tuning
-    for fps in [60, 30, 15, 10, 5]:
-        for direction in [-1, 1]:
-            alpha = 45
-            speed = 7.5
-            rotationSpeed = alpha*2*speed*direction
-            clBar = (360 + alpha * direction) % 360
-            gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
-            gaincount += 1
-            t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, fps=fps, gain=gain, comment = f"stepsize fps {fps} direction {direction} gain {gain}")
-            block.append(t)
+    # ## Grating spatial tuning 1Hz
+    # for alpha in [60, 45,  30, 15, 10]:
+    #     for direction in [-1, 1]:
+    #         speed = 7.5
+    #         rotationSpeed = alpha*2*speed*direction
+    #         clBar = (360 + alpha * direction) % 360
+    #         gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
+    #         gaincount += 1
+    #         t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, gain=gain, comment=f"spatialtuning alpha {alpha} direction {direction} gain {gain}")
+    #         block.append(t)
+    
+    # ## grating 45° soeed tuning
+    # for speed in [0.25, 1, 2, 4, 7.5, 15, 30]:
+    #     for direction in [-1, 1]:
+    #         alpha = 45
+    #         rotationSpeed = alpha*2*speed*direction
+    #         clBar = (360 + alpha * direction*-1) % 360
+    #         gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
+    #         gaincount += 1
+    #         t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, gain=gain, comment=f"speedtuning speed {speed} direction {direction} gain {gain}")
+    #         block.append(t)
+
+    # ## Stepsize tuning
+    # for fps in [60, 30, 15, 10, 5]:
+    #     for direction in [-1, 1]:
+    #         alpha = 45
+    #         speed = 7.5
+    #         rotationSpeed = alpha*2*speed*direction
+    #         clBar = (360 + alpha * direction) % 360
+    #         gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
+    #         gaincount += 1
+    #         t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, fps=fps, gain=gain, comment = f"stepsize fps {fps} direction {direction} gain {gain}")
+    #         block.append(t)
 
     ## BarSweep
-    for speed in [0.25, 1, 2, 4, 7.5, 15, 30]:
-        for direction in [-1, 1]:
-            alpha = 45
-            rotationSpeed = alpha*2*speed*direction
-            clBar = (360 + alpha * direction*-1) % 360
-            gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
-            gaincount += 1
-            t = Trial(counter, barDeg=alpha, spaceDeg=360-alpha, openLoopDuration=None, sweep=1, rotateDegHz=rotationSpeed, clBarDeg=clBar, gain=gain, comment = f"object speed {speed} direction {direction} gain {gain}")
+
+    speedcount = 0
+    #gains = [0, 0.1, 0.25, 0.5, 0.75, 1, 2]
+    speeds = [0.25, 1, 2, 4, 7.5, 15, 30, -0.25, -1, -2, -4, -7.5, -15, -30]
+
+    #for gain in [0, 0.5, 1, 1.5, 2, 10]:
+    for gain in [0.5, 1, 1.5, -1]:
+        for alpha in [45, 315]:
+            speed = speeds[speedcount % len(speeds)]
+            speedcount += 1
+            rotationSpeed = alpha*2*speed
+            clBar = alpha
+            if alpha>180:
+                clBar = abs(180-alpha)
+            t = Trial(
+                counter, 
+                barDeg=alpha, 
+                spaceDeg=360-alpha, 
+                openLoopDuration=None, 
+                sweep=1, 
+                rotateDegHz=rotationSpeed, 
+                clBarDeg=clBar, 
+                closedLoopDuration=Duration(2000), ## TODO
+                gain=gain, 
+                comment = f"object speed {speed} clBar {clBar} gain {gain}")
             block.append(t)
 
     repetitions = 6
@@ -457,29 +479,37 @@ def log_metadata():
  
     metadata = {
         "fly-strain": "DL",
-        "fly-batch": "2021-02-06",
+        "fly-batch": "2021-01-23",
         "day-start": "21:00:00",
         "day-end": "13:00:00",
         "day-night-since": "2021-02-12",
 
-        "birth-start": "2021-02-21 22:00:00",
-        "birth-end": "2021-02-22 20:00:00",
+        "birth-start": "2021-03-01 21:00:00",
+        "birth-end": "2021-03-02 20:00:00",
 
-        "starvation-start": "2021-02-27 18:15:00",
+        "starvation-start": "2021-03-07 19:50:00",
 
-        "tether-start": "2021-02-27 19:17:00",
-        # "fly": 304,
-        # "tether-end"  : "2021-02-27 19:25:00",
+        "tether-start": "2021-03-07 19:55:00",
+        # "fly": 320,
+        # "tether-end"  : "2021-03-06 13:24:00",
         # "sex": "f",
-        "fly": 305,
-        "tether-end"  : "2021-02-27 19:29:00",
+        
+        # "fly": 321,
+        # "tether-end"  : "2021-03-06 13:27:00",
+        # "sex": "f",
+
+        # "fly": 322,
+        # "tether-end"  : "2021-03-06 13:33:00",
+        # "sex": "f",
+
+        # "fly": 323,
+        # "tether-end"  : "2021-03-06 20:03:00",
+        # "sex": "f",
+
+        "fly": 324,
+        "tether-end"  : "2021-03-06 20:06:00",
         "sex": "m",
-        # "fly": 306,
-        # "tether-end"  : "2021-02-27 19:33:00",
-        # "sex": "f",
-        # "fly": 307,
-        # "tether-end"  : "2021-02-27 19:39:00",
-        # "sex": "f",
+
 
         "ball": "1",
         "air": "wall",
@@ -487,7 +517,7 @@ def log_metadata():
         
         "temperature": 32,
         "distance": 35,
-        "protocol": 6,
+        "protocol": 7,
         "screen-brightness": 25,
         "display": "fire",
         "color": "#00FF00",

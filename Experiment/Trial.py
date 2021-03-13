@@ -47,6 +47,7 @@ class Trial():
 
     def trigger(self, io) -> None:
         sharedKey = time.time_ns()
+        io.emit("ssync", (sharedKey))
         io.emit("meta", (sharedKey, "trial-start", self.id))
         if self.comment:
             io.emit("meta", (sharedKey, "comment", self.comment))

@@ -25,6 +25,11 @@ class SpatialTemporal():
             return True
         return False
 
+    def isOpposingBarSweep(self):
+        if (self.barDeg + self.spaceDeg == 180):
+            return True
+        return False
+
     def getBarSweepDuration(self, sweepAngleDeg=180):
         return ((sweepAngleDeg + 2*self.barDeg) / abs(self.rotateDegHz))*1000
 
@@ -67,6 +72,8 @@ class SpatialTemporal():
             startAngle = 180
         elif self.isSpaceSweep():
             startAngle = 360-self.spaceDeg/2
+        elif self.isOpposingBarSweep():
+            startAngle = 112
         else:
             warnings.warn("not 2 item pattern. Rotate to 0")
         io.emit('rotate-to', (sharedKey, math.radians(startAngle)))
