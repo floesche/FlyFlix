@@ -369,9 +369,12 @@ def threedee_dev():
 def localfictrac():
     while not start:
         time.sleep(0.1)
-    sptmp1 = SpatialTemporal(barDeg=30, spaceDeg=20, rotateDegHz=0)
-    ocond = OpenLoopCondition(spatialTemporal=sptmp1, trialDuration=Duration(500))
-    ocond.trigger(socketio)
+    sptmp1 = SpatialTemporal(barDeg=15, spaceDeg=105)
+    cnd = ClosedLoopCondition(
+        spatialTemporal=sptmp1, 
+        trialDuration=Duration(60000), 
+        gain=-1.0)
+    cnd.trigger(socketio)
     socketio.emit('rotate-to', (0, math.radians(-15)))
 
 @app.route('/fdev/')
@@ -379,27 +382,45 @@ def local_fictrac_dev():
     mthread = socketio.start_background_task(target = localfictrac)
     return render_template('bars.html')
 
+@socketio.on('pong')
+def pinpongs(seq, dttime):
+    dff = time.time_ns() -dttime
+    print(f"{seq}, {dff}", )
+
+def pingpong():
+    seq = 0
+    while 1:
+        socketio.emit("ping", (seq, time.time_ns()))
+        seq = seq + 1
+        time.sleep(0.1)
+
+
+
+@app.route('/ping/')
+def local_ping_dev():
+    mthread = socketio.start_background_task(target = pingpong)
+    return render_template('ping.html')
+
 
 def localexperiment():
     while not start:
         time.sleep(0.1)
-   
+    print(time.strftime("%H:%M:%S", time.localtime()))
     log_metadata()
 
     block = []
     counter = 0
 
-    
-
     # ## Grating spatial tuning 1Hz
-    # for alpha in [60, 45,  30, 15, 10]:
+    # for alpha in [60, 45,  30, 15, 10, 5, 2.5]:
     #     for direction in [-1, 1]:
     #         speed = 7.5
     #         rotationSpeed = alpha*2*speed*direction
     #         clBar = (360 + alpha * direction) % 360
-    #         gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
-    #         gaincount += 1
-    #         t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, gain=gain, comment=f"spatialtuning alpha {alpha} direction {direction} gain {gain}")
+    #         gain = 1.0
+    #         #gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
+    #         #gaincount += 1
+    #         t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, closedLoopDuration=Duration(1000), gain=gain, comment=f"spatialtuning alpha {alpha} direction {direction} gain {gain}")
     #         block.append(t)
     
     # ## grating 45° soeed tuning
@@ -428,32 +449,30 @@ def localexperiment():
     ## BarSweep
 
     speedcount = 0
-    #gains = [0, 0.1, 0.25, 0.5, 0.75, 1, 2]
-    speeds = [0.25, 1, 2, 4, 7.5, 15, 30, -0.25, -1, -2, -4, -7.5, -15, -30]
-
+    speeds = [0.25, 1, 4, 7.5, 15, 30, -0.25, -1, -4, -7.5, -15, -30]
+    alpha = 180
     #for gain in [0, 0.5, 1, 1.5, 2, 10]:
-    for gain in [0.5, 1, 1.5, -1]:
-        for alpha in [45, 315]:
+    for gain in [-1, -0.5, 0.5, 1, 1.5, 2, 4, 8]:
+        for clStart in [0, 90, 180, 270]:
             speed = speeds[speedcount % len(speeds)]
             speedcount += 1
-            rotationSpeed = alpha*2*speed
-            clBar = alpha
-            if alpha>180:
-                clBar = abs(180-alpha)
+            rotationSpeed = alpha*2*speed            
             t = Trial(
                 counter, 
-                barDeg=alpha, 
-                spaceDeg=360-alpha, 
+                barDeg=60, 
+                spaceDeg=300, 
                 openLoopDuration=None, 
                 sweep=1, 
                 rotateDegHz=rotationSpeed, 
-                clBarDeg=clBar, 
-                closedLoopDuration=Duration(2000), ## TODO
+                clBarDeg=alpha, 
+                clSpaceDeg=alpha,
+                clStartPosition=clStart,
+                closedLoopDuration=Duration(30000), 
                 gain=gain, 
-                comment = f"object speed {speed} clBar {clBar} gain {gain}")
+                comment = f"object speed {speed} bar {alpha} gain {gain}")
             block.append(t)
 
-    repetitions = 6
+    repetitions = 2
     blackBegin = Duration(10000)
     blackBegin.triggerDelay(socketio)
     for i in range(repetitions):
@@ -465,7 +484,7 @@ def localexperiment():
             t.setID(counter)
             t.trigger(socketio)
 
-    print(time.strftime("%H:%H:%S", time.localtime()))
+    print(time.strftime("%H:%M:%S", time.localtime()))
 
 
 @app.route('/edev/')
@@ -479,37 +498,52 @@ def log_metadata():
  
     metadata = {
         "fly-strain": "DL",
-        "fly-batch": "2021-01-23",
-        "day-start": "21:00:00",
-        "day-end": "13:00:00",
+        "fly-batch": "2021-03-02",
+        # "day-start": "7:00:00",
+        # "day-end": "19:00:00",
         "day-night-since": "2021-02-12",
 
-        "birth-start": "2021-03-01 21:00:00",
-        "birth-end": "2021-03-02 20:00:00",
+        "birth-start": "2021-03-10 21:00:00",
+        "birth-end": "2021-03-11 20:00:00",
 
-        "starvation-start": "2021-03-07 19:50:00",
+        "starvation-start": "2021-03-16 16:50:00",
 
-        "tether-start": "2021-03-07 19:55:00",
-        # "fly": 320,
-        # "tether-end"  : "2021-03-06 13:24:00",
+        # "tether-start": "2021-03-15 17:08:00",
+        # "fly": 370,
+        # "tether-end"  : "2021-03-15 17:16:00",
         # "sex": "f",
-        
-        # "fly": 321,
-        # "tether-end"  : "2021-03-06 13:27:00",
+        # "fly": 371,
+        # "tether-end"  : "2021-03-15 17:19:00",
+        # "sex": "m",
+        # "fly": 372,
+        # "tether-end"  : "2021-03-15 17:22:00",
+        # "sex": "m",
+        # "fly": 373,
+        # "tether-end"  : "2021-03-15 17:25:00",
+        # "sex": "m",
+        # "fly": 374,
+        # "tether-end"  : "2021-03-15 17:27:00",
+        # "sex": "m",
+
+        "day-start": "21:00:00",
+        "day-end": "13:00:00",
+        "tether-start": "2021-03-16 20:11:00",
+
+        # "fly": 375,
+        # "tether-end"  : "2021-03-16 20:20:00",
+        # "sex": "m",
+        # "fly": 376,
+        # "tether-end"  : "2021-03-16 20:23:00",
         # "sex": "f",
-
-        # "fly": 322,
-        # "tether-end"  : "2021-03-06 13:33:00",
+        # "fly": 377,
+        # "tether-end"  : "2021-03-16 20:26:00",
         # "sex": "f",
-
-        # "fly": 323,
-        # "tether-end"  : "2021-03-06 20:03:00",
+        # "fly": 378,
+        # "tether-end"  : "2021-03-16 20:29:00",
         # "sex": "f",
-
-        "fly": 324,
-        "tether-end"  : "2021-03-06 20:06:00",
-        "sex": "m",
-
+        "fly": 379,
+        "tether-end"  : "2021-03-16 20:32:00",
+        "sex": "f",
 
         "ball": "1",
         "air": "wall",
@@ -517,10 +551,10 @@ def log_metadata():
         
         "temperature": 32,
         "distance": 35,
-        "protocol": 7,
-        "screen-brightness": 25,
+        "protocol": 12,
+        "screen-brightness": 100,
         "display": "fire",
-        "color": "#00FF00",
+        "color": "#FFFFFF",
     }
     
     sharedKey = time.time_ns()
