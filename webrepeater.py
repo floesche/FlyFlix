@@ -13,6 +13,7 @@ import logging
 import random
 from datetime import datetime, timedelta
 import atexit
+from pathlib import Path
 from logging import FileHandler
 from flask.logging import default_handler
 
@@ -48,6 +49,14 @@ def before_first_request():
         FICTRAC_HOST = '127.0.0.1',
         FICTRAC_PORT = 1717
     )
+    data_path = Path("data")
+    if data_path.exists():
+        if not data_path.is_dir():
+            errmsg = "'data' exists as a file, but we need to create a directory with that name to log data"
+            app.logger.error(errmsg)
+            raise Exception("'data' exists as a file, but we need to create a directory with that name to log data")
+    else:
+        data_path.mkdir()
     csv_handler = FileHandler("data/repeater_{}.csv".format(time.strftime("%Y%m%d_%H%M%S")))
     csv_handler.setFormatter(CsvFormatter())
 
