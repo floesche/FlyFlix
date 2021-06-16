@@ -1,9 +1,5 @@
 #!/bin/env python
 
-from flask import Flask, render_template, url_for, request, abort
-from flask_socketio import SocketIO
-from jinja2 import TemplateNotFound
-from threading import Thread
 import socket
 import csv
 import math
@@ -15,7 +11,13 @@ from datetime import datetime, timedelta
 import atexit
 from pathlib import Path
 from logging import FileHandler
+from threading import Thread
+
+from flask import Flask, render_template, url_for, request, abort
 from flask.logging import default_handler
+from flask_socketio import SocketIO
+
+from jinja2 import TemplateNotFound
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -59,18 +61,19 @@ def before_first_request():
         data_path.mkdir()
     csv_handler = FileHandler("data/repeater_{}.csv".format(time.strftime("%Y%m%d_%H%M%S")))
     csv_handler.setFormatter(CsvFormatter())
-
     app.logger.removeHandler(default_handler)
     app.logger.setLevel(logging.INFO)
     app.logger.addHandler(csv_handler)
-    #app.logger.info(["shared", "key", "value"])
     app.logger.info(["clientTS", "requestTS", "key", "value"])
+
 
 def savedata(shared, key, value=0):
     app.logger.info([shared, key, value])
 
+
 def logdata(clientTS, requestTS, key, value):
     app.logger.info([clientTS, requestTS, key, value])
+
 
 def trial(spatial, temporal, fictracGain, nthframe=1):
     preTrialDuration = 500
@@ -87,7 +90,6 @@ def trial(spatial, temporal, fictracGain, nthframe=1):
         moveSweep(2, temporal, nthframe)
     else :
         moveOpenLoop(trialDuration, temporal, nthframe)
-    
     savedata(sharedKey, "post-trial-duration", postTrialDuration)
     socketio.emit('speed', (sharedKey, 0))
     turnOffScreen(postTrialDuration, 1)
@@ -109,8 +111,7 @@ def calibrate():
 def experiment():
     sharedKey = time.time()
     savedata(sharedKey, "pre-experiment-begin")
-    
-    
+
     savedata(sharedKey, "day-start", "7:00:00")
     savedata(sharedKey, "fly-strain", "DL")
     savedata(sharedKey, "distance", 35)
@@ -119,7 +120,6 @@ def experiment():
     savedata(sharedKey, "ball", "1")
     savedata(sharedKey, "air", "wall")
     savedata(sharedKey, "glue", "KOA")
-
 
     savedata(sharedKey, "birthdate-from", "2021-02-17 19:00:00")
     savedata(sharedKey, "birthdate-to", "2021-02-18 20:00:00")
@@ -158,14 +158,12 @@ def experiment():
     savedata(sharedKey, "screen-brightness", 25)
     savedata(sharedKey, "protocol", 6)
 
-
     savedata(sharedKey, "pre-experiment-screen-off")
     socketio.emit('screen', 0)
     while not start:
         time.sleep(0.1)
     savedata(sharedKey, "pre-experiment-screen-on")
     socketio.emit('screen', 1)
-    
     # ### Experiment
     preExperimentDuration = 15000
     savedata(0, "pre-experiment-duration", preExperimentDuration)
@@ -195,6 +193,7 @@ def experiment():
     ### Calibration
     # calibrate()
 
+
 def moveOpenLoop(duration=3000, direction=1, nthframe = 1):
     ttime = datetime.now() + timedelta(milliseconds=duration)
     sharedKey = time.time_ns()
@@ -204,6 +203,7 @@ def moveOpenLoop(duration=3000, direction=1, nthframe = 1):
     socketio.emit('nthframe', nthframe)
     while datetime.now() < ttime:
         time.sleep(0.01)
+
 
 def moveSweep(sweepCount=1, direction=1, nthframe = 1):
     sharedKey = time.time_ns()
@@ -225,6 +225,7 @@ def turnOffScreen(duration=1000, offvalue=0, background="#000000"):
     while datetime.now() < ttime:
         time.sleep(0.01)
     # socketio.emit('screen', 1)
+
 
 def changeSpatOff(spatial, duration=1000, offvalue=0, background="#000000"):
     sharedKey = time.time()
@@ -265,7 +266,6 @@ def listenFictrac():
             data = new_data.decode('UTF-8')
         except: # If Fictrac doesn't exist
             print("Fictrac is not running.")
-
         while True:
             new_data = sock.recv(1024)
             if not new_data:
@@ -288,16 +288,18 @@ def listenFictrac():
             if updateFictrac:
                 savedata(cnt, "fictrac-change-speed", updateval)
                 socketio.emit('speed', (cnt, updateval))
-
             prevheading = heading
+
 
 @socketio.on("connect")
 def connect():
     print("Client connected", request.sid)
 
+
 @socketio.on("disconnect")
 def disconnect():
     print("Client disconnected", request.sid)
+
 
 @socketio.on('start-experiment')
 def finally_start(number):
@@ -305,6 +307,7 @@ def finally_start(number):
     print("Started")
     global start
     start = True
+
 
 @socketio.on('slog')
 def server_log(json):
@@ -315,26 +318,32 @@ def server_log(json):
 def server_client_sync(clientTS, requestTS, key):
     logdata(clientTS, requestTS, key, time.time_ns())
 
+
 @socketio.on('dl')
 def data_logger(clientTS, requestTS, key, value):
     logdata(clientTS, requestTS, key, value)
 
+
 @socketio.on('display')
 def display_event(json):
     savedata(json['cnt'], "display-offset", json['counter'])
+
 
 @socketio.on('sweep-counter')
 def sweepCounterReached(counter):
     global sweepCounterReached
     sweepCounterReached = True
 
+
 @app.route('/')
 def hello_world():
     return render_template('index.html')
 
+
 @app.route('/playback/')
 def playback():
     return render_template('playback.html')
+
 
 @app.route('/fictrac/')
 def hello():
@@ -345,21 +354,18 @@ def hello():
     except TemplateNotFound:
         abort(404)
 
+
 def localmove():
     while not start:
         time.sleep(0.1)
-
     sptmp1 = SpatialTemporal(barDeg=10, spaceDeg=10, rotateDegHz = 0)
     sptmp2 = SpatialTemporal(barDeg=10, spaceDeg=10, rotateDegHz=-100)
     dur = Duration(500000)
     cond1 = OpenLoopCondition(spatialTemporal=sptmp1, trialDuration=dur)
     cond2 = OpenLoopCondition(spatialTemporal=sptmp2, trialDuration=dur)
-
     cond1.trigger(socketio)
-
     sweeptmp1 = SpatialTemporal(barDeg=3, spaceDeg=357, rotateDegHz=-30)
     cond3 = SweepCondition(spatialTemporal=sweeptmp1)
-
     cond3.trigger(socketio)
 
 
@@ -456,7 +462,6 @@ def localexperiment():
     #         block.append(t)
 
     ## BarSweep
-
     speedcount = 0
     speeds = [0.25, 1, 4, 7.5, 15, 30, -0.25, -1, -4, -7.5, -15, -30]
     alpha = 180
@@ -480,7 +485,6 @@ def localexperiment():
                 gain=gain, 
                 comment = f"object speed {speed} bar {alpha} gain {gain}")
             block.append(t)
-
     repetitions = 2
     blackBegin = Duration(10000)
     blackBegin.triggerDelay(socketio)
@@ -492,7 +496,6 @@ def localexperiment():
             print(f"Condition {counter} of {len(block*repetitions)}")
             t.setID(counter)
             t.trigger(socketio)
-
     print(time.strftime("%H:%M:%S", time.localtime()))
 
 
@@ -569,8 +572,6 @@ def log_metadata():
     sharedKey = time.time_ns()
     for key, value in metadata.items():
         logdata(0, sharedKey, key, value)
-
-
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port = 17000)
