@@ -1,26 +1,24 @@
 #!/bin/env python
 
 import socket
-import csv
 import math
-import io
 import time
 import logging
 import random
+
 from datetime import datetime, timedelta
-import atexit
 from pathlib import Path
 from logging import FileHandler
-from threading import Thread
 
-from flask import Flask, render_template, url_for, request, abort
+import eventlet
+
+from flask import Flask, render_template, request, abort
 from flask.logging import default_handler
 from flask_socketio import SocketIO
 
 from jinja2 import TemplateNotFound
 
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.interval import IntervalTrigger
+from engineio.payload import Payload
 
 from Experiment import SpatialTemporal, Duration, OpenLoopCondition, SweepCondition, ClosedLoopCondition, Trial, CsvFormatter
 
@@ -31,13 +29,13 @@ updateFictrac = False
 fictracGain = 100
 sweepCounterReached = False
 
-from engineio.payload import Payload
+
 Payload.max_decode_packets = 500
 
 # Using eventlet breaks UDP reading thread unless patched. See http://eventlet.net/doc/basic_usage.html?highlight=monkey_patch#patching-functions for more.
 #
 # Alternatively disable eventlet and use development libraries via `socketio = SocketIO(app, async_mode='threading')`
-import eventlet
+
 eventlet.monkey_patch()
 # socketio = SocketIO(app)
 # FIXME: find out if CORS is needed
@@ -80,89 +78,89 @@ def trial(spatial, temporal, fictracGain, nthframe=1):
     trialDuration = 3000
     postTrialDuration = 500
     closedLoopTime = 5000
-    sharedKey = time.time()
-    savedata(sharedKey, "pre-trial-duration", preTrialDuration)
-    socketio.emit('speed', (sharedKey, 0))
+    shared_key = time.time()
+    savedata(shared_key, "pre-trial-duration", preTrialDuration)
+    socketio.emit('speed', (shared_key, 0))
     changeSpatOff(spatial, preTrialDuration, 1)
-    savedata(sharedKey, "move-speed", temporal)
-    savedata(sharedKey, "open-loop-duration", trialDuration)
+    savedata(shared_key, "move-speed", temporal)
+    savedata(shared_key, "open-loop-duration", trialDuration)
     if spatial<1 :
         moveSweep(2, temporal, nthframe)
     else :
         moveOpenLoop(trialDuration, temporal, nthframe)
-    savedata(sharedKey, "post-trial-duration", postTrialDuration)
-    socketio.emit('speed', (sharedKey, 0))
+    savedata(shared_key, "post-trial-duration", postTrialDuration)
+    socketio.emit('speed', (shared_key, 0))
     turnOffScreen(postTrialDuration, 1)
-    savedata(sharedKey, "post-trial-end")
+    savedata(shared_key, "post-trial-end")
     socketio.emit('screen', 1)
-    savedata(sharedKey, "closed-loop-start", fictracGain)
+    savedata(shared_key, "closed-loop-start", fictracGain)
     turnOnFictrac(closedLoopTime, fictracGain)
-    savedata(sharedKey, "closed-loop-end")
+    savedata(shared_key, "closed-loop-end")
 
 def calibrate():
-    sharedKey = time.time()
-    savedata(sharedKey, "protocol", "calibration-closed-loop")
+    shared_key = time.time()
+    savedata(shared_key, "protocol", "calibration-closed-loop")
     changeSpatOff(3, 3000)
     turnOnFictrac(60000, 50)
-    savedata(sharedKey, "screen-off")
+    savedata(shared_key, "screen-off")
     socketio.emit('screen', 0)
 
 
 def experiment():
-    sharedKey = time.time()
-    savedata(sharedKey, "pre-experiment-begin")
+    shared_key = time.time()
+    savedata(shared_key, "pre-experiment-begin")
 
-    savedata(sharedKey, "day-start", "7:00:00")
-    savedata(sharedKey, "fly-strain", "DL")
-    savedata(sharedKey, "distance", 35)
+    savedata(shared_key, "day-start", "7:00:00")
+    savedata(shared_key, "fly-strain", "DL")
+    savedata(shared_key, "distance", 35)
 
-    savedata(sharedKey, "temperature", 32)
-    savedata(sharedKey, "ball", "1")
-    savedata(sharedKey, "air", "wall")
-    savedata(sharedKey, "glue", "KOA")
+    savedata(shared_key, "temperature", 32)
+    savedata(shared_key, "ball", "1")
+    savedata(shared_key, "air", "wall")
+    savedata(shared_key, "glue", "KOA")
 
-    savedata(sharedKey, "birthdate-from", "2021-02-17 19:00:00")
-    savedata(sharedKey, "birthdate-to", "2021-02-18 20:00:00")
-    savedata(sharedKey, "starvation-start", "2021-02-11 14:00:00")
-    savedata(sharedKey, "fly-batch", "2021-01-23")
-    # savedata(sharedKey, "fly", 230)
-    # savedata(sharedKey, "tether-start", "2012-02-11 15:55:00")
-    # savedata(sharedKey, "sex", "")
+    savedata(shared_key, "birthdate-from", "2021-02-17 19:00:00")
+    savedata(shared_key, "birthdate-to", "2021-02-18 20:00:00")
+    savedata(shared_key, "starvation-start", "2021-02-11 14:00:00")
+    savedata(shared_key, "fly-batch", "2021-01-23")
+    # savedata(shared_key, "fly", 230)
+    # savedata(shared_key, "tether-start", "2012-02-11 15:55:00")
+    # savedata(shared_key, "sex", "")
 
-    # savedata(sharedKey, "fly", 231)
-    # savedata(sharedKey, "tether-start", "2012-02-11 16:00:00")
-    # savedata(sharedKey, "sex", "")
+    # savedata(shared_key, "fly", 231)
+    # savedata(shared_key, "tether-start", "2012-02-11 16:00:00")
+    # savedata(shared_key, "sex", "")
 
-    # savedata(sharedKey, "fly", 232)
-    # savedata(sharedKey, "tether-start", "2012-02-11 16:09:00")
-    # savedata(sharedKey, "sex", "")
+    # savedata(shared_key, "fly", 232)
+    # savedata(shared_key, "tether-start", "2012-02-11 16:09:00")
+    # savedata(shared_key, "sex", "")
 
-    # savedata(sharedKey, "fly", 233)
-    # savedata(sharedKey, "tether-start", "2012-02-11 18:52:00")
-    # savedata(sharedKey, "sex", "")
+    # savedata(shared_key, "fly", 233)
+    # savedata(shared_key, "tether-start", "2012-02-11 18:52:00")
+    # savedata(shared_key, "sex", "")
 
-    # savedata(sharedKey, "fly", 234)
-    # savedata(sharedKey, "tether-start", "2012-02-11 18:56:00")
-    # savedata(sharedKey, "sex", "")
+    # savedata(shared_key, "fly", 234)
+    # savedata(shared_key, "tether-start", "2012-02-11 18:56:00")
+    # savedata(shared_key, "sex", "")
 
-    # savedata(sharedKey, "fly", 235)
-    # savedata(sharedKey, "tether-start", "2012-02-11 19:04:00")
-    # savedata(sharedKey, "sex", "")
+    # savedata(shared_key, "fly", 235)
+    # savedata(shared_key, "tether-start", "2012-02-11 19:04:00")
+    # savedata(shared_key, "sex", "")
 
-    savedata(sharedKey, "fly", 236)
-    savedata(sharedKey, "tether-start", "2012-02-11 19:09:00")
-    savedata(sharedKey, "sex", "")
+    savedata(shared_key, "fly", 236)
+    savedata(shared_key, "tether-start", "2012-02-11 19:09:00")
+    savedata(shared_key, "sex", "")
 
-    savedata(sharedKey, "display", "fire")
-    savedata(sharedKey, "color", "#00FF00")
-    savedata(sharedKey, "screen-brightness", 25)
-    savedata(sharedKey, "protocol", 6)
+    savedata(shared_key, "display", "fire")
+    savedata(shared_key, "color", "#00FF00")
+    savedata(shared_key, "screen-brightness", 25)
+    savedata(shared_key, "protocol", 6)
 
-    savedata(sharedKey, "pre-experiment-screen-off")
+    savedata(shared_key, "pre-experiment-screen-off")
     socketio.emit('screen', 0)
     while not start:
         time.sleep(0.1)
-    savedata(sharedKey, "pre-experiment-screen-on")
+    savedata(shared_key, "pre-experiment-screen-on")
     socketio.emit('screen', 1)
     # ### Experiment
     preExperimentDuration = 15000
@@ -172,7 +170,7 @@ def experiment():
     trialCount = 1
     while blockRepetitionCount < 5:
         blockRepetitionCount = blockRepetitionCount + 1
-        savedata(sharedKey, "block-repetition-count-start", blockRepetitionCount)
+        savedata(shared_key, "block-repetition-count-start", blockRepetitionCount)
         trials = list()
         for i in [1, 2, 4, 8, 16]: # Nr of bars
             for j in [0.1, 0.5, 1, 2, 4, 8, 16, 32]: # in Hz
@@ -182,13 +180,13 @@ def experiment():
         trials = random.sample(trials, k=len(trials))
 
         for currentTrial in trials:
-            savedata(sharedKey, "trial-count-start", trialCount)
+            savedata(shared_key, "trial-count-start", trialCount)
             trial(currentTrial[0], currentTrial[1], random.randrange(10, 100, 10))
-            savedata(sharedKey, "trial-count-end", trialCount)
+            savedata(shared_key, "trial-count-end", trialCount)
             trialCount = trialCount + 1
-        savedata(sharedKey, "block-repetition-count-end", blockRepetitionCount)
+        savedata(shared_key, "block-repetition-count-end", blockRepetitionCount)
         
-    savedata(sharedKey, "end-screen-off")
+    savedata(shared_key, "end-screen-off")
     socketio.emit('screen', 0)
     ### Calibration
     # calibrate()
@@ -196,22 +194,22 @@ def experiment():
 
 def moveOpenLoop(duration=3000, direction=1, nthframe = 1):
     ttime = datetime.now() + timedelta(milliseconds=duration)
-    sharedKey = time.time_ns()
-    savedata(sharedKey, "send-stripe-update", direction)
-    socketio.emit('speed', (sharedKey, direction))
-    savedata(sharedKey, "show-only-nth-frame", nthframe)
+    shared_key = time.time_ns()
+    savedata(shared_key, "send-stripe-update", direction)
+    socketio.emit('speed', (shared_key, direction))
+    savedata(shared_key, "show-only-nth-frame", nthframe)
     socketio.emit('nthframe', nthframe)
     while datetime.now() < ttime:
         time.sleep(0.01)
 
 
 def moveSweep(sweepCount=1, direction=1, nthframe = 1):
-    sharedKey = time.time_ns()
-    savedata(sharedKey, "send-stripe-update", direction)
-    socketio.emit('speed', (sharedKey, direction))
-    savedata(sharedKey, "send-sweep-reset", sweepCount)
+    shared_key = time.time_ns()
+    savedata(shared_key, "send-stripe-update", direction)
+    socketio.emit('speed', (shared_key, direction))
+    savedata(shared_key, "send-sweep-reset", sweepCount)
     socketio.emit('sweepcount', sweepCount)
-    savedata(sharedKey, "show-only-nth-frame", nthframe)
+    savedata(shared_key, "show-only-nth-frame", nthframe)
     socketio.emit('nthframe', nthframe)
     global sweepCounterReached
     sweepCounterReached = False
@@ -228,31 +226,31 @@ def turnOffScreen(duration=1000, offvalue=0, background="#000000"):
 
 
 def changeSpatOff(spatial, duration=1000, offvalue=0, background="#000000"):
-    sharedKey = time.time()
+    shared_key = time.time()
     ttime = datetime.now() + timedelta(milliseconds=duration)
-    savedata(sharedKey, "changeSpatOff-duration", duration)
+    savedata(shared_key, "changeSpatOff-duration", duration)
     socketio.emit('screen', (offvalue, background))
     time.sleep(0.01)
-    savedata(sharedKey, "changeSpatOff-spatial", spatial)
+    savedata(shared_key, "changeSpatOff-spatial", spatial)
     socketio.emit('spatfreq', spatial)
     while datetime.now() < ttime:
         time.sleep(0.01)
-    savedata(sharedKey, "changeSpatOff-on")
+    savedata(shared_key, "changeSpatOff-on")
     socketio.emit('screen', 1)
 
 
 def turnOnFictrac(duration=3000, gain=100):
-    sharedKey = time.time()
+    shared_key = time.time()
     ttime = datetime.now() + timedelta(milliseconds=duration)
     global updateFictrac
     global fictracGain
     updateFictrac = True
     fictracGain = gain
-    savedata(sharedKey, "fictrac-gain", gain)
+    savedata(shared_key, "fictrac-gain", gain)
     while datetime.now() < ttime:
         time.sleep(0.01)
     updateFictrac = False
-    savedata(sharedKey, "fictrac-end")
+    savedata(shared_key, "fictrac-end")
 
 
 def listenFictrac():
@@ -278,7 +276,7 @@ def listenFictrac():
             # Tokenise
             toks = line.split(", ")
 		    # Check that we have sensible tokens
-            if ((len(toks) < 24) | (toks[0] != "FT")):
+            if (len(toks) < 24) | (toks[0] != "FT"):
                 continue
             cnt = int(toks[1])
             heading = float(toks[17])
@@ -311,8 +309,8 @@ def finally_start(number):
 
 @socketio.on('slog')
 def server_log(json):
-    sharedKey = time.time()
-    savedata(sharedKey, json['key'], json['value'])
+    shared_key = time.time()
+    savedata(shared_key, json['key'], json['value'])
 
 @socketio.on('csync')
 def server_client_sync(clientTS, requestTS, key):
@@ -330,7 +328,7 @@ def display_event(json):
 
 
 @socketio.on('sweep-counter')
-def sweepCounterReached(counter):
+def sweepCounterReached():
     global sweepCounterReached
     sweepCounterReached = True
 
@@ -347,37 +345,36 @@ def playback():
 
 @app.route('/fictrac/')
 def hello():
-    ethread = socketio.start_background_task(target = experiment)
-    fthread = socketio.start_background_task(target = listenFictrac)
+    _ = socketio.start_background_task(target = experiment)
+    _ = socketio.start_background_task(target = listenFictrac)
     try:
-        return render_template('fictrac_canvas.html')
+        pass
     except TemplateNotFound:
         abort(404)
+    return render_template('fictrac_canvas.html')
 
 
 def localmove():
     while not start:
         time.sleep(0.1)
     sptmp1 = SpatialTemporal(barDeg=10, spaceDeg=10, rotateDegHz = 0)
-    sptmp2 = SpatialTemporal(barDeg=10, spaceDeg=10, rotateDegHz=-100)
     dur = Duration(500000)
     cond1 = OpenLoopCondition(spatialTemporal=sptmp1, trialDuration=dur)
-    cond2 = OpenLoopCondition(spatialTemporal=sptmp2, trialDuration=dur)
     cond1.trigger(socketio)
     sweeptmp1 = SpatialTemporal(barDeg=3, spaceDeg=357, rotateDegHz=-30)
-    cond3 = SweepCondition(spatialTemporal=sweeptmp1)
-    cond3.trigger(socketio)
+    cond2 = SweepCondition(spatialTemporal=sweeptmp1)
+    cond2.trigger(socketio)
 
 
 @app.route('/ldev/')
 def local_dev():
-    mthread = socketio.start_background_task(target = localmove)
+    _ = socketio.start_background_task(target = localmove)
     return render_template('fictrac_canvas.html')
 
 @app.route('/bdev/')
 def threedee_dev():
-    trial = Trial(1, barDeg=30)
-    mthread = socketio.start_background_task(target=localmove)
+    _ = Trial(1, barDeg=30)
+    _ = socketio.start_background_task(target=localmove)
     return render_template('bars.html')
 
 
@@ -394,7 +391,7 @@ def localfictrac():
 
 @app.route('/fdev/')
 def local_fictrac_dev():
-    mthread = socketio.start_background_task(target = localfictrac)
+    _ = socketio.start_background_task(target = localfictrac)
     return render_template('bars.html')
 
 @socketio.on('pong')
@@ -413,7 +410,7 @@ def pingpong():
 
 @app.route('/ping/')
 def local_ping_dev():
-    mthread = socketio.start_background_task(target = pingpong)
+    _ = socketio.start_background_task(target = pingpong)
     return render_template('ping.html')
 
 
@@ -430,23 +427,23 @@ def localexperiment():
     # for alpha in [60, 45,  30, 15, 10, 5, 2.5]:
     #     for direction in [-1, 1]:
     #         speed = 7.5
-    #         rotationSpeed = alpha*2*speed*direction
+    #         rotation_speed = alpha*2*speed*direction
     #         clBar = (360 + alpha * direction) % 360
     #         gain = 1.0
     #         #gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
     #         #gaincount += 1
-    #         t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, closedLoopDuration=Duration(1000), gain=gain, comment=f"spatialtuning alpha {alpha} direction {direction} gain {gain}")
+    #         t = Trial(counter, barDeg=alpha, rotateDegHz=rotation_speed, clBarDeg=clBar, closedLoopDuration=Duration(1000), gain=gain, comment=f"spatialtuning alpha {alpha} direction {direction} gain {gain}")
     #         block.append(t)
     
     # ## grating 45° soeed tuning
     # for speed in [0.25, 1, 2, 4, 7.5, 15, 30]:
     #     for direction in [-1, 1]:
     #         alpha = 45
-    #         rotationSpeed = alpha*2*speed*direction
+    #         rotation_speed = alpha*2*speed*direction
     #         clBar = (360 + alpha * direction*-1) % 360
     #         gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
     #         gaincount += 1
-    #         t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, gain=gain, comment=f"speedtuning speed {speed} direction {direction} gain {gain}")
+    #         t = Trial(counter, barDeg=alpha, rotateDegHz=rotation_speed, clBarDeg=clBar, gain=gain, comment=f"speedtuning speed {speed} direction {direction} gain {gain}")
     #         block.append(t)
 
     # ## Stepsize tuning
@@ -454,11 +451,11 @@ def localexperiment():
     #     for direction in [-1, 1]:
     #         alpha = 45
     #         speed = 7.5
-    #         rotationSpeed = alpha*2*speed*direction
+    #         rotation_speed = alpha*2*speed*direction
     #         clBar = (360 + alpha * direction) % 360
     #         gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
     #         gaincount += 1
-    #         t = Trial(counter, barDeg=alpha, rotateDegHz=rotationSpeed, clBarDeg=clBar, fps=fps, gain=gain, comment = f"stepsize fps {fps} direction {direction} gain {gain}")
+    #         t = Trial(counter, barDeg=alpha, rotateDegHz=rotation_speed, clBarDeg=clBar, fps=fps, gain=gain, comment = f"stepsize fps {fps} direction {direction} gain {gain}")
     #         block.append(t)
 
     ## BarSweep
@@ -467,42 +464,42 @@ def localexperiment():
     alpha = 180
     #for gain in [0, 0.5, 1, 1.5, 2, 10]:
     for gain in [-1, -0.5, 0.5, 1, 1.5, 2, 4, 8]:
-        for clStart in [0, 90, 180, 270]:
+        for cl_start in [0, 90, 180, 270]:
             speed = speeds[speedcount % len(speeds)]
             speedcount += 1
-            rotationSpeed = alpha*2*speed            
-            t = Trial(
+            rotation_speed = alpha*2*speed            
+            current_trial = Trial(
                 counter, 
                 barDeg=60, 
                 spaceDeg=300, 
                 openLoopDuration=None, 
                 sweep=1, 
-                rotateDegHz=rotationSpeed, 
+                rotateDegHz=rotation_speed, 
                 clBarDeg=alpha, 
                 clSpaceDeg=alpha,
-                clStartPosition=clStart,
+                clStartPosition=cl_start,
                 closedLoopDuration=Duration(30000), 
                 gain=gain, 
                 comment = f"object speed {speed} bar {alpha} gain {gain}")
-            block.append(t)
+            block.append(current_trial)
     repetitions = 2
-    blackBegin = Duration(10000)
-    blackBegin.triggerDelay(socketio)
+    opening_black_screen = Duration(10000)
+    opening_black_screen.triggerDelay(socketio)
     for i in range(repetitions):
         socketio.emit("meta", (time.time_ns(), "block-repetition", i))
         block = random.sample(block, k=len(block))
-        for t in block:
+        for current_trial in block:
             counter = counter + 1
             print(f"Condition {counter} of {len(block*repetitions)}")
-            t.setID(counter)
-            t.trigger(socketio)
+            current_trial.setID(counter)
+            current_trial.trigger(socketio)
     print(time.strftime("%H:%M:%S", time.localtime()))
 
 
 @app.route('/edev/')
 def local_experiment_dev():
     print("Starting edev")
-    mthread = socketio.start_background_task(target = localexperiment)
+    _ = socketio.start_background_task(target = localexperiment)
     return render_template('bars.html')
 
 
@@ -569,9 +566,9 @@ def log_metadata():
         "color": "#FFFFFF",
     }
     
-    sharedKey = time.time_ns()
+    shared_key = time.time_ns()
     for key, value in metadata.items():
-        logdata(0, sharedKey, key, value)
+        logdata(0, shared_key, key, value)
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port = 17000)
