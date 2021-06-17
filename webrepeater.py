@@ -74,23 +74,23 @@ def logdata(clientTS, requestTS, key, value):
 
 
 def trial(spatial, temporal, fictracGain, nthframe=1):
-    preTrialDuration = 500
-    trialDuration = 3000
-    postTrialDuration = 500
+    pretrial_duration = 500
+    trial_duration = 3000
+    posttrial_duration = 500
     closedLoopTime = 5000
     shared_key = time.time()
-    savedata(shared_key, "pre-trial-duration", preTrialDuration)
+    savedata(shared_key, "pre-trial-duration", pretrial_duration)
     socketio.emit('speed', (shared_key, 0))
-    changeSpatOff(spatial, preTrialDuration, 1)
+    changeSpatOff(spatial, pretrial_duration, 1)
     savedata(shared_key, "move-speed", temporal)
-    savedata(shared_key, "open-loop-duration", trialDuration)
+    savedata(shared_key, "open-loop-duration", trial_duration)
     if spatial<1 :
         moveSweep(2, temporal, nthframe)
     else :
-        moveOpenLoop(trialDuration, temporal, nthframe)
-    savedata(shared_key, "post-trial-duration", postTrialDuration)
+        moveOpenLoop(trial_duration, temporal, nthframe)
+    savedata(shared_key, "post-trial-duration", posttrial_duration)
     socketio.emit('speed', (shared_key, 0))
-    turnOffScreen(postTrialDuration, 1)
+    turnOffScreen(posttrial_duration, 1)
     savedata(shared_key, "post-trial-end")
     socketio.emit('screen', 1)
     savedata(shared_key, "closed-loop-start", fictracGain)
@@ -280,9 +280,9 @@ def listenFictrac():
                 continue
             cnt = int(toks[1])
             heading = float(toks[17])
-            ts = float(toks[22])
+            timestamp = float(toks[22])
             updateval = (heading-prevheading) * fictracGain * -1
-            savedata(ts, "heading", heading)
+            savedata(timestamp, "heading", heading)
             if updateFictrac:
                 savedata(cnt, "fictrac-change-speed", updateval)
                 socketio.emit('speed', (cnt, updateval))
@@ -357,12 +357,12 @@ def hello():
 def localmove():
     while not start:
         time.sleep(0.1)
-    sptmp1 = SpatialTemporal(barDeg=10, spaceDeg=10, rotateDegHz = 0)
+    sptmp1 = SpatialTemporal(bar_deg=10, space_deg=10, rotate_deg_hz = 0)
     dur = Duration(500000)
-    cond1 = OpenLoopCondition(spatialTemporal=sptmp1, trialDuration=dur)
+    cond1 = OpenLoopCondition(spatial_temporal=sptmp1, trial_duration=dur)
     cond1.trigger(socketio)
-    sweeptmp1 = SpatialTemporal(barDeg=3, spaceDeg=357, rotateDegHz=-30)
-    cond2 = SweepCondition(spatialTemporal=sweeptmp1)
+    sweeptmp1 = SpatialTemporal(bar_deg=3, space_deg=357, rotate_deg_hz=-30)
+    cond2 = SweepCondition(spatial_temporal=sweeptmp1)
     cond2.trigger(socketio)
 
 
@@ -373,7 +373,7 @@ def local_dev():
 
 @app.route('/bdev/')
 def threedee_dev():
-    _ = Trial(1, barDeg=30)
+    _ = Trial(1, bar_deg=30)
     _ = socketio.start_background_task(target=localmove)
     return render_template('bars.html')
 
@@ -381,10 +381,10 @@ def threedee_dev():
 def localfictrac():
     while not start:
         time.sleep(0.1)
-    sptmp1 = SpatialTemporal(barDeg=15, spaceDeg=105)
+    sptmp1 = SpatialTemporal(bar_deg=15, space_deg=105)
     cnd = ClosedLoopCondition(
-        spatialTemporal=sptmp1, 
-        trialDuration=Duration(60000), 
+        spatial_temporal=sptmp1, 
+        trial_duration=Duration(60000), 
         gain=-1.0)
     cnd.trigger(socketio)
     socketio.emit('rotate-to', (0, math.radians(-15)))
@@ -432,7 +432,7 @@ def localexperiment():
     #         gain = 1.0
     #         #gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
     #         #gaincount += 1
-    #         t = Trial(counter, barDeg=alpha, rotateDegHz=rotation_speed, clBarDeg=clBar, closedLoopDuration=Duration(1000), gain=gain, comment=f"spatialtuning alpha {alpha} direction {direction} gain {gain}")
+    #         t = Trial(counter, bar_deg=alpha, rotate_deg_hz=rotation_speed, closedloop_bar_deg=clBar, closedloop_duration=Duration(1000), gain=gain, comment=f"spatialtuning alpha {alpha} direction {direction} gain {gain}")
     #         block.append(t)
     
     # ## grating 45° soeed tuning
@@ -443,7 +443,7 @@ def localexperiment():
     #         clBar = (360 + alpha * direction*-1) % 360
     #         gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
     #         gaincount += 1
-    #         t = Trial(counter, barDeg=alpha, rotateDegHz=rotation_speed, clBarDeg=clBar, gain=gain, comment=f"speedtuning speed {speed} direction {direction} gain {gain}")
+    #         t = Trial(counter, bar_deg=alpha, rotate_deg_hz=rotation_speed, closedloop_bar_deg=clBar, gain=gain, comment=f"speedtuning speed {speed} direction {direction} gain {gain}")
     #         block.append(t)
 
     # ## Stepsize tuning
@@ -455,7 +455,7 @@ def localexperiment():
     #         clBar = (360 + alpha * direction) % 360
     #         gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
     #         gaincount += 1
-    #         t = Trial(counter, barDeg=alpha, rotateDegHz=rotation_speed, clBarDeg=clBar, fps=fps, gain=gain, comment = f"stepsize fps {fps} direction {direction} gain {gain}")
+    #         t = Trial(counter, bar_deg=alpha, rotate_deg_hz=rotation_speed, closedloop_bar_deg=clBar, fps=fps, gain=gain, comment = f"stepsize fps {fps} direction {direction} gain {gain}")
     #         block.append(t)
 
     ## BarSweep
@@ -470,15 +470,15 @@ def localexperiment():
             rotation_speed = alpha*2*speed            
             current_trial = Trial(
                 counter, 
-                barDeg=60, 
-                spaceDeg=300, 
-                openLoopDuration=None, 
+                bar_deg=60, 
+                space_deg=300, 
+                openloop_duration=None, 
                 sweep=1, 
-                rotateDegHz=rotation_speed, 
-                clBarDeg=alpha, 
-                clSpaceDeg=alpha,
-                clStartPosition=cl_start,
-                closedLoopDuration=Duration(30000), 
+                rotate_deg_hz=rotation_speed, 
+                closedloop_bar_deg=alpha, 
+                #closedloop_space_deg=alpha,    ## FIXME: doesn't exist anymore?
+                #cl_start_position=cl_start,    ## FIXME: doesn't exist anymore?
+                closedloop_duration=Duration(30000), 
                 gain=gain, 
                 comment = f"object speed {speed} bar {alpha} gain {gain}")
             block.append(current_trial)
@@ -491,20 +491,27 @@ def localexperiment():
         for current_trial in block:
             counter = counter + 1
             print(f"Condition {counter} of {len(block*repetitions)}")
-            current_trial.setID(counter)
+            current_trial.set_id(counter)
             current_trial.trigger(socketio)
     print(time.strftime("%H:%M:%S", time.localtime()))
 
 
 @app.route('/edev/')
 def local_experiment_dev():
+    """Runs function `localexperiment` for the route `/edev` in a background task and deliver the bars.html template."""
     print("Starting edev")
     _ = socketio.start_background_task(target = localexperiment)
     return render_template('bars.html')
 
 
 def log_metadata():
- 
+    """
+    The content of the `metadata` dictionary gets logged.
+    
+    This is a rudimentary way to save information related to the experiment to a file. Edit the content of the dictionary for each experiment.
+
+    TODO: Editing code to store information is not good. Needs to change.
+    """
     metadata = {
         "fly-strain": "DL",
         "fly-batch": "2021-03-02",
@@ -565,7 +572,6 @@ def log_metadata():
         "display": "fire",
         "color": "#FFFFFF",
     }
-    
     shared_key = time.time_ns()
     for key, value in metadata.items():
         logdata(0, shared_key, key, value)

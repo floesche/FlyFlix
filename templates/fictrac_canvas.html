@@ -46,7 +46,7 @@
         var gain = 1;
         var socket = io();
 
-        let sharedKey = 0;
+        let shared_key = 0;
 
         let previousFrameTS;
         let barSpeed = 100;
@@ -111,7 +111,7 @@
         }
 
         function setSharedKey(key){
-            sharedKey = key;
+            shared_key = key;
         }
 
         function setSpeed(speed){
@@ -178,7 +178,7 @@
                         ctx.fillRect(paintoffset + i[0], 0, i[1], canvas.height);
                     });
                 }
-                socket.emit('display', {cnt: sharedKey, counter: paintoffset});
+                socket.emit('display', {cnt: shared_key, counter: paintoffset});
             }
             previousFrameTS = timestamp;
             window.requestAnimationFrame(drawBars);

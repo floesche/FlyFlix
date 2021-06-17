@@ -84,7 +84,7 @@
             let elem = document.getElementById('restart');
             elem.style.visibility = "visible";
         });
-        socket.on('direction', function(cnt, ts, diff){
+        socket.on('direction', function(cnt, timestamp, diff){
             runBarUpdate(diff);
             socket.emit('display', {cnt: cnt, counter: counter});
         });

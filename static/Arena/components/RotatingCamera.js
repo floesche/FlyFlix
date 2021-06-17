@@ -23,9 +23,9 @@ class RotatingCamera extends PerspectiveCamera {
         this._log('camera-set-rotateRadHz', rotateRadHz);
     }
 
-    setRotateDegHz(rotateDegHz){
-        this.rotateRadHz = MathUtils.degToRad(rotateDegHz);
-        this._log('camera-set-rotateDegHz', rotateDegHz);
+    setRotateDegHz(rotate_deg_hz){
+        this.rotateRadHz = MathUtils.degToRad(rotate_deg_hz);
+        this._log('camera-set-rotate_deg_hz', rotate_deg_hz);
     }
 
     setRotationRad(rotation){

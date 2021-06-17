@@ -1,65 +1,88 @@
+"""Part of FlyFlix"""
+
 import warnings
 import time
 
 from . import Duration, SpatialTemporal, OpenLoopCondition, SweepCondition, ClosedLoopCondition
 
 class Trial():
+    """Single trial"""
 
     def __init__(self,
-                 id,
-                 barDeg=30, spaceDeg=None, 
-                 rotateDegHz=0, 
-                 openLoopDuration=Duration(3000), sweep=None, 
-                 clBarDeg = None,
-                 closedLoopDuration=Duration(5000), gain=1, 
-                 fps=60, 
-                 preTrialDuration=Duration(500), postTrialDuration=Duration(500),
+                 trial_id,
+                 bar_deg=30, space_deg=None,
+                 rotate_deg_hz=0,
+                 openloop_duration=Duration(3000), sweep=None,
+                 closedloop_bar_deg = None,
+                 closedloop_duration=Duration(5000), gain=1,
+                 fps=60,
+                 pretrial_duration=Duration(500), posttrial_duration=Duration(500),
                  comment=None) -> None:
+        """Define trial"""
 
-        if sweep is not None and openLoopDuration is not None:
+        if sweep is not None and openloop_duration is not None:
             warnings.warn("Cannot set sweep and duration. Duration will take precedence.")
-        if spaceDeg is None and barDeg > 0:
-            spaceDeg = barDeg
-        if 360 % (barDeg + spaceDeg) != 0:
-            warnings.warn(f"Pattern is not seamless: Bars are {barDeg}°, space is {spaceDeg}°.")
+        if space_deg is None and bar_deg > 0:
+            space_deg = bar_deg
+        if 360 % (bar_deg + space_deg) != 0:
+            warnings.warn(f"Pattern is not seamless: Bars are {bar_deg}°, space is {space_deg}°.")
         self.conditions = []
-        self.id = id
+        self.trial_id = trial_id
         self.comment = comment
 
-        olST = SpatialTemporal(barDeg=barDeg, spaceDeg=spaceDeg, rotateDegHz=rotateDegHz)
-        if openLoopDuration is not None:
-            olc = OpenLoopCondition(spatialTemporal=olST, trialDuration=openLoopDuration, fps=fps, preTrialDuration=preTrialDuration, postTrialDuration=postTrialDuration)
+        openloop_spatial_temporal = SpatialTemporal(
+            bar_deg=bar_deg,
+            space_deg=space_deg,
+            rotate_deg_hz=rotate_deg_hz)
+        if openloop_duration is not None:
+            olc = OpenLoopCondition(
+                spatial_temporal=openloop_spatial_temporal,
+                trial_duration=openloop_duration,
+                fps=fps,
+                pretrial_duration=pretrial_duration, posttrial_duration=posttrial_duration)
             self.conditions.append(olc)
         elif sweep is not None:
-            olc = SweepCondition(spatialTemporal=olST, sweepCount=1, fps=fps, preTrialDuration=preTrialDuration, postTrialDuration=postTrialDuration)
+            olc = SweepCondition(
+                spatial_temporal=openloop_spatial_temporal,
+                sweepCount=1, fps=fps,
+                pretrial_duration=pretrial_duration, posttrial_duration=posttrial_duration)
             self.conditions.append(olc)
         else:
             warnings.warn("Either sweep or duration needs to be set")
 
-        clST = olST
-        if clBarDeg is not None:
-            if clBarDeg > 0 and clBarDeg <= 180:
-                clST = SpatialTemporal(barDeg=clBarDeg, spaceDeg=(180-clBarDeg))
-            elif clBarDeg > 180 and clBarDeg <=360:
-                clST = SpatialTemporal(barDeg=clBarDeg-180, spaceDeg=360-clBarDeg)
-        clc = ClosedLoopCondition(spatialTemporal=clST, trialDuration=closedLoopDuration, gain=gain, fps=fps, preTrialDuration=preTrialDuration, postTrialDuration=postTrialDuration)
+        closedloop_spatial_temporal = openloop_spatial_temporal
+        if closedloop_bar_deg is not None:
+            if 0 < closedloop_bar_deg <= 180:
+                closedloop_spatial_temporal = SpatialTemporal(
+                    bar_deg=closedloop_bar_deg, space_deg=(180-closedloop_bar_deg))
+            elif 180 < closedloop_bar_deg <= 360:
+                closedloop_spatial_temporal = SpatialTemporal(
+                    bar_deg=closedloop_bar_deg-180, space_deg=360-closedloop_bar_deg)
+        clc = ClosedLoopCondition(
+            spatial_temporal=closedloop_spatial_temporal, trial_duration=closedloop_duration,
+            gain=gain, fps=fps,
+            pretrial_duration=pretrial_duration, posttrial_duration=posttrial_duration)
         self.conditions.append(clc)
 
-    def trigger(self, io) -> None:
-        sharedKey = time.time_ns()
-        io.emit("ssync", (sharedKey))
-        io.emit("meta", (sharedKey, "trial-start", self.id))
-        if self.comment:
-            io.emit("meta", (sharedKey, "comment", self.comment))
-        for count, condition in enumerate(self.conditions):
-            if (isinstance(condition, OpenLoopCondition) or isinstance(condition, SweepCondition)):
-                io.emit("meta", (sharedKey, "condition-type", "open-loop"))
-            elif isinstance(condition, ClosedLoopCondition):
-                io.emit("meta", (sharedKey, "condtiion-type", "closed-loop"))
-            io.emit("meta", (sharedKey, "condition-start", f"{self.id}.{count}"))
-            condition.trigger(io)
-            io.emit("meta", (sharedKey, "condition-end", f"{self.id}.{count}"))
-        io.emit("meta", (sharedKey, "trial-end", self.id))
 
-    def setID(self, id) -> None:
-        self.id = id
+    def trigger(self, socket_io) -> None:
+        """execute Trial"""
+        shared_key = time.time_ns()
+        socket_io.emit("ssync", (shared_key))
+        socket_io.emit("meta", (shared_key, "trial-start", self.trial_id))
+        if self.comment:
+            socket_io.emit("meta", (shared_key, "comment", self.comment))
+        for count, condition in enumerate(self.conditions):
+            if isinstance(condition, (OpenLoopCondition, SweepCondition)):
+                socket_io.emit("meta", (shared_key, "condition-type", "open-loop"))
+            elif isinstance(condition, ClosedLoopCondition):
+                socket_io.emit("meta", (shared_key, "condition-type", "closed-loop"))
+            socket_io.emit("meta", (shared_key, "condition-start", f"{self.trial_id}.{count}"))
+            condition.trigger(socket_io)
+            socket_io.emit("meta", (shared_key, "condition-end", f"{self.trial_id}.{count}"))
+        socket_io.emit("meta", (shared_key, "trial-end", self.trial_id))
+
+
+    def set_id(self, trial_id) -> None:
+        """set ID for trial"""
+        self.trial_id = trial_id

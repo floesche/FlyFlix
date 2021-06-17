@@ -5,32 +5,32 @@ from . import Duration, SpatialTemporal
 
 class OpenLoopCondition():
 
-    def __init__(self, spatialTemporal=None, trialDuration=None, fps=60, preTrialDuration=Duration(500), postTrialDuration=Duration(500)) -> None:
-        if spatialTemporal is None:
+    def __init__(self, spatial_temporal=None, trial_duration=None, fps=60, pretrial_duration=Duration(500), posttrial_duration=Duration(500)) -> None:
+        if spatial_temporal is None:
             warnings.warn("Spatial Temporal not set")
-        if trialDuration is None:
+        if trial_duration is None:
             warnings.warn("Duration not set")
         if fps <=0 or fps > 60:
             warnings.warn("fps outside meaningful constraints")
-        self.spatialTemporal = spatialTemporal
-        self.trialDuration = trialDuration
-        self.preTrialDuration = preTrialDuration
-        self.postTrialDuration = postTrialDuration
+        self.spatial_temporal = spatial_temporal
+        self.trial_duration = trial_duration
+        self.pretrial_duration = pretrial_duration
+        self.posttrial_duration = posttrial_duration
         self.fps = fps
 
-    def triggerFPS(self, io):
-        sharedKey = time.time_ns()
-        io.emit('fps', (sharedKey, self.fps))
+    def trigger_fps(self, socket_io):
+        shared_key = time.time_ns()
+        socket_io.emit('fps', (shared_key, self.fps))
 
-    def trigger(self, io):
-        sharedKey = time.time_ns()
-        io.emit("meta", (sharedKey, "openloop-start", 1))
-        self.triggerFPS(io)
-        self.spatialTemporal.triggerSpatial(io)
-        self.spatialTemporal.triggerStop(io)
-        self.preTrialDuration.triggerDelay(io)
-        self.spatialTemporal.triggerRotation(io)
-        self.trialDuration.triggerDelay(io)
-        self.spatialTemporal.triggerStop(io)
-        self.postTrialDuration.triggerDelay(io)
-        io.emit("meta", (sharedKey, "openloop-end", 1))
+    def trigger(self, socket_io):
+        shared_key = time.time_ns()
+        socket_io.emit("meta", (shared_key, "openloop-start", 1))
+        self.trigger_fps(socket_io)
+        self.spatial_temporal.triggerSpatial(socket_io)
+        self.spatial_temporal.triggerStop(socket_io)
+        self.pretrial_duration.triggerDelay(socket_io)
+        self.spatial_temporal.triggerRotation(socket_io)
+        self.trial_duration.triggerDelay(socket_io)
+        self.spatial_temporal.triggerStop(socket_io)
+        self.posttrial_duration.triggerDelay(socket_io)
+        socket_io.emit("meta", (shared_key, "openloop-end", 1))
