@@ -6,12 +6,24 @@ import socket
 from .Duration import Duration
 
 class ClosedLoopCondition():
+    """Description of closed loop condition"""
 
     def __init__(
         self,
         spatial_temporal=None, trial_duration=None,
         gain=1.0, fps=60,
         pretrial_duration=Duration(500), posttrial_duration=Duration(500)) -> None:
+        """
+        Initialize the closed loop condition.
+
+        :param SpatialTemporal spatial_temporal:
+        :param Duration trial_duration:
+        :param float gain:
+        :param float fps:
+        :param Duration pretrial_duration:
+        :param Duration posttrial_duration:
+        :rtype: None
+        """
 
         if spatial_temporal is None:
             warnings.warn("Spatial Temporal not set")
@@ -60,7 +72,7 @@ class ClosedLoopCondition():
                 new_data = sock.recv(1)
                 data = new_data.decode('UTF-8')
                 socket_io.emit("meta", (shared_key, "fictrac-connect-ok", 1))
-            except: # If Fictrac doesn't exist #FIXME: catch specific exception
+            except: # If Fictrac doesn't exist # FIXME: catch specific exception
                 socket_io.emit("meta", (shared_key, "fictrac-connect-fail", 0))
                 warnings.warn("Fictrac is not running on 127.0.0.1:1717")
                 return
