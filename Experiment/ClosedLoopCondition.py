@@ -40,6 +40,22 @@ class ClosedLoopCondition():
         self.is_triggering = False
 
     def trigger(self, socket_io):
+        """
+        Trigger the closed loop condition. Once the ClosedLoopCondition is triggered, the server
+        sends updates via the socket specified in `socket_io` and receives updates through the
+        same channel.
+
+        Specifically, it sends the required FPS and the setup of the screen by triggering the
+        current SpatialTemporal object. This is followed by a delay specified in the
+        `pretrial_duration`. Then a another thread attempts to connec to the local FicTrac  (see
+        `loop`) and does that for the length of `trial_duration`. At the end the pattern is
+        stopped and held at the current position for the duration of `posttrial_duration`.
+
+        The log file contains a `closedloop-start` and a `closedloop-end` with the same timestamp
+        (in nanoseconds) at the beginning and the end of the trial.
+s
+        :param socket socket_io: The Socket.IO used for communicating with the client.
+        """
         shared_key = time.time_ns()
         socket_io.emit("meta", (shared_key, "closedloop-start", 1))
         self.trigger_fps(socket_io)
@@ -54,13 +70,32 @@ class ClosedLoopCondition():
         loopthread.join()
         self.spatial_temporal.triggerStop(socket_io)
         self.posttrial_duration.triggerDelay(socket_io)
-        socket_io.emit("meta", (shared_key, "closedloop-start", 1))
+        socket_io.emit("meta", (shared_key, "closedloop-end", 1))
 
     def trigger_fps(self, socket_io):
+        """
+        Trigger sending the FPS via `socket_io`.
+
+        :param socket socket_io: The Socket.IO used for communicating with the client.
+        """
         shared_key = time.time_ns()
         socket_io.emit('fps', (shared_key, self.fps))
 
     def loop(self, socket_io):
+        """
+        Connect to the local FicTrac, extract the relevant rotational information and forward it
+        to the client via `socket_io`.
+
+        For the ClosedLoopCondition to work, Fictrac needs to run locally and has a socket
+        communication enabled on port 1717. To achieve this, change `sock_host` to `127.0.0.1`
+        and `sock_port` to `1717` in the FicTrac configuration.
+
+        This method reads the 17th column from the FicTrac data, which is the "integrated animal
+        heading" and calculates the rotation speed considering the time difference to the previous
+        sample. This rotation speed in radians per second is then sent via `socket_io`.
+
+        :param socket socket_io: The Socket.IO used for communicating with the client.
+        """
         shared_key = time.time_ns()
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
             sock.settimeout(0.1)
