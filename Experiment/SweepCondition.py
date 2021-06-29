@@ -12,12 +12,12 @@ class SweepCondition():
         if fps <=0 or fps > 60:
             warnings.warn(f"fps ({fps}) outside meaningful constraints")
         self.spatial_temporal = spatial_temporal
-        if self.spatial_temporal.isBarSweep():
-            self.trial_duration = Duration(self.spatial_temporal.getBarSweepDuration())
-            self.isBarSweep = True
-        elif self.spatial_temporal.isSpaceSweep():
-            self.trial_duration = Duration(self.spatial_temporal.getSpaceSweepDuration())
-            self.isBarSweep = False
+        if self.spatial_temporal.is_bar_sweep():
+            self.trial_duration = Duration(self.spatial_temporal.get_bar_sweep_duration())
+            self.is_bar_sweep = True
+        elif self.spatial_temporal.is_space_sweep():
+            self.trial_duration = Duration(self.spatial_temporal.get_space_sweep_duration())
+            self.is_bar_sweep = False
         self.pretrial_duration = pretrial_duration
         self.posttrial_duration = posttrial_duration
         self.fps = fps
@@ -28,11 +28,11 @@ class SweepCondition():
 
     def trigger(self, socket_io):
         self.trigger_fps(socket_io)
-        self.spatial_temporal.triggerSpatial(socket_io)
-        self.spatial_temporal.triggerStop(socket_io)
-        self.spatial_temporal.triggerSweepStartPosition(socket_io)
+        self.spatial_temporal.trigger_spatial(socket_io)
+        self.spatial_temporal.trigger_stop(socket_io)
+        self.spatial_temporal.trigger_sweep_start_position(socket_io)
         self.pretrial_duration.triggerDelay(socket_io)
-        self.spatial_temporal.triggerRotation(socket_io)
+        self.spatial_temporal.trigger_rotation(socket_io)
         self.trial_duration.triggerDelay(socket_io)
-        self.spatial_temporal.triggerStop(socket_io)
+        self.spatial_temporal.trigger_stop(socket_io)
         self.posttrial_duration.triggerDelay(socket_io)

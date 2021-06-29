@@ -39,7 +39,7 @@ class ClosedLoopCondition():
         self.posttrial_duration = posttrial_duration
         self.is_triggering = False
 
-    def trigger(self, socket_io):
+    def trigger(self, socket_io) -> None:
         """
         Trigger the closed loop condition. Once the ClosedLoopCondition is triggered, the server
         sends updates via the socket specified in `socket_io` and receives updates through the
@@ -55,28 +55,30 @@ class ClosedLoopCondition():
         (in nanoseconds) at the beginning and the end of the trial.
 s
         :param socket socket_io: The Socket.IO used for communicating with the client.
+        :rtype: None
         """
         shared_key = time.time_ns()
         socket_io.emit("meta", (shared_key, "closedloop-start", 1))
         self.trigger_fps(socket_io)
-        self.spatial_temporal.triggerSpatial(socket_io)
-        self.spatial_temporal.triggerStop(socket_io)
-        self.spatial_temporal.triggerClosedStartPosition(socket_io)
+        self.spatial_temporal.trigger_spatial(socket_io)
+        self.spatial_temporal.trigger_stop(socket_io)
+        self.spatial_temporal.trigger_closedloop_start_position(socket_io)
         self.pretrial_duration.triggerDelay(socket_io)
         self.is_triggering = True
         loopthread = socket_io.start_background_task(self.loop, socket_io)
         self.trial_duration.triggerDelay(socket_io)
         self.is_triggering = False
         loopthread.join()
-        self.spatial_temporal.triggerStop(socket_io)
+        self.spatial_temporal.trigger_stop(socket_io)
         self.posttrial_duration.triggerDelay(socket_io)
         socket_io.emit("meta", (shared_key, "closedloop-end", 1))
 
-    def trigger_fps(self, socket_io):
+    def trigger_fps(self, socket_io) -> None:
         """
         Trigger sending the FPS via `socket_io`.
 
         :param socket socket_io: The Socket.IO used for communicating with the client.
+        :rtype: None
         """
         shared_key = time.time_ns()
         socket_io.emit('fps', (shared_key, self.fps))
@@ -95,6 +97,7 @@ s
         sample. This rotation speed in radians per second is then sent via `socket_io`.
 
         :param socket socket_io: The Socket.IO used for communicating with the client.
+        :rtype: None
         """
         shared_key = time.time_ns()
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
