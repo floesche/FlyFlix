@@ -20,12 +20,14 @@ class CsvFormatter(logging.Formatter):
         self.writer = csv.writer(self.output, quoting=csv.QUOTE_ALL)
 
     def format(self, record):
-        """Define the file format"""
-        # self.writer.writerow([record.levelname] + [v for k,v in record.msg.items()])
-        #self.writer.writerow([v for k,v in record.msg.items()])
-        self.writer.writerow([time.time_ns()] + record.msg)
-        # self.writer.writerow([record.levelname, record.msg])
-        data = self.output.getvalue()
-        self.output.truncate(0)
+        """
+        Convert the record to a CSV row and return this row as a string.
+
+        :param dict record: dictionary with all 
+        :rtype: str
+        """
+        self.writer.writerow([time.time_ns()] + record.msg) # write CSV row to StringIO "fake file"
+        data = self.output.getvalue() # get str from StringIO
+        self.output.truncate(0) # empty output
         self.output.seek(0)
         return data.strip()
