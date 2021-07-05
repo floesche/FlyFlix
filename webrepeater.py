@@ -484,7 +484,7 @@ def localexperiment():
             block.append(current_trial)
     repetitions = 2
     opening_black_screen = Duration(10000)
-    opening_black_screen.triggerDelay(socketio)
+    opening_black_screen.trigger_delay(socketio)
     for i in range(repetitions):
         socketio.emit("meta", (time.time_ns(), "block-repetition", i))
         block = random.sample(block, k=len(block))

@@ -63,14 +63,14 @@ s
         self.spatial_temporal.trigger_spatial(socket_io)
         self.spatial_temporal.trigger_stop(socket_io)
         self.spatial_temporal.trigger_closedloop_start_position(socket_io)
-        self.pretrial_duration.triggerDelay(socket_io)
+        self.pretrial_duration.trigger_delay(socket_io)
         self.is_triggering = True
         loopthread = socket_io.start_background_task(self.loop, socket_io)
-        self.trial_duration.triggerDelay(socket_io)
+        self.trial_duration.trigger_delay(socket_io)
         self.is_triggering = False
         loopthread.join()
         self.spatial_temporal.trigger_stop(socket_io)
-        self.posttrial_duration.triggerDelay(socket_io)
+        self.posttrial_duration.trigger_delay(socket_io)
         socket_io.emit("meta", (shared_key, "closedloop-end", 1))
 
     def trigger_fps(self, socket_io) -> None:
