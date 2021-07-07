@@ -14,6 +14,7 @@ class Duration():
         Constructor for Duration
 
         :param float time_duration: duration in ms, default 3000 (= 3 sec)
+        :rtype: None
         """
         self.time_duration = time_duration
 
