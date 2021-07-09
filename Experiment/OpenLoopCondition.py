@@ -20,7 +20,8 @@ class OpenLoopCondition():
         :param SpatialTemporal spatial_temporal: Spatial and temporal definition of the stimulus
         :param Duration trial_duration: duration of the stimulus
         :param float fps: frame rate of the system
-        :param Duration pretrial_duration: waiting period of the pretrial, the time when the stimulus is shown without movement
+        :param Duration pretrial_duration: waiting period of the pretrial, the time when the
+            stimulus is shown without movement
         :param  Duration posttrial_duration: waiting period of the post trial.
         :rtype: None
         """
@@ -41,7 +42,7 @@ class OpenLoopCondition():
         Trigger the fps setting.
 
         :param Socket socket_io: Socket.IO used for communication with the client. It is part of
-                                 the standard interface, but not used in this particular method.
+            the standard interface, but not used in this particular method.
         :rtype: None
         """
         shared_key = time.time_ns()
@@ -49,7 +50,9 @@ class OpenLoopCondition():
 
     def trigger(self, socket_io) -> None:
         """
-        Trigger the open loop condition. This means, that configuration is sent to the client, then the 
+        Trigger the open loop condition. This means, that configuration of stimulus and frame rate
+            are sent to the client, then the display is stopped for the duration of the pre-trial
+            period, then the trial is triggered, followed by the post-trial duration.
 
         :param Socket socket_io: Socket.IO used for communication with the client.
         :rtype: None
