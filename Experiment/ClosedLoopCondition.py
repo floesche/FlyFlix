@@ -16,12 +16,14 @@ class ClosedLoopCondition():
         """
         Initialize the closed loop condition.
 
-        :param SpatialTemporal spatial_temporal:
-        :param Duration trial_duration:
-        :param float gain:
-        :param float fps:
-        :param Duration pretrial_duration:
-        :param Duration posttrial_duration:
+        :param SpatialTemporal spatial_temporal: spatial and temporal definition of the stimulus
+        :param Duration trial_duration: duration of the trial
+        :param float gain: multiplier for factor to be multiplied with rotational angle received
+            from FicTrac.
+        :param float fps: frame rate for client
+        :param Duration pretrial_duration: duration of the pre-trial period, when stimulus is
+            shown but not animated.
+        :param Duration posttrial_duration: duration of the post-trial period.
         :rtype: None
         """
 
@@ -53,7 +55,7 @@ class ClosedLoopCondition():
 
         The log file contains a `closedloop-start` and a `closedloop-end` with the same timestamp
         (in nanoseconds) at the beginning and the end of the trial.
-s
+
         :param socket socket_io: The Socket.IO used for communicating with the client.
         :rtype: None
         """
