@@ -13,10 +13,10 @@ class SweepCondition():
             warnings.warn(f"fps ({fps}) outside meaningful constraints")
         self.spatial_temporal = spatial_temporal
         if self.spatial_temporal.is_bar_sweep():
-            self.trial_duration = Duration(self.spatial_temporal.get_bar_sweep_duration())
+            self.trial_duration = self.spatial_temporal.get_bar_sweep_duration()
             self.is_bar_sweep = True
         elif self.spatial_temporal.is_space_sweep():
-            self.trial_duration = Duration(self.spatial_temporal.get_space_sweep_duration())
+            self.trial_duration = self.spatial_temporal.get_space_sweep_duration()
             self.is_bar_sweep = False
         self.pretrial_duration = pretrial_duration
         self.posttrial_duration = posttrial_duration

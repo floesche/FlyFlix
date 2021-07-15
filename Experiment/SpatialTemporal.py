@@ -6,6 +6,8 @@ import warnings
 import math
 import time
 
+from .Duration import Duration
+
 class SpatialTemporal():
     """
     Description of spatial and temporal stimulation.
@@ -69,28 +71,25 @@ class SpatialTemporal():
             return True
         return False
 
-    def get_bar_sweep_duration(self, sweep_angle_deg=180) -> float:
+    def get_bar_sweep_duration(self, sweep_angle_deg=180) -> Duration:
         """
         Calculates the duration for a bar sweep and returns the duration in seconds.
 
         :param float sweep_angle_deg: size of the viewing angle for the sweep. Defaults to half a
-        cylinder (180°).
-
-        :rtype: float
+            cylinder (180°).
+        :rtype: Duration
         """
-        # TODO: maybe convert to Duration instead of float in seconds?
-        return ((sweep_angle_deg + 2*self.bar_deg) / abs(self.rotate_deg_hz))*1000
+        return Duration(((sweep_angle_deg + 2*self.bar_deg) / abs(self.rotate_deg_hz))*1000)
 
-    def get_space_sweep_duration(self, sweep_angle_deg=180) -> float:
+    def get_space_sweep_duration(self, sweep_angle_deg=180) -> Duration:
         """
         Calculates the duration for a space sweep and returns the duration in seconds.
 
         :param float sweep_angle_deg: size of the viewing angle for the sweep. Defaults to half a
-        cylinder (180°).
-
-        :rtype: float
+            cylinder (180°).
+        :rtype: Duration
         """
-        return (sweep_angle_deg + 2* self.space_deg) / abs(self.rotate_deg_hz)*1000
+        return Duration((sweep_angle_deg + 2* self.space_deg) / abs(self.rotate_deg_hz)*1000)
 
     def trigger_rotation(self, socket_io) -> None:
         """
