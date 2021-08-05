@@ -25,9 +25,9 @@ from Experiment import SpatialTemporal, Duration, OpenLoopCondition, SweepCondit
 app = Flask(__name__)
 
 start = False
-updateFictrac = False
-fictracGain = 100
-sweepCounterReached = False
+update_fictrac = False
+fictrac_gain = 100
+sweep_counter_reached = False
 
 
 Payload.max_decode_packets = 500
@@ -73,7 +73,7 @@ def logdata(clientTS, requestTS, key, value):
     app.logger.info([clientTS, requestTS, key, value])
 
 
-def trial(spatial, temporal, fictracGain, nthframe=1):
+def trial(spatial, temporal, fictrac_gain, nthframe=1):
     pretrial_duration = 500
     trial_duration = 3000
     posttrial_duration = 500
@@ -93,8 +93,8 @@ def trial(spatial, temporal, fictracGain, nthframe=1):
     turnOffScreen(posttrial_duration, 1)
     savedata(shared_key, "post-trial-end")
     socketio.emit('screen', 1)
-    savedata(shared_key, "closed-loop-start", fictracGain)
-    turnOnFictrac(closedLoopTime, fictracGain)
+    savedata(shared_key, "closed-loop-start", fictrac_gain)
+    turnOnFictrac(closedLoopTime, fictrac_gain)
     savedata(shared_key, "closed-loop-end")
 
 def calibrate():
@@ -211,9 +211,9 @@ def moveSweep(sweepCount=1, direction=1, nthframe = 1):
     socketio.emit('sweepcount', sweepCount)
     savedata(shared_key, "show-only-nth-frame", nthframe)
     socketio.emit('nthframe', nthframe)
-    global sweepCounterReached
-    sweepCounterReached = False
-    while not sweepCounterReached:
+    global sweep_counter_reached
+    sweep_counter_reached = False
+    while not sweep_counter_reached:
         time.sleep(0.01)
 
 
@@ -242,14 +242,14 @@ def changeSpatOff(spatial, duration=1000, offvalue=0, background="#000000"):
 def turnOnFictrac(duration=3000, gain=100):
     shared_key = time.time()
     ttime = datetime.now() + timedelta(milliseconds=duration)
-    global updateFictrac
-    global fictracGain
-    updateFictrac = True
-    fictracGain = gain
+    global update_fictrac
+    global fictrac_gain
+    update_fictrac = True
+    fictrac_gain = gain
     savedata(shared_key, "fictrac-gain", gain)
     while datetime.now() < ttime:
         time.sleep(0.01)
-    updateFictrac = False
+    update_fictrac = False
     savedata(shared_key, "fictrac-end")
 
 
@@ -281,9 +281,9 @@ def listenFictrac():
             cnt = int(toks[1])
             heading = float(toks[17])
             timestamp = float(toks[22])
-            updateval = (heading-prevheading) * fictracGain * -1
+            updateval = (heading-prevheading) * fictrac_gain * -1
             savedata(timestamp, "heading", heading)
-            if updateFictrac:
+            if update_fictrac:
                 savedata(cnt, "fictrac-change-speed", updateval)
                 socketio.emit('speed', (cnt, updateval))
             prevheading = heading
@@ -328,9 +328,9 @@ def display_event(json):
 
 
 @socketio.on('sweep-counter')
-def sweepCounterReached():
-    global sweepCounterReached
-    sweepCounterReached = True
+def sweep_counter_reached():
+    global sweep_counter_reached
+    sweep_counter_reached = True
 
 
 @app.route('/')
