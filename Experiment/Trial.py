@@ -44,7 +44,7 @@ class Trial():
         elif sweep is not None:
             olc = SweepCondition(
                 spatial_temporal=openloop_spatial_temporal,
-                sweepCount=1, fps=fps,
+                sweep_count=1, fps=fps,
                 pretrial_duration=pretrial_duration, posttrial_duration=posttrial_duration)
             self.conditions.append(olc)
         else:

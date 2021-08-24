@@ -1,12 +1,29 @@
+"""Experimental condition with a single stimulus sweep"""
+
 import warnings
 import time
 
 from .Duration import Duration
-from .SpatialTemporal import SpatialTemporal
 
 class SweepCondition():
+    """ Description of a condition with a single stimulus sweep."""
 
-    def __init__(self, spatial_temporal=None, sweepCount=1, fps=60, pretrial_duration=Duration(500), posttrial_duration=Duration(500)) -> None:
+    def __init__(
+        self,
+        spatial_temporal=None, sweep_count=1,
+        fps=60,
+        pretrial_duration=Duration(500), posttrial_duration=Duration(500)
+        ) -> None:
+        """
+        Initialization of the condition.
+
+        :param SpatialTemporal spatial_temporal: spatial and temporal definition of the stimulus
+        :param int sweep_count: number of sweeps (currently unused)
+        :param float fps: frame rate of client
+        :param Duration pretrial_duration: duration of the pre-trial period, where the stimulus is
+            shown but not animated.
+        :param Duration posttrial_duration: duration of the post-trial period.
+        """
         if spatial_temporal is None:
             warnings.warn("Spatial Temporal not set")
         if fps <=0 or fps > 60:
@@ -23,10 +40,20 @@ class SweepCondition():
         self.fps = fps
 
     def trigger_fps(self, socket_io):
+        """
+        Set the client frame rate.
+
+        :param Socket socket_io: The Socket.IO used for communicating with the client.
+        """
         shared_key = time.time_ns()
         socket_io.emit('fps', (shared_key, self.fps))
 
     def trigger(self, socket_io):
+        """
+        Trigger the condition. Specifically, this means setting the client's frame rate and show
+        the stimulus without moving it for the duration of the pre-trial. Then run the sweep,
+        followed by stopping the stimulus for the duration of the post-trial period.
+        """
         self.trigger_fps(socket_io)
         self.spatial_temporal.trigger_spatial(socket_io)
         self.spatial_temporal.trigger_stop(socket_io)

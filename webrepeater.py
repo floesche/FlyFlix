@@ -203,12 +203,12 @@ def moveOpenLoop(duration=3000, direction=1, nthframe = 1):
         time.sleep(0.01)
 
 
-def moveSweep(sweepCount=1, direction=1, nthframe = 1):
+def moveSweep(sweep_count=1, direction=1, nthframe = 1):
     shared_key = time.time_ns()
     savedata(shared_key, "send-stripe-update", direction)
     socketio.emit('speed', (shared_key, direction))
-    savedata(shared_key, "send-sweep-reset", sweepCount)
-    socketio.emit('sweepcount', sweepCount)
+    savedata(shared_key, "send-sweep-reset", sweep_count)
+    socketio.emit('sweepcount', sweep_count)
     savedata(shared_key, "show-only-nth-frame", nthframe)
     socketio.emit('nthframe', nthframe)
     global sweep_counter_reached
