@@ -24,7 +24,7 @@ class Duration():
         specified in the constructor.
 
         :param socket socket_io: Socket.IO used for communication with the client. It is part of
-                                 the standard interface, but not used in this particular method.
+            the standard interface, but not used in this particular method.
         :rtype: None
         """
         ttime = datetime.now() + timedelta(milliseconds=self.time_duration)
