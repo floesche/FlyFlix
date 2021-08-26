@@ -32,9 +32,10 @@ sweep_counter_reached = False
 
 Payload.max_decode_packets = 500
 
-# Using eventlet breaks UDP reading thread unless patched. See http://eventlet.net/doc/basic_usage.html?highlight=monkey_patch#patching-functions for more.
-#
-# Alternatively disable eventlet and use development libraries via `socketio = SocketIO(app, async_mode='threading')`
+# Using eventlet breaks UDP reading thread unless patched. 
+# See http://eventlet.net/doc/basic_usage.html?highlight=monkey_patch#patching-functions for more.
+# Alternatively disable eventlet and use development libraries via 
+# `socketio = SocketIO(app, async_mode='threading')`
 
 eventlet.monkey_patch()
 # socketio = SocketIO(app)
