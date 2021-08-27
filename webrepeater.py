@@ -25,9 +25,9 @@ from Experiment import SpatialTemporal, Duration, OpenLoopCondition, SweepCondit
 app = Flask(__name__)
 
 start = False
-update_fictrac = False
-fictrac_gain = 100
-sweep_counter_reached = False
+UPDATE_FICTRAC = False
+FICTRAC_GAIN = 100
+SWEEPCOUNTERREACHED = False
 
 
 Payload.max_decode_packets = 500
@@ -63,18 +63,18 @@ def before_first_request():
     app.logger.removeHandler(default_handler)
     app.logger.setLevel(logging.INFO)
     app.logger.addHandler(csv_handler)
-    app.logger.info(["clientTS", "requestTS", "key", "value"])
+    app.logger.info(["client_timestamp", "request_timestamp", "key", "value"])
 
 
 def savedata(shared, key, value=0):
     app.logger.info([shared, key, value])
 
 
-def logdata(clientTS, requestTS, key, value):
-    app.logger.info([clientTS, requestTS, key, value])
+def logdata(client_timestamp, request_timestamp, key, value):
+    app.logger.info([client_timestamp, request_timestamp, key, value])
 
 
-def trial(spatial, temporal, fictrac_gain, nthframe=1):
+def trial(spatial, temporal, FICTRAC_GAIN, nthframe=1):
     pretrial_duration = 500
     trial_duration = 3000
     posttrial_duration = 500
@@ -82,27 +82,27 @@ def trial(spatial, temporal, fictrac_gain, nthframe=1):
     shared_key = time.time()
     savedata(shared_key, "pre-trial-duration", pretrial_duration)
     socketio.emit('speed', (shared_key, 0))
-    changeSpatOff(spatial, pretrial_duration, 1)
+    change_spatial_freq_during_screen_off(spatial, pretrial_duration, 1)
     savedata(shared_key, "move-speed", temporal)
     savedata(shared_key, "open-loop-duration", trial_duration)
     if spatial<1 :
-        moveSweep(2, temporal, nthframe)
+        move_sweep(2, temporal, nthframe)
     else :
-        moveOpenLoop(trial_duration, temporal, nthframe)
+        move_open_loop(trial_duration, temporal, nthframe)
     savedata(shared_key, "post-trial-duration", posttrial_duration)
     socketio.emit('speed', (shared_key, 0))
-    turnOffScreen(posttrial_duration, 1)
+    turn_screen_off(posttrial_duration, 1)
     savedata(shared_key, "post-trial-end")
     socketio.emit('screen', 1)
-    savedata(shared_key, "closed-loop-start", fictrac_gain)
-    turnOnFictrac(closedLoopTime, fictrac_gain)
+    savedata(shared_key, "closed-loop-start", FICTRAC_GAIN)
+    turn_on_fictrac(closedLoopTime, FICTRAC_GAIN)
     savedata(shared_key, "closed-loop-end")
 
 def calibrate():
     shared_key = time.time()
     savedata(shared_key, "protocol", "calibration-closed-loop")
-    changeSpatOff(3, 3000)
-    turnOnFictrac(60000, 50)
+    change_spatial_freq_during_screen_off(3, 3000)
+    turn_on_fictrac(60000, 50)
     savedata(shared_key, "screen-off")
     socketio.emit('screen', 0)
 
@@ -166,7 +166,7 @@ def experiment():
     # ### Experiment
     preExperimentDuration = 15000
     savedata(0, "pre-experiment-duration", preExperimentDuration)
-    turnOffScreen(preExperimentDuration)
+    turn_screen_off(preExperimentDuration)
     blockRepetitionCount = 1
     trialCount = 1
     while blockRepetitionCount < 5:
@@ -180,9 +180,9 @@ def experiment():
 
         trials = random.sample(trials, k=len(trials))
 
-        for currentTrial in trials:
+        for current_trial in trials:
             savedata(shared_key, "trial-count-start", trialCount)
-            trial(currentTrial[0], currentTrial[1], random.randrange(10, 100, 10))
+            trial(current_trial[0], current_trial[1], random.randrange(10, 100, 10))
             savedata(shared_key, "trial-count-end", trialCount)
             trialCount = trialCount + 1
         savedata(shared_key, "block-repetition-count-end", blockRepetitionCount)
@@ -193,7 +193,7 @@ def experiment():
     # calibrate()
 
 
-def moveOpenLoop(duration=3000, direction=1, nthframe = 1):
+def move_open_loop(duration=3000, direction=1, nthframe = 1):
     ttime = datetime.now() + timedelta(milliseconds=duration)
     shared_key = time.time_ns()
     savedata(shared_key, "send-stripe-update", direction)
@@ -204,7 +204,7 @@ def moveOpenLoop(duration=3000, direction=1, nthframe = 1):
         time.sleep(0.01)
 
 
-def moveSweep(sweep_count=1, direction=1, nthframe = 1):
+def move_sweep(sweep_count=1, direction=1, nthframe = 1):
     shared_key = time.time_ns()
     savedata(shared_key, "send-stripe-update", direction)
     socketio.emit('speed', (shared_key, direction))
@@ -212,13 +212,13 @@ def moveSweep(sweep_count=1, direction=1, nthframe = 1):
     socketio.emit('sweepcount', sweep_count)
     savedata(shared_key, "show-only-nth-frame", nthframe)
     socketio.emit('nthframe', nthframe)
-    global sweep_counter_reached
-    sweep_counter_reached = False
-    while not sweep_counter_reached:
+    global SWEEPCOUNTERREACHED
+    SWEEPCOUNTERREACHED = False
+    while not SWEEPCOUNTERREACHED:
         time.sleep(0.01)
 
 
-def turnOffScreen(duration=1000, offvalue=0, background="#000000"):
+def turn_screen_off(duration=1000, offvalue=0, background="#000000"):
     ttime = datetime.now() + timedelta(milliseconds=duration)
     socketio.emit('screen', (offvalue, background))
     while datetime.now() < ttime:
@@ -226,35 +226,35 @@ def turnOffScreen(duration=1000, offvalue=0, background="#000000"):
     # socketio.emit('screen', 1)
 
 
-def changeSpatOff(spatial, duration=1000, offvalue=0, background="#000000"):
+def change_spatial_freq_during_screen_off(spatial, duration=1000, offvalue=0, background="#000000"):
     shared_key = time.time()
     ttime = datetime.now() + timedelta(milliseconds=duration)
-    savedata(shared_key, "changeSpatOff-duration", duration)
+    savedata(shared_key, "change_spatial_freq_during_screen_off-duration", duration)
     socketio.emit('screen', (offvalue, background))
     time.sleep(0.01)
-    savedata(shared_key, "changeSpatOff-spatial", spatial)
+    savedata(shared_key, "change_spatial_freq_during_screen_off-spatial", spatial)
     socketio.emit('spatfreq', spatial)
     while datetime.now() < ttime:
         time.sleep(0.01)
-    savedata(shared_key, "changeSpatOff-on")
+    savedata(shared_key, "change_spatial_freq_during_screen_off-on")
     socketio.emit('screen', 1)
 
 
-def turnOnFictrac(duration=3000, gain=100):
+def turn_on_fictrac(duration=3000, gain=100):
     shared_key = time.time()
     ttime = datetime.now() + timedelta(milliseconds=duration)
-    global update_fictrac
-    global fictrac_gain
-    update_fictrac = True
-    fictrac_gain = gain
+    global UPDATE_FICTRAC
+    global FICTRAC_GAIN
+    UPDATE_FICTRAC = True
+    FICTRAC_GAIN = gain
     savedata(shared_key, "fictrac-gain", gain)
     while datetime.now() < ttime:
         time.sleep(0.01)
-    update_fictrac = False
+    UPDATE_FICTRAC = False
     savedata(shared_key, "fictrac-end")
 
 
-def listenFictrac():
+def listen_to_fictrac():
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         sock.settimeout(0.1)
         prevheading = 0
@@ -276,15 +276,15 @@ def listenFictrac():
             data = data[endline+1:]     # delete first frame
             # Tokenise
             toks = line.split(", ")
-		    # Check that we have sensible tokens
+            # Check that we have sensible tokens
             if (len(toks) < 24) | (toks[0] != "FT"):
                 continue
             cnt = int(toks[1])
             heading = float(toks[17])
             timestamp = float(toks[22])
-            updateval = (heading-prevheading) * fictrac_gain * -1
+            updateval = (heading-prevheading) * FICTRAC_GAIN * -1
             savedata(timestamp, "heading", heading)
-            if update_fictrac:
+            if UPDATE_FICTRAC:
                 savedata(cnt, "fictrac-change-speed", updateval)
                 socketio.emit('speed', (cnt, updateval))
             prevheading = heading
@@ -314,13 +314,13 @@ def server_log(json):
     savedata(shared_key, json['key'], json['value'])
 
 @socketio.on('csync')
-def server_client_sync(clientTS, requestTS, key):
-    logdata(clientTS, requestTS, key, time.time_ns())
+def server_client_sync(client_timestamp, request_timestamp, key):
+    logdata(client_timestamp, request_timestamp, key, time.time_ns())
 
 
 @socketio.on('dl')
-def data_logger(clientTS, requestTS, key, value):
-    logdata(clientTS, requestTS, key, value)
+def data_logger(client_timestamp, request_timestamp, key, value):
+    logdata(client_timestamp, request_timestamp, key, value)
 
 
 @socketio.on('display')
@@ -329,9 +329,9 @@ def display_event(json):
 
 
 @socketio.on('sweep-counter')
-def sweep_counter_reached():
-    global sweep_counter_reached
-    sweep_counter_reached = True
+def set_sweep_counter_reached():
+    global SWEEPCOUNTERREACHED
+    SWEEPCOUNTERREACHED = True
 
 
 @app.route('/')
@@ -347,7 +347,7 @@ def playback():
 @app.route('/fictrac/')
 def hello():
     _ = socketio.start_background_task(target = experiment)
-    _ = socketio.start_background_task(target = listenFictrac)
+    _ = socketio.start_background_task(target = listen_to_fictrac)
     try:
         pass
     except TemplateNotFound:
