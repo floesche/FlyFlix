@@ -396,11 +396,16 @@ def local_fictrac_dev():
     return render_template('bars.html')
 
 @socketio.on('pong')
-def pinpongs(seq, dttime):
+def pingpong_time_diff(seq, dttime):
     dff = time.time_ns() -dttime
     print(f"{seq}, {dff}", )
 
+
 def pingpong():
+    """
+    Send a ping to the client with an attached sequence and a timestamp (in ns). Part of the 
+    `/ping` route application.
+    """
     seq = 0
     while 1:
         socketio.emit("ping", (seq, time.time_ns()))
@@ -408,9 +413,14 @@ def pingpong():
         time.sleep(0.1)
 
 
-
 @app.route('/ping/')
 def local_ping_dev():
+    """
+    The function `pingpong` sends `ping` messages with an attached timestamp via socket to the 
+    client. The client, which has rendered the `ping.html` template, responds to each `ping` 
+    with a `pong` and sends the original timestamp back to the server. The function 
+    `pingpong_time_diff` receives the socketIO message and calculates the roundtrip time.
+    """
     _ = socketio.start_background_task(target = pingpong)
     return render_template('ping.html')
 
@@ -499,7 +509,10 @@ def localexperiment():
 
 @app.route('/edev/')
 def local_experiment_dev():
-    """Runs function `localexperiment` for the route `/edev` in a background task and deliver the bars.html template."""
+    """
+    Runs function `localexperiment` for the route `/edev` in a background task and deliver the
+    bars.html template.
+    """
     print("Starting edev")
     _ = socketio.start_background_task(target = localexperiment)
     return render_template('bars.html')
@@ -509,7 +522,8 @@ def log_metadata():
     """
     The content of the `metadata` dictionary gets logged.
     
-    This is a rudimentary way to save information related to the experiment to a file. Edit the content of the dictionary for each experiment.
+    This is a rudimentary way to save information related to the experiment to a file. Edit the 
+    content of the dictionary for each experiment.
 
     TODO: Editing code to store information is not good. Needs to change.
     """
