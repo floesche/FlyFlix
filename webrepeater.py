@@ -46,6 +46,9 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 
 @app.before_first_request
 def before_first_request():
+    """
+    Server initiator: check for paths  and initialize logger.
+    """
     app.config.update(
         FICTRAC_HOST = '127.0.0.1',
         FICTRAC_PORT = 1717
@@ -67,14 +70,37 @@ def before_first_request():
 
 
 def savedata(shared, key, value=0):
+    """
+    Store data on disk. It is intended to be key-value pairs, together with a shared knowledge
+    item. Data storage is done through the logging.FileHandler. 
+
+    :param str shared: intended for shared knowledge between client and server
+    :param str key: Key from the key-value pair
+    :param str value: Value from the key-value pair.
+    """
     app.logger.info([shared, key, value])
 
 
 def logdata(client_timestamp, request_timestamp, key, value):
+    """
+    Store data on disk. In addition to a key-value pair, the interface allows to store a client
+    timestamp and an additional timestamp, for example from the initial server request. In 
+    practice, all these values are just logged to disk and stored no matter what they are.
+
+    :param str client_timestamp: timestamp received from the client
+    :param str request_timestamp: server timestamp that initiated the client action
+    :param str key: key of the key-value pair
+    :param str value: value of the key-value pair
+    """
     app.logger.info([client_timestamp, request_timestamp, key, value])
 
 
-def trial(spatial, temporal, FICTRAC_GAIN, nthframe=1):
+def trial(spatial, temporal, fictrac_gain, nthframe=1):
+    """
+    Simple trial definition
+
+    TODO: Might not be needed anymore. delete?
+    """
     pretrial_duration = 500
     trial_duration = 3000
     posttrial_duration = 500
@@ -94,8 +120,8 @@ def trial(spatial, temporal, FICTRAC_GAIN, nthframe=1):
     turn_screen_off(posttrial_duration, 1)
     savedata(shared_key, "post-trial-end")
     socketio.emit('screen', 1)
-    savedata(shared_key, "closed-loop-start", FICTRAC_GAIN)
-    turn_on_fictrac(closedLoopTime, FICTRAC_GAIN)
+    savedata(shared_key, "closed-loop-start", fictrac_gain)
+    turn_on_fictrac(closedLoopTime, fictrac_gain)
     savedata(shared_key, "closed-loop-end")
 
 def calibrate():
@@ -336,11 +362,18 @@ def set_sweep_counter_reached():
 
 @app.route('/')
 def hello_world():
+    """
+    Opening screen, render `index.html`
+    """
     return render_template('index.html')
 
 
 @app.route('/playback/')
 def playback():
+    """
+    Render `playback.html`, a first attempt at a sound pitch based rotation, all done in 
+    javascript on the client side.
+    """
     return render_template('playback.html')
 
 
