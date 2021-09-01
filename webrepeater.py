@@ -380,6 +380,9 @@ def threedee_dev():
 
 
 def localfictrac():
+    """
+    Closed loop condition with local fictrac client. Part of the `/fdev` route.
+    """
     while not start:
         time.sleep(0.1)
     sptmp1 = SpatialTemporal(bar_deg=15, space_deg=105)
@@ -390,13 +393,23 @@ def localfictrac():
     cnd.trigger(socketio)
     socketio.emit('rotate-to', (0, math.radians(-15)))
 
+
 @app.route('/fdev/')
 def local_fictrac_dev():
+    """
+    Closed loop condition through the `localfictrac` function and `bars.html` template.
+    """
     _ = socketio.start_background_task(target = localfictrac)
     return render_template('bars.html')
 
+
 @socketio.on('pong')
 def pingpong_time_diff(seq, dttime):
+    """
+    Calculate time difference between timestamp received via socketIO and the current timestamp.
+
+    :param float dttime: timestamp in ns
+    """
     dff = time.time_ns() -dttime
     print(f"{seq}, {dff}", )
 
