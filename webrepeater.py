@@ -125,6 +125,11 @@ def trial(spatial, temporal, fictrac_gain, nthframe=1):
     savedata(shared_key, "closed-loop-end")
 
 def calibrate():
+    """
+    Run fictrac for 60 seconds. Standalone for calibration.
+    
+    TODO: Delete?
+    """
     shared_key = time.time()
     savedata(shared_key, "protocol", "calibration-closed-loop")
     change_spatial_freq_during_screen_off(3, 3000)
@@ -134,6 +139,11 @@ def calibrate():
 
 
 def experiment():
+    """
+    Run whole experiment.
+
+    TODO: Delete?
+    """
     shared_key = time.time()
     savedata(shared_key, "pre-experiment-begin")
 
@@ -220,6 +230,11 @@ def experiment():
 
 
 def move_open_loop(duration=3000, direction=1, nthframe = 1):
+    """
+    Run  an open loop condition.
+
+    TODO: Delete?
+    """
     ttime = datetime.now() + timedelta(milliseconds=duration)
     shared_key = time.time_ns()
     savedata(shared_key, "send-stripe-update", direction)
@@ -231,6 +246,11 @@ def move_open_loop(duration=3000, direction=1, nthframe = 1):
 
 
 def move_sweep(sweep_count=1, direction=1, nthframe = 1):
+    """
+    Run a single sweep.
+
+    TODO: Delete?
+    """
     shared_key = time.time_ns()
     savedata(shared_key, "send-stripe-update", direction)
     socketio.emit('speed', (shared_key, direction))
@@ -245,6 +265,11 @@ def move_sweep(sweep_count=1, direction=1, nthframe = 1):
 
 
 def turn_screen_off(duration=1000, offvalue=0, background="#000000"):
+    """
+    Turn screen off
+
+    TODO: Delete?
+    """
     ttime = datetime.now() + timedelta(milliseconds=duration)
     socketio.emit('screen', (offvalue, background))
     while datetime.now() < ttime:
@@ -253,6 +278,11 @@ def turn_screen_off(duration=1000, offvalue=0, background="#000000"):
 
 
 def change_spatial_freq_during_screen_off(spatial, duration=1000, offvalue=0, background="#000000"):
+    """
+    Change spatial frequency with the screen turned off.
+
+    TODO: Delete?
+    """
     shared_key = time.time()
     ttime = datetime.now() + timedelta(milliseconds=duration)
     savedata(shared_key, "change_spatial_freq_during_screen_off-duration", duration)
@@ -267,6 +297,11 @@ def change_spatial_freq_during_screen_off(spatial, duration=1000, offvalue=0, ba
 
 
 def turn_on_fictrac(duration=3000, gain=100):
+    """
+    Try to connect to fictrac
+
+    TODO: Delete?
+    """
     shared_key = time.time()
     ttime = datetime.now() + timedelta(milliseconds=duration)
     global UPDATE_FICTRAC
@@ -281,6 +316,11 @@ def turn_on_fictrac(duration=3000, gain=100):
 
 
 def listen_to_fictrac():
+    """
+    Read data from fictrac.
+
+    TODO: Delete?
+    """
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         sock.settimeout(0.1)
         prevheading = 0
@@ -318,16 +358,28 @@ def listen_to_fictrac():
 
 @socketio.on("connect")
 def connect():
+    """
+    Confirm SocketIO connection by printing "Client connected"
+    """
     print("Client connected", request.sid)
 
 
 @socketio.on("disconnect")
 def disconnect():
+    """
+    Verify SocketIO disconnect
+    """
     print("Client disconnected", request.sid)
 
 
 @socketio.on('start-experiment')
 def finally_start(number):
+    """
+    When the server receives a `start-experiment` message via SocketIO, the global variable start
+    is set to true
+
+    :param number: TODO find out what it does
+    """
     # FIXME: bad practice. Will break at some point
     print("Started")
     global start
@@ -336,16 +388,39 @@ def finally_start(number):
 
 @socketio.on('slog')
 def server_log(json):
+    """
+    Save `key` and `value` from the dictionary received inside the SocketIO message `slog` to disk.
+
+    :param json: dictionary received from the client via SocketIO
+    """
     shared_key = time.time()
     savedata(shared_key, json['key'], json['value'])
 
 @socketio.on('csync')
 def server_client_sync(client_timestamp, request_timestamp, key):
+    """
+    Save parameters to disk together with a current timestamp. This can be used for precisely 
+    logging the round trip times.
+
+    :param client_timestamp: timestamp from the client
+    :param request_timestamp: timestamp that the client initially received from the server and 
+        which started the process
+    :param key: key that should be logged. 
+    """
     logdata(client_timestamp, request_timestamp, key, time.time_ns())
 
 
 @socketio.on('dl')
 def data_logger(client_timestamp, request_timestamp, key, value):
+    """
+    data logger routine for data sent from the client.
+
+    :param client_timestamp: timestamp from the client
+    :param request_timestamp: timestamp that the client initially received from the server and 
+        which started the process
+    :param key: key from key-value pair
+    :param value: value from key-value pair
+    """
     logdata(client_timestamp, request_timestamp, key, value)
 
 
