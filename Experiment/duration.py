@@ -27,6 +27,7 @@ class Duration():
             the standard interface, but not used in this particular method.
         :rtype: None
         """
+        del socket_io # unused
         ttime = datetime.now() + timedelta(milliseconds=self.time_duration)
         while datetime.now() < ttime:
             time.sleep(0.01)

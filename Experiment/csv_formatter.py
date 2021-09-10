@@ -23,7 +23,7 @@ class CsvFormatter(logging.Formatter):
         """
         Convert the record to a CSV row and return this row as a string.
 
-        :param dict record: dictionary with all 
+        :param dict record: dictionary with all the content in the `msg` key
         :rtype: str
         """
         self.writer.writerow([time.time_ns()] + record.msg) # write CSV row to StringIO "fake file"

@@ -6,7 +6,7 @@ import warnings
 import math
 import time
 
-from .Duration import Duration
+from . import Duration
 
 class SpatialTemporal():
     """

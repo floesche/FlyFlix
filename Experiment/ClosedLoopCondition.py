@@ -3,7 +3,7 @@ import warnings
 import time
 import socket
 
-from .Duration import Duration
+from . import Duration
 
 class ClosedLoopCondition():
     """Description of closed loop condition"""

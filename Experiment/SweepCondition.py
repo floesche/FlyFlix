@@ -3,7 +3,7 @@
 import warnings
 import time
 
-from .Duration import Duration
+from . import Duration
 
 class SweepCondition():
     """ Description of a condition with a single stimulus sweep."""
