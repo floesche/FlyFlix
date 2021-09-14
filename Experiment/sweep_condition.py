@@ -24,6 +24,7 @@ class SweepCondition():
             shown but not animated.
         :param Duration posttrial_duration: duration of the post-trial period.
         """
+        del sweep_count # unused
         if spatial_temporal is None:
             warnings.warn("Spatial Temporal not set")
         if fps <=0 or fps > 60:

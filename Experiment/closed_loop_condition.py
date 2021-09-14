@@ -1,12 +1,14 @@
 """Closed loop condition, implementing direct feedback from FicTrac"""
+
 import warnings
 import time
 import socket
 
-from . import Duration
+from Experiment import Duration
 
 class ClosedLoopCondition():
-    """Description of closed loop condition"""
+
+    """ Description of closed loop condition """
 
     def __init__(
         self,

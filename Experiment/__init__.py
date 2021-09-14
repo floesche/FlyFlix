@@ -1,9 +1,9 @@
 
 from .duration import Duration
-from .ClosedLoopCondition import  ClosedLoopCondition
-from .OpenLoopCondition import OpenLoopCondition
-from .SpatialTemporal import SpatialTemporal
-from .SweepCondition import SweepCondition
+from .closed_loop_condition import  ClosedLoopCondition
+from .open_loop_condition import OpenLoopCondition
+from .spatial_temporal import SpatialTemporal
+from .sweep_condition import SweepCondition
 from .csv_formatter import CsvFormatter
 from .trial import Trial
 
