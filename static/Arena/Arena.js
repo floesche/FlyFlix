@@ -16,8 +16,19 @@ let loop;
 
 let io;
 
-
+/**
+ * Representation of an experimental arena.
+ */
 class Arena {
+
+    /**
+     * Virtual representation of an arena. The arena consists of a scene, has a camera and a 
+     * renderer and uses an external loop and re-sizer to respond to time and screen changes.
+     * 
+     * @constructor
+     * @param {Element} container - The html element where the virtual representation of the arena
+     *      is going to be presented
+     */
     constructor(container) {
         camera = createCamera();
         scene = createScene();
@@ -40,6 +51,10 @@ class Arena {
         const resizer = new Resizer(container, camera, renderer);
     }
 
+    /**
+     * Render the arena.
+     * 
+     */
     render() {
         renderer.render(scene, camera);
     }
