@@ -26,7 +26,13 @@ class Panels extends Group {
         this._log('panels-bar-color', barcolor);
 
         // const geometry = new CylinderBufferGeometry(this.arenaRadius, this.arenaRadius,this.arenaHeight, cylinderHorizSegments, 1, true, 0, MathUtils.degToRad(panelAngle))
-        const geometry = new CylinderBufferGeometry(this.arenaRadius, this.arenaRadius,this.arenaHeight, cylinderHorizSegments, 1, true, 0, panelAngle)
+        const geometry = new CylinderBufferGeometry(
+            this.arenaRadius, this.arenaRadius,
+            this.arenaHeight, 
+            cylinderHorizSegments, 1, 
+            true, // TODO Test with "false" instead of "true" to have it openEnded
+            0, panelAngle);
+
         const material = new MeshBasicMaterial({ color: barcolor, side:BackSide });
 
         for (let alpha = 0; alpha < 2*Math.PI; alpha += panelAngle + intervalAngle) {

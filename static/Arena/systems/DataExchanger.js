@@ -17,10 +17,6 @@ class DataExchanger{
         this.socket = io(socketurl);
         this.isLogging = false;
 
-        // this.socket.onAny((event, ...args) => {
-        //     console.log(event, args);
-        //   });
-
         /**
          * Event handler for `disconnect` sends the event `end-experiment` and stops camera 
          *      rotation.
@@ -43,7 +39,6 @@ class DataExchanger{
             this.log(lid, 'de-speed', speed);
         });
 
-
         /**
          * Event handler for `ssync` returns `csync` message with current client time stamp and 
          *      loop id
@@ -53,7 +48,6 @@ class DataExchanger{
         this.socket.on('ssync', (lid) => {
             this.socket.emit('csync', performance.now(), lid, 'de-sync');
         });
-
 
         /**
          * Event handler for `rotate-to` message to rotate a camera object to a target rotation.
@@ -79,6 +73,13 @@ class DataExchanger{
             this.log(lid, 'de-fps', fps);
         });
 
+        /**
+         * Event handler for `spatial-setup` message. The cylindrical arena consists of vertical bars interleaved with spaces. All bars have the same width as all intervals do. The bars and spaces are repeated until the fill cylinder is filled. To have an arena with four bars spanning one eighth of the cylinder, barWidth and spaceWidth could both be defined as pi/4. To have a single bright bar that spans a quarter of an arena, barWidth could be pi/2 and spaceWidth pi*3/2.
+         * 
+         * @param {bigint} lid -Loop ID
+         * @param {number} barWidth - bar width in radians
+         * @param {number} spaceWidth - interval width between bars in radians
+         */
         this.socket.on('spatial-setup', (lid, barWidth, spaceWidth) => {
             panels.setLid(lid);
             panels.changePanels(barWidth, spaceWidth);
@@ -86,10 +87,21 @@ class DataExchanger{
             this.log(lid, 'de-spatial-setup-space', spaceWidth);
         });
 
+        /**
+         * Event handler for `meta`. The key and value will be logged.
+         * 
+         * @param {bigint} lid - Loop ID
+         * @param {string} key - key of key-value-pair
+         * @param {string} value - value of key-value-pair
+         */
         this.socket.on('meta', (lid, key, value) => {
             this.log(lid, key, value);
         })
 
+        /**
+         * Local HTML event listener for click on `start-experiment` button which will emit the 
+         *      socket message `start-experiment`.
+         */
         window.addEventListener('start-experiment', () => {
             this.isLogging = true;
             this.socket.emit('start-experiment', 1);
@@ -98,12 +110,19 @@ class DataExchanger{
 
     }
 
+    /**
+     * Log client on the server by sending a `dl` message with the current client timestamp, lid, 
+     *      key, and value.
+     * 
+     * @param {bigint} lid - Loop ID
+     * @param {string} key - key of key-value-pair
+     * @param {string} value - value of key-value-pair
+     */
     log(lid, key, value){
         if (this.isLogging){
             this.socket.emit('dl', performance.now(), lid, key, value);
         }
     }
-
 }
 
 
