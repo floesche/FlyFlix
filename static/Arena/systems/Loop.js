@@ -14,9 +14,9 @@ class Loop {
      *      a `tick()` method to the `updateables` array. 
      * 
      * @constructor
-     * @param {Camera} camera - 
-     * @param {Scene} scene 
-     * @param {Renderer} renderer 
+     * @param {Camera} camera - Camera object to be animated
+     * @param {Scene} scene - scene to be animated
+     * @param {Renderer} renderer - renderer where the scene and camera are going to be animated
      */
     constructor(camera, scene, renderer) {
         this.camera = camera;
@@ -71,7 +71,7 @@ class Loop {
     /**
      * Set the Loop ID.
      * 
-     * @param {bigint} lid 
+     * @param {bigint} lid - Loop ID
      */
     setLid(lid){
         this._log('loop-set-lid-old', this.lid);
@@ -81,7 +81,7 @@ class Loop {
     /**
      * Set the frame rate of the system.
      * 
-     * @param {number} fps 
+     * @param {number} fps - frame rate in frames per second 
      */
     setFPS(fps) {
         this.interval = 1/fps;
@@ -89,10 +89,10 @@ class Loop {
     }
 
     /**
+     * (private) interface to log values
      * 
-     * 
-     * @param {string} key 
-     * @param {string} value 
+     * @param {string} key - key of key-value pair to be logged
+     * @param {string} value - value of key-value pair to be logged
      */
     _log(key, value){
         if (this.loggable){
