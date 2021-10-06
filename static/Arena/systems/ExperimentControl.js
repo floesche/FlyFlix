@@ -1,3 +1,9 @@
+/**
+ * Restart button complete with style sheet. Becomes visible when `end-experiment` event is 
+ *      triggered.
+ * 
+ * @param {Element} container - HTML to which the restart button should be added
+ */
 const addRestartButton = (container) => {
     const restartExperiment = document.createElement("button");
         restartExperiment.innerHTML = "Restart";
