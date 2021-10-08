@@ -3,7 +3,7 @@ import { createScene } from './components/scene.js';
 
 import { Panels } from './components/Panels.js';
 
-import { createRenderer } from './systems/renderer.js';
+import { createRenderer } from './systems/Renderer.js';
 import { Resizer } from './systems/Resizer.js';
 import { Loop } from './systems/Loop.js';
 

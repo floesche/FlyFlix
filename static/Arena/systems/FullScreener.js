@@ -1,4 +1,13 @@
+/**
+ * Module with fullscreen button
+ */
 class FullScreener{
+
+    /**
+     * Module to add a Fullscreen button to an HTML element.
+     * 
+     * @param {Element} container - HTML element to which the fullscreen button is attached.
+     */
     constructor(container){
         const fullscreenButton = document.createElement("button");
         fullscreenButton.innerHTML = "Fullscreen";
@@ -23,7 +32,6 @@ class FullScreener{
             }
         })
     }
-    onFullscreenChange() {};
 }
 
 export { FullScreener };
