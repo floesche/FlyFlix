@@ -25,6 +25,12 @@ const addRestartButton = (container) => {
         });
 };
 
+/**
+ * Add start button to container. On click hide all Elements of the `experiment-controller` class
+ *      and trigger the local `start-experiment` event.
+ * 
+ * @param {Element} container - HTML to which the start button attaches
+ */
 const addStartButton = (container) => {
     const startExperiment = document.createElement("button");
     startExperiment.innerHTML = "Start";
@@ -48,7 +54,17 @@ const addStartButton = (container) => {
 };
 
 
+/**
+ * Module to add restart and start button.
+ */
 class ExperimentControl{
+
+    /**
+     * Create an experimental controller
+     * 
+     * @constructor
+     * @param {Element} container - HTML element to which the start and restart button attaches
+     */
     constructor(container){
         addRestartButton(container);
         addStartButton(container);
