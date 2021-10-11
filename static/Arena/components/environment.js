@@ -1,3 +1,4 @@
+// FIXME: To be deleted?
 import { PlaneBufferGeometry, Mesh, MeshBasicMaterial, DoubleSide} from '/static/vendor/three.module.js';
 
 function createCube() {

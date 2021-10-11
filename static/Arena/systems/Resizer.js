@@ -14,6 +14,8 @@ const setSize = (container, camera, renderer) => {
 
 /**
  * Module to resize a scene.
+ * 
+ * Inspired by https://discoverthreejs.com/book/first-steps/world-app/
  */
 class Resizer {
     /**

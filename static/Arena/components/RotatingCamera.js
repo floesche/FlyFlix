@@ -1,6 +1,20 @@
 import { PerspectiveCamera, MathUtils } from '/static/vendor/three.module.js';
 
+/**
+ * Representation of the camera at the virtual fly position within the arena.
+ */
 class RotatingCamera extends PerspectiveCamera {
+    /**
+     * Representation of camera at virtual fly position. Inherits from PerspectiveCamera
+     * 
+     * @param {number} fov - field of view
+     * @param {number} aspectRatio - camera's ratio of width over height
+     * @param {number} nearClip - 
+     * @param {*} farClip 
+     * @param {*} defaultAngle 
+     * @param {*} startOffset 
+     * @param {*} rotationAnglePerSecond 
+     */
     constructor(fov, aspectRatio, nearClip, farClip, defaultAngle = 0, startOffset = 0, rotationAnglePerSecond = 0){
         super(fov, aspectRatio, nearClip, farClip);
         this.defaultAngle = defaultAngle;

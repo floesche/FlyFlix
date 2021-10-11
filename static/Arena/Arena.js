@@ -59,10 +59,16 @@ class Arena {
         renderer.render(scene, camera);
     }
 
+    /**
+     * Start the animation of the arena.
+     */
     start() {
         loop.start();
     }
 
+    /**
+     * Stop the animation of the arena.
+     */
     stop() {
         loop.stop();
     }
