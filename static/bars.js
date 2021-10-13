@@ -5,6 +5,9 @@ import { FullScreener } from './Arena/systems/FullScreener.js';
 import { ExperimentControl } from './Arena/systems/ExperimentControl.js';
 
 
+/**
+ * Create the experiment in the client, inside the HTML-ID `scene-container`.
+ */
 function main() {
     const container = document.querySelector('#scene-container');
   
@@ -15,4 +18,5 @@ function main() {
   
     arena.start();
   }
+
 main();
