@@ -4,7 +4,7 @@ import warnings
 import time
 import socket
 
-from Experiment import Duration
+from . import Duration
 
 class ClosedLoopCondition():
 

@@ -2,7 +2,7 @@
 import warnings
 import time
 
-from . import Duration, SpatialTemporal
+from . import Duration
 
 class OpenLoopCondition():
     """
