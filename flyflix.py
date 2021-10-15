@@ -44,6 +44,20 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 
 # socketio = SocketIO(app, async_mode='threading')
 
+
+"""
+The following routes are available:
+
+/ - index.html
+/playback - playback.html
+/fictrac - fictrac_canvas.html
+/ldev - fictrac_canvas.html
+/bdev - bars.html
+/fdev - bars.html
+/ping - ping.html
+/edev - bars.html
+"""
+
 @app.before_first_request
 def before_first_request():
     """
@@ -446,7 +460,7 @@ def hello_world():
 @app.route('/playback/')
 def playback():
     """
-    Render `playback.html`, a first attempt at a sound pitch based rotation, all done in 
+    Render `playback.html`, a first attempt at a sound pitch based rotation, all done in
     javascript on the client side.
     """
     return render_template('playback.html')
