@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <!-- demo at https://CogNovo.eu/projects/project-17/pitchgrate -->
-
 <head>
     <meta charset="UTF-8">
     <style>
@@ -42,9 +41,11 @@
 <body>
 
     <div id="container"></div>
+
     <div id="play">
         After a click on play you will hear sounds. So please turn down the volume.
-        <div id="btn">Play</div></div>
+        <div id="btn">Play</div>
+    </div>
 
     <script>
         window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -66,7 +67,23 @@
                 audioContext.resume().then(() => {
                     console.log('Playback resumed successfully');
                     document.getElementById('play').hidden = true;
-                    toggleOscillator();
+                    
+                    /** 
+                     * Uncomment the following line for generating sounds, a demo of transmitting
+                     *   and receiving sounds.
+                     * 
+                     *   toggleOscillator();
+                     */
+                    //
+
+                    /** 
+                     * Uncomment the following line for using the microphone, a demo where sounds
+                     *   like whistling generates movement.
+                     * 
+                     *   toggleLiveInput();
+                     */
+                    //
+                  toggleLiveInput();
                 });
             });
 
@@ -78,28 +95,16 @@
                 bx.style.left = num * 10 + "vw";
                 cont.appendChild(bx);
             }
-
-
-            // var request = new XMLHttpRequest();
-            // request.open("GET", "./AudioSlideExample.ogg", true);
-            // request.responseType = "arraybuffer";
-            // request.onload = function () {
-            //     audioContext.decodeAudioData(request.response, function (buffer) {
-            //         theBuffer = buffer;
-            //     });
-            // }
-            // request.send();
-
-            // var interval = setInterval(runUpdate, 10);
-            //toggleLiveInput();
-            // togglePlayback();
-            //toggleOscillator();
         })();
 
-        var CENTER = 1100;
+        // var CENTER = 2016;
+        var CENTER = 1920;
+        var SENSITIVITY = 10;
         function runUpdate(freq) {
-            if (freq < CENTER) { counter = counter - (CENTER - freq) / 100; }
-            else { counter = counter + (freq - CENTER) / 100; }
+          console.log(freq);
+          console.log((CENTER-freq) / SENSITIVITY);
+            if (freq < CENTER) { counter = counter - (CENTER - freq) / SENSITIVITY; }
+            else { counter = counter + (freq - CENTER) / SENSITIVITY; }
             if (counter < 200 || counter > 1000) {
                 counter = (counter % 100) + 500;
             }
@@ -107,7 +112,7 @@
                 bx = document.getElementById("b" + num);
                 bx.style.left = num * 10 + (counter % 100) / 10 + "vw";
             }
-            counter = counter + 1;
+            // counter = counter + 1;
         }
 
         function error() {
@@ -177,7 +182,6 @@
             for (i = 41; i < 60; i++) {
                 sourceNode.frequency.setValueAtTime(Math.random() * 1950 + 50, audioContext.currentTime + i / 2 + 2);
             }
-
             analyser = audioContext.createAnalyser();
             analyser.fftSize = 2048;
             sourceNode.connect(analyser);
@@ -203,11 +207,9 @@
                 window.cancelAnimationFrame(rafID);
                 return "start";
             }
-
             sourceNode = audioContext.createBufferSource();
             sourceNode.buffer = theBuffer;
             sourceNode.loop = true;
-
             analyser = audioContext.createAnalyser();
             analyser.fftSize = 2048;
             sourceNode.connect(analyser);
@@ -216,11 +218,8 @@
             isPlaying = true;
             isLiveInput = false;
             updatePitch();
-
             return "stop";
         }
-
-        
 
 
         function gotStream(stream) {
@@ -233,7 +232,6 @@
             mediaStreamSource.connect(analyser);
             updatePitch();
         }
-
 
         var MIN_SAMPLES = 0;  // will be initialized when AudioContext is created
         var GOOD_ENOUGH_CORRELATION = 0.9; // this is the "bar" for how close a correlation needs to be
@@ -298,8 +296,6 @@
             analyser.getFloatTimeDomainData(buf);
             var ac = autoCorrelate(buf, audioContext.sampleRate);
             // TODO: Paint confidence meter on canvasElem here.
-
-
             if (ac == -1) {
                 // do something if not loud enough
             } else {
@@ -312,7 +308,5 @@
         }
         // pitch detection from https://github.com/cwilso/PitchDetect/
     </script>
-
 </body>
-
 </html>

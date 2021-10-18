@@ -449,22 +449,12 @@ def set_sweep_counter_reached():
     SWEEPCOUNTERREACHED = True
 
 
-@app.route('/')
+@app.route('/demo-sounds/')
 def hello_world():
     """
-    Opening screen, render `index.html`
+    Demo of using the microphone input to move some bars. 
     """
-    return render_template('index.html')
-
-
-@app.route('/playback/')
-def playback():
-    """
-    Render `playback.html`, a first attempt at a sound pitch based rotation, all done in
-    javascript on the client side.
-    """
-    return render_template('playback.html')
-
+    return render_template('sounds.html')
 
 @app.route('/fictrac/')
 def hello():
