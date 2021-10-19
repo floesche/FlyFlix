@@ -48,8 +48,7 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 """
 The following routes are available:
 
-/ - index.html
-/playback - playback.html
+/demo-sounds/ - sounds.html
 /fictrac - fictrac_canvas.html
 /ldev - fictrac_canvas.html
 /bdev - bars.html
@@ -369,6 +368,17 @@ def listen_to_fictrac():
                 socketio.emit('speed', (cnt, updateval))
             prevheading = heading
 
+def localmove():
+    while not start:
+        time.sleep(0.1)
+    sptmp1 = SpatialTemporal(bar_deg=10, space_deg=10, rotate_deg_hz = 0)
+    dur = Duration(5000)
+    cond1 = OpenLoopCondition(spatial_temporal=sptmp1, trial_duration=dur)
+    cond1.trigger(socketio)
+    sweeptmp1 = SpatialTemporal(bar_deg=3, space_deg=357, rotate_deg_hz=-30)
+    cond2 = SweepCondition(spatial_temporal=sweeptmp1)
+    cond2.trigger(socketio)
+
 
 @socketio.on("connect")
 def connect():
@@ -448,11 +458,10 @@ def set_sweep_counter_reached():
     global SWEEPCOUNTERREACHED
     SWEEPCOUNTERREACHED = True
 
-
 @app.route('/demo-sounds/')
 def hello_world():
     """
-    Demo of using the microphone input to move some bars. 
+    Demo of using sounds to transmit rotational information between components.
     """
     return render_template('sounds.html')
 
@@ -465,18 +474,6 @@ def hello():
     except TemplateNotFound:
         abort(404)
     return render_template('fictrac_canvas.html')
-
-
-def localmove():
-    while not start:
-        time.sleep(0.1)
-    sptmp1 = SpatialTemporal(bar_deg=10, space_deg=10, rotate_deg_hz = 0)
-    dur = Duration(500000)
-    cond1 = OpenLoopCondition(spatial_temporal=sptmp1, trial_duration=dur)
-    cond1.trigger(socketio)
-    sweeptmp1 = SpatialTemporal(bar_deg=3, space_deg=357, rotate_deg_hz=-30)
-    cond2 = SweepCondition(spatial_temporal=sweeptmp1)
-    cond2.trigger(socketio)
 
 
 @app.route('/ldev/')
