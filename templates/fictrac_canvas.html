@@ -87,13 +87,6 @@
 
         socket.on('nthframe', data => {setNthFrame(data);});
 
-        // socket.on('spatial-temporal', (key, spatial, temporal) => {
-        //     setSharedKey(key);
-        //     if (temporal < 0){offset = canvas.width;}
-        //     setSpatial(spatial);
-        //     setSpeed(temporal);
-        // })
-
         socket.on('screen', function(onoff){
             if (onoff == 0){
                 screenOn = false;
