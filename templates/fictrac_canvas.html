@@ -43,18 +43,17 @@
     <p id="restart">Restart</p>
     
     <script>
-        var gain = 1;
+        /**
+         * status variables
+        */
+        
         var socket = io();
-
-        let shared_key = 0;
-
-        let previousFrameTS;
         let barSpeed = 100;
 
+        var gain = 1;
         let spatialCycle = 5;
-        let barWidth = 200 ;
+        let barWidth = 200;
         let onBarColor = "#00FF00";
-        let centerLine;
         let offset = 0;
         let paintoffset = 0;
         let screenOn = true;
@@ -68,6 +67,21 @@
 
         let bars  = [];
 
+        let shared_key = 0;
+        let previousFrameTS;
+        let centerLine;
+
+        /**
+         * Socket API implementation.
+         * 
+         * `connect`: Connect the server through the socket
+         * `event`: Any type of message
+         * `disconnect`: Disconnect the server through the socket
+         * `speed`: set rotational speed
+         * `spatfreq`: 
+         * `nthframe`:
+         * `screen`:
+        */
         socket.on('connect', function(){});
         socket.on('event', function(data){});
 
@@ -78,6 +92,7 @@
                 elem.style.visibility = "visible";
             }
         });
+
 
         socket.on('speed', (key, speed) => {setSharedKey(key); setSpeed(speed);});
 
@@ -111,6 +126,13 @@
             barSpeed = speed*2;
         }
 
+        /**
+         * Set the spatial frequency of the bars.
+         * 
+         * @param {number} newCycle - size of the bars. If <1, then this is the barWidth in percent
+         *     of screen width. If >1, this represents the number of bars that should be visible on
+         *     the screen.
+        */
         function setSpatial(newCycle){
             if(typeof(canvas) != 'undefined'){
                 if (newCycle < 1){
@@ -131,6 +153,13 @@
             }
         }
 
+        /**
+         * Update the bars on canvas. This callback routine calls itself at the end to keep drawing
+         *     more frames.
+         * 
+         * @params {number} timestamp - current timestamp provided by 
+         *     `window.requestAnimationFrame()`.
+        */
         function drawBars(timestamp) {
             if (previousFrameTS === undefined){
                 previousFrameTS = timestamp;
@@ -177,6 +206,10 @@
             window.requestAnimationFrame(drawBars);
         }
 
+        /**
+         * Calculate the bar size based on current values of variables `spatialCycle` and 
+         *     `barWidth`.
+        */
         function updateBarStorage(){
             bars = [];
             for (let i = -1; i< spatialCycle + 1; i++){
@@ -184,6 +217,9 @@
             }
         }
 
+        /**
+         * Initialize canvas for drawing bars on it.
+         */
         function initCanvas(){
             canvas = document.getElementById("container");
             canvas.style.visibility = "visible";
@@ -196,6 +232,9 @@
             window.requestAnimationFrame(drawBars);
         }
 
+        /**
+         * Add event listeners for clicking fullscreen and restart buttons.
+        */
         (function () {
             document.getElementById('fullscreen').addEventListener('click', function () {
                  document.body.requestFullscreen();

@@ -13,7 +13,6 @@
         var socket = io();
         socket.on('ping', (key, time) => {
             socket.emit("pong", key, time);
-            //this.socket.emit('start-experiment', 1);
         });
 
     </script>
