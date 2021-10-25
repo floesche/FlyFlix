@@ -6,7 +6,7 @@
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
     <script src="/static/vendor/socket.io.min.js"></script>
     <script>
-       
+
     </script>
     <style>
         html,
@@ -41,12 +41,11 @@
     <canvas id="container"></canvas>
     <p id="fullscreen">Start</p>
     <p id="restart">Restart</p>
-    
+
     <script>
         /**
          * status variables
         */
-        
         var socket = io();
         let barSpeed = 100;
 
@@ -180,7 +179,7 @@
                     //let updateval = (offset + canvas.width/2 * barSpeed * elapsedTime);
                     let updateval = (offset + barWidth * barSpeed * elapsedTime);
                     offset = ( updateval + canvas.width) % canvas.width;
-                    
+
                     if (updateval < 0 || updateval > canvas.width){
                         sweepcount = sweepcount - 1;
                         if (sweepcount == 0){
@@ -248,7 +247,5 @@
         })();
 
     </script>
-
 </body>
-
 </html>
