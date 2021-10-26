@@ -44,19 +44,6 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 
 # socketio = SocketIO(app, async_mode='threading')
 
-
-"""
-The following routes are available:
-
-/demo-sounds/ - sounds.html
-/fictrac - fictrac_canvas.html
-/ldev - fictrac_canvas.html
-/bdev - bars.html
-/fdev - bars.html
-/ping - ping.html
-/edev - bars.html
-"""
-
 @app.before_first_request
 def before_first_request():
     """
@@ -173,29 +160,6 @@ def experiment():
     savedata(shared_key, "birthdate-to", "2021-02-18 20:00:00")
     savedata(shared_key, "starvation-start", "2021-02-11 14:00:00")
     savedata(shared_key, "fly-batch", "2021-01-23")
-    # savedata(shared_key, "fly", 230)
-    # savedata(shared_key, "tether-start", "2012-02-11 15:55:00")
-    # savedata(shared_key, "sex", "")
-
-    # savedata(shared_key, "fly", 231)
-    # savedata(shared_key, "tether-start", "2012-02-11 16:00:00")
-    # savedata(shared_key, "sex", "")
-
-    # savedata(shared_key, "fly", 232)
-    # savedata(shared_key, "tether-start", "2012-02-11 16:09:00")
-    # savedata(shared_key, "sex", "")
-
-    # savedata(shared_key, "fly", 233)
-    # savedata(shared_key, "tether-start", "2012-02-11 18:52:00")
-    # savedata(shared_key, "sex", "")
-
-    # savedata(shared_key, "fly", 234)
-    # savedata(shared_key, "tether-start", "2012-02-11 18:56:00")
-    # savedata(shared_key, "sex", "")
-
-    # savedata(shared_key, "fly", 235)
-    # savedata(shared_key, "tether-start", "2012-02-11 19:04:00")
-    # savedata(shared_key, "sex", "")
 
     savedata(shared_key, "fly", 236)
     savedata(shared_key, "tether-start", "2012-02-11 19:09:00")
@@ -473,22 +437,16 @@ def hello():
         pass
     except TemplateNotFound:
         abort(404)
-    return render_template('fictrac_canvas.html')
+    return render_template('canvas-bars.html')
 
 
-@app.route('/ldev/')
+@app.route('/local-move/')
 def local_dev():
     _ = socketio.start_background_task(target = localmove)
-    return render_template('fictrac_canvas.html')
-
-@app.route('/bdev/')
-def threedee_dev():
-    _ = Trial(1, bar_deg=30)
-    _ = socketio.start_background_task(target=localmove)
-    return render_template('bars.html')
+    return render_template('canvas-bars.html')
 
 
-def localfictrac():
+def closed_loop():
     """
     Closed loop condition with local fictrac client. Part of the `/fdev` route.
     """
@@ -503,13 +461,14 @@ def localfictrac():
     socketio.emit('rotate-to', (0, math.radians(-15)))
 
 
-@app.route('/fdev/')
+@app.route('/closed-loop/')
 def local_fictrac_dev():
     """
-    Closed loop condition through the `localfictrac` function and `bars.html` template.
+    Closed loop condition through the `closed_loop` function and `three-container-bars.html`
+        template.
     """
-    _ = socketio.start_background_task(target = localfictrac)
-    return render_template('bars.html')
+    _ = socketio.start_background_task(target = closed_loop)
+    return render_template('three-container-bars.html')
 
 
 @socketio.on('pong')
@@ -629,15 +588,15 @@ def localexperiment():
     print(time.strftime("%H:%M:%S", time.localtime()))
 
 
-@app.route('/edev/')
+@app.route('/open-loop/')
 def local_experiment_dev():
     """
     Runs function `localexperiment` for the route `/edev` in a background task and deliver the
-    bars.html template.
+    three-container-bars.html template.
     """
     print("Starting edev")
     _ = socketio.start_background_task(target = localexperiment)
-    return render_template('bars.html')
+    return render_template('three-container-bars.html')
 
 
 def log_metadata():
