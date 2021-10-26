@@ -18,7 +18,7 @@ To install dependencies, a python package management system compatible with [pip
 
 The file `requirements.txt` contains the dependencies for FlyFlix and can be installed with:
 
-```shell
+```sh
 pip install -r requirements.txt
 ```
 
@@ -27,7 +27,6 @@ pip install -r requirements.txt
 FlyFlix is a web application that runs in most modern web browsers. While the server component is written in python-3 and requires a computer to run, the client is implemented in JavaScript inside an HTML website. Browsers that access the server receive the client code as part of the website. Through a bidirectional communication server and client exchange status information. Consequently, several clients can connect to the same server.
 
 ### Server
-
 
 
 ### Client
