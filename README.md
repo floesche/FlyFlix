@@ -8,6 +8,12 @@ This repository is a supplement to our preprint [An inexpensive, high-precision,
 
 To run the FlyFlix server, a recent version of [python](https://www.python.org/) is required. The server was written in Python-3 and only tested in [Python-3.7](https://devguide.python.org/#status-of-python-branches) and newer. The [installation of a recent python interpreter](https://wiki.python.org/moin/BeginnersGuide/Download) or another type of [python distribution](https://www.anaconda.com/products/individual) is outside the scope of this documentation.
 
+Check for the current version of python by running the following command. The result should show a version number > 3.7.0
+
+```{bash}
+python --version
+```
+
 To install dependencies, a python package management system compatible with [pip](https://pip.pypa.io/en/stable/) is required. Using a [virtual environment](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment) is encouraged although optional and once again outside the scope of this documentation. The following descriptions assume that pip is used as a package manager and the `pip` script is available in the path (otherwise load pip as a module, for example by calling `python3 -m pip` followed by the pip command).
 
 The file `requirements.txt` contains the dependencies for FlyFlix and can be installed with `pip install -r requirements.txt`.
