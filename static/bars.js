@@ -1,8 +1,8 @@
 
-import { Arena } from './Arena/Arena.js';
+import { Arena } from './arena/arena.js';
 
-import { FullScreener } from './Arena/systems/FullScreener.js';
-import { ExperimentControl } from './Arena/systems/ExperimentControl.js';
+import { FullScreener } from './arena/systems/full_screener.js';
+import { ExperimentControl } from './arena/systems/experiment_control.js';
 
 /**
  * Create the experiment in the client, inside the HTML-ID `scene-container`. Supplement to the 

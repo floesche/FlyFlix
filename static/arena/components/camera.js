@@ -1,4 +1,4 @@
-import { RotatingCamera } from './RotatingCamera.js';
+import { RotatingCamera } from './rotating_camera.js';
 
 /**
  * Camera creation module. 

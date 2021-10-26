@@ -1,13 +1,13 @@
 import { createCamera } from './components/camera.js';
 import { createScene } from './components/scene.js';
 
-import { Panels } from './components/Panels.js';
+import { Panels } from './components/panels.js';
 
-import { createRenderer } from './systems/Renderer.js';
-import { Resizer } from './systems/Resizer.js';
-import { Loop } from './systems/Loop.js';
+import { createRenderer } from './systems/renderer.js';
+import { Resizer } from './systems/resizer.js';
+import { Loop } from './systems/loop.js';
 
-import { DataExchanger } from './systems/DataExchanger.js';
+import { DataExchanger } from './systems/data_exchanger.js';
 
 let camera;
 let renderer;
