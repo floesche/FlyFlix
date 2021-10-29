@@ -26,7 +26,7 @@ The most important requirements are [Flask](https://pypi.org/project/Flask/) and
 
 ## Architecture
 
-FlyFlix is a web application that runs in most modern web browsers. While the server component is written in python-3 and requires a computer to run, the client is implemented in JavaScript inside an HTML website. Browsers that access the server receive the client code as part of the website. Through a bidirectional communication server and client exchange status information. Consequently, several clients can connect to the same server.
+FlyFlix is a web application that runs in most modern web browsers. While the server component is written in python-3 and requires a computer to run, the client is implemented in JavaScript inside an HTML website. Browsers that access the server receive the client code as part of the website. Through a bidirectional communication server and client exchange status information. Consequently, several clients can connect to the same server. The communication between client and server uses the low-latency library [Socket.IO](https://socket.io/), technology build around the [WebSocket protocol](https://en.wikipedia.org/wiki/WebSocket), for bidirectional communication.
 
 ### Server
 
