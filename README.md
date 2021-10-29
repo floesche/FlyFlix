@@ -36,3 +36,6 @@ The server is implemented as a [Flask](https://flask.palletsprojects.com) web ap
 
 The client is implemented as a javascript application inside a HTML website. The application runs in most modern web browsers, although we recommend [Firefox](https://en.wikipedia.org/wiki/Firefox) or [Chromium](https://en.wikipedia.org/wiki/Chromium_(web_browser)), which are available on most platforms from Linux, to iOS, macOS, BSDs, Windows, and Android. The client application is delivered through the Server on an experiment-specific URL.
 
+The FlyFlix client uses two external libraries, [Socket.IO](https://socket.io/) and [Three.js](https://threejs.org/). Recent versions of both libraries are part of this repository and are locally delivered through the Flask web server. They can be found in the `static/vendor` directory. You might want to check if more recent versions are available since they might improve performance and fix bugs.
+
+An example application that uses the Three.js library is delivered through the `templates/three-container-bars.html` file and implemented in the `static/bars.js` file.
