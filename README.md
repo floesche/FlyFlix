@@ -33,3 +33,6 @@ FlyFlix is a web application that runs in most modern web browsers. While the se
 The server is implemented as a [Flask](https://flask.palletsprojects.com) web application. Flask itself is primarily used to deliver the client application. The server application is responsible for keeping track of the experiment, delivering the visual updates to the client, and data logging. The communication with the client is done through the additional [Flask-SocketIO](https://flask-socketio.readthedocs.io) layer.
 
 ### Client
+
+The client is implemented as a javascript application inside a HTML website. The application runs in most modern web browsers, although we recommend [Firefox](https://en.wikipedia.org/wiki/Firefox) or [Chromium](https://en.wikipedia.org/wiki/Chromium_(web_browser)), which are available on most platforms from Linux, to iOS, macOS, BSDs, Windows, and Android. The client application is delivered through the Server on an experiment-specific URL.
+
