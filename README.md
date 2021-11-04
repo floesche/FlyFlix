@@ -26,7 +26,7 @@ The most important requirements are [Flask](https://pypi.org/project/Flask/) and
 
 ### Run FlyFlix
 
-Once installed, you should be able to run FlyFlix by executing a python script on the terminal: `python flyflix.py`. Once the application is up and running, the client can be started by pointing a web browser to an URL with the IP address of the server at port 17000, for example <https://127.0.0.1:17000> or <https://192.168.1.27:17000>. If you are unsure what your IP address is, you might be able to see it through the terminal command `ip addr` (Mac and Linux) or `ifconfig` (Windows).
+Once installed, you should be able to run FlyFlix by executing a python script on the terminal: `python flyflix.py`. Once the application is up and running, the client can be started by pointing a web browser to an URL with the IP address of the server at port 17000, for example <http://127.0.0.1:17000> or <http://192.168.1.27:17000>. If you are unsure what your IP address is, you might be able to see it through the terminal command `ip addr` (Mac and Linux) or `ifconfig` (Windows). On Linux, you should be able to start FlyFlix through `make localhost` instead of the direct call to the python script, which will also show you the currently used address.
 
 ## Architecture
 

@@ -1,5 +1,5 @@
 localhost:
-	@echo "FlyFlix should be available at port :17000"
+	@echo "FlyFlix should be available at http://`ip route get 9.9.9.9 | grep -oP 'src \K[^ ]+'`:17000"
 	@python flyflix.py
 
 update:
