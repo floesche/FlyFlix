@@ -12,7 +12,7 @@ from logging import FileHandler
 
 import eventlet
 
-from flask import Flask, render_template, request, abort
+from flask import Flask, render_template, request, abort, url_for
 from flask.logging import default_handler
 from flask_socketio import SocketIO
 
@@ -671,6 +671,17 @@ def log_metadata():
     shared_key = time.time_ns()
     for key, value in metadata.items():
         logdata(0, shared_key, key, value)
+
+
+@app.route("/")
+def all_links():
+    links = []
+    for rule in app.url_map.iter_rules():
+        if len(rule.defaults or '') >= len(rule.arguments or ''):
+            url = url_for(rule.endpoint, **(rule.defaults or {}))
+            links.append((url, rule.endpoint))
+    return render_template("all_links.html", links=links)
+
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port = 17000)
