@@ -1,0 +1,31 @@
+{# all_links.html #}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8">
+    
+    <title>FlyFlix | Three.JS Scene Container</title>
+    
+    <link href="/static/style/chota.min.css" rel="stylesheet" type="text/css">    
+    <link href="/static/style/sitemap.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+  <div id="top" class="container" role="document">
+    <main role="main">
+      <section id="list">
+        <header>
+          <h1>FlyFlix</h1>
+        </header>
+        <article id="sitemap">
+          <p>FlyFlix was developed </p>
+          <ul>
+            {% for url, endpoint in links %}
+            <li><a href="{{ url }}">{{ endpoint }}</a></li>
+            {% endfor %}
+          </ul>
+        </article>
+      </section>
+    </main>
+  </div>
+</body>

@@ -674,13 +674,15 @@ def log_metadata():
 
 
 @app.route("/")
-def all_links():
+def sitemap():
+    "Whatever floats our boat"
     links = []
     for rule in app.url_map.iter_rules():
+        #breakpoint()
         if len(rule.defaults or '') >= len(rule.arguments or ''):
             url = url_for(rule.endpoint, **(rule.defaults or {}))
             links.append((url, rule.endpoint))
-    return render_template("all_links.html", links=links)
+    return render_template("sitemap.html", links=links)
 
 
 if __name__ == '__main__':
