@@ -15,12 +15,13 @@
           <h1>FlyFlix</h1>
         </header>
         <article id="sitemap">
-          <p>FlyFlix was developed </p>
-          <ul>
-            {% for url, endpoint in links %}
-            <li><a href="{{ url }}">{{ endpoint }}</a></li>
+          <p>FlyFlix is visual stimulus presentation system. It has currently the following components and you can start them by clicking on one of the function names. Not all of them might work as expected :-)</p>
+          <dl>
+            {% for url, endpoint, desc in links %}
+            <dt><a href="{{ url }}">{{ endpoint }}</a>:</dt> 
+            <dd>{{ desc }}</dd>
             {% endfor %}
-          </ul>
+          </dl>
         </article>
       </section>
     </main>

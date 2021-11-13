@@ -5,6 +5,7 @@ import math
 import time
 import logging
 import random
+import inspect
 
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -675,13 +676,14 @@ def log_metadata():
 
 @app.route("/")
 def sitemap():
-    "Whatever floats our boat"
+    """ List all routes and associated functions that FlyFlix currently supports. """
     links = []
     for rule in app.url_map.iter_rules():
         #breakpoint()
         if len(rule.defaults or '') >= len(rule.arguments or ''):
             url = url_for(rule.endpoint, **(rule.defaults or {}))
-            links.append((url, rule.endpoint))
+            desc = inspect.getdoc(eval(rule.endpoint))
+            links.append((url, rule.endpoint, desc))
     return render_template("sitemap.html", links=links)
 
 
