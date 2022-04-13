@@ -17,6 +17,7 @@ class SpatialTemporal():
         bar_deg=60, space_deg=60, 
         rotate_deg_hz=0, 
         start_mask_deg=0, end_mask_deg=0,
+        osc_freq=0, osc_width=0,
         fg_color=0x00ff00, bg_color=0x000000
     ) -> None:
         """
@@ -50,6 +51,8 @@ class SpatialTemporal():
         self.end_mask_deg = end_mask_deg
         self.fg_color = fg_color
         self.bg_color = bg_color
+        self.osc_freq = osc_freq
+        self.osc_width = osc_width
 
     def is_bar_sweep(self) -> bool:
         """
@@ -60,6 +63,11 @@ class SpatialTemporal():
         :rtype: bool
         """
         if self.bar_deg<self.space_deg and self.bar_deg+self.space_deg==360:
+            return True
+        return False
+
+    def is_oscillation(self) -> bool:
+        if self.osc_freq > 0:
             return True
         return False
 
@@ -85,6 +93,9 @@ class SpatialTemporal():
         if self.bar_deg + self.space_deg == 180:
             return True
         return False
+
+    def get_oscillation_duration(self) -> Duration:
+        return Duration(1.0/self.osc_freq * 2 * 1000)
 
     def get_bar_sweep_duration(self, sweep_angle_deg=180) -> Duration:
         """
@@ -117,6 +128,10 @@ class SpatialTemporal():
         shared_key = time.time_ns()
         socket_io.emit('speed', (shared_key, math.radians(self.rotate_deg_hz)))
 
+    def trigger_oscillation(self, socket_io) -> None:
+        shared_key = time.time_ns()
+        socket_io.emit('oscillation', (shared_key, self.osc_freq, self.osc_width))
+
     def trigger_stop(self, socket_io) -> None:
         """
         Stops the movement of the spatial-temporal pattern by sending a stop command through the
@@ -127,6 +142,7 @@ class SpatialTemporal():
         """
         shared_key = time.time_ns()
         socket_io.emit('speed', (shared_key, 0))
+        socket_io.emit('oscillation', (shared_key, 0, 0))
 
     def trigger_spatial(self, socket_io) -> None:
         """

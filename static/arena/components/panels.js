@@ -22,6 +22,7 @@ class Panels extends Group {
         this.arenaRadius = arenaRadius;
         this.arenaHeight = arenaHeight;
         this.rotateRadHz = 0;
+        this.startTime = undefined;
         const fgColor = 0x00ff00;
         const bgColor = 0x000000;
         this._setup(panelAngle, intervalAngle, fgColor, bgColor);
@@ -76,9 +77,9 @@ class Panels extends Group {
     }
 
     /**
-     * Set the rotational speed of the camera (in radians)
+     * Set the rotational speed of the panels (in radians)
      * 
-     * @param {number} rotateRadHz - rotational speed of the camera in radians per second, positive
+     * @param {number} rotateRadHz - rotational speed of the panels in radians per second, positive
      *      is clockwise
      */
     setRotateRadHz(rotateRadHz){
@@ -87,9 +88,9 @@ class Panels extends Group {
     }
 
     /**
-    * Set the rotational speed of the camera (in degree)
+    * Set the rotational speed of the panels (in degree)
     * 
-    * @param {number} rotate_deg_hz - rotational speed of he camera in degree per second, 
+    * @param {number} rotate_deg_hz - rotational speed of he panels in degree per second, 
     *      positive is clockwise
     */
     setRotateDegHz(rotate_deg_hz){
@@ -97,15 +98,25 @@ class Panels extends Group {
         this._log('panels-set-rotate_deg_hz', rotate_deg_hz);
     }
 
-        /**
-     * Rotate the camera to an absolute angle.
+    setOscillation(osc_hz, max_deg){
+        if (osc_hz>0){
+            this.startTime = Date.now()/1000;
+        } else {
+            this.startTime = undefined;
+        }
+        this.osc_hz = osc_hz;
+        this.max_deg = MathUtils.degToRad(max_deg);
+    }
+
+    /**
+     * Rotate the panels to an absolute angle.
      * 
      * @param {number} rotation - set the absolute rotation of the camera in radians
      */
-         setRotationRad(rotation){
-            this.rotation.y = rotation % (2*Math.PI);
-            this._log('panels-set-rotationRad', rotation);
-        }
+    setRotationRad(rotation){
+        this.rotation.y = rotation % (2*Math.PI);
+        this._log('panels-set-rotationRad', rotation);
+    }
 
 
     /**
@@ -114,8 +125,14 @@ class Panels extends Group {
      * @param {number} delta - time interval since last tick
      */
     tick(delta){
-        this.rotation.y = (this.rotation.y + delta * this.rotateRadHz) % (2*Math.PI);
-        this._log('panels-tick-rotation', this.rotation.y);
+        if (this.startTime === undefined){
+            this.rotation.y = (this.rotation.y + delta * this.rotateRadHz) % (2*Math.PI);
+            this._log('panels-tick-rotation', this.rotation.y);
+        } else {
+            const c_time = Date.now()/1000;
+            this.rotation.y = Math.sin((c_time - this.startTime) * this.osc_hz * (2*Math.PI)) * this.max_deg;
+            this._log('panels-tick-rotation', this.rotation.y);
+        }
     }
 
     /**

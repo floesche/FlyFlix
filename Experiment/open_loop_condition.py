@@ -63,8 +63,13 @@ class OpenLoopCondition():
         self.spatial_temporal.trigger_spatial(socket_io)
         self.spatial_temporal.trigger_stop(socket_io)
         self.pretrial_duration.trigger_delay(socket_io)
-        self.spatial_temporal.trigger_rotation(socket_io)
-        self.trial_duration.trigger_delay(socket_io)
+        if self.spatial_temporal.is_oscillation():
+            self.spatial_temporal.trigger_oscillation(socket_io)
+            osc_dur = self.spatial_temporal.get_oscillation_duration()
+            osc_dur.trigger_delay(socket_io)
+        else:
+            self.spatial_temporal.trigger_rotation(socket_io)
+            self.trial_duration.trigger_delay(socket_io)
         self.spatial_temporal.trigger_stop(socket_io)
         self.posttrial_duration.trigger_delay(socket_io)
         socket_io.emit("meta", (shared_key, "openloop-end", 1))

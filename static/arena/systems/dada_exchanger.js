@@ -45,6 +45,11 @@
             panels.setRotateRadHz(speed);
         });
 
+        this.socket.on('oscillation', (lid, osc_freq, osc_width) => {
+            panels.setLid(lid);
+            panels.setOscillation(osc_freq, osc_width);
+        });
+
         /**
          * Event handler for `ssync` returns `csync` message with current client time stamp and 
          *      loop id
