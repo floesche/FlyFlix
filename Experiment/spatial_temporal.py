@@ -13,7 +13,12 @@ class SpatialTemporal():
     Description of spatial and temporal stimulation.
     """
 
-    def __init__(self, bar_deg=60, space_deg=60, rotate_deg_hz=0, start_mask_deg=0, end_mask_deg=0) -> None:
+    def __init__(self,
+        bar_deg=60, space_deg=60, 
+        rotate_deg_hz=0, 
+        start_mask_deg=0, end_mask_deg=0,
+        fg_color=0x00ff00, bg_color=0x000000
+    ) -> None:
         """
         Constructor for a spatial-temporal description of a stimulus. The assumption is that the
         arena covers 360° and the bars and spaces alternate. All bars and all spaces are of the
@@ -34,11 +39,17 @@ class SpatialTemporal():
             warnings.warn("temporal components needs to be set.")
         if start_mask_deg > end_mask_deg:
             warnings.warn("mask has invalid range.")
+        if fg_color<0 or fg_color>0xffffff:
+            warnings.warn("foreground color outside of range")
+        if bg_color<0 or bg_color>0xffffff:
+            warnings.warn("background color outside of range")
         self.bar_deg = bar_deg
         self.space_deg = space_deg
         self.rotate_deg_hz = rotate_deg_hz
         self.start_mask_deg = start_mask_deg
         self.end_mask_deg = end_mask_deg
+        self.fg_color = fg_color
+        self.bg_color = bg_color
 
     def is_bar_sweep(self) -> bool:
         """
@@ -130,7 +141,9 @@ class SpatialTemporal():
             math.radians(self.bar_deg),
             math.radians(self.space_deg),
             math.radians(self.start_mask_deg),
-            math.radians(self.end_mask_deg)))
+            math.radians(self.end_mask_deg),
+            self.fg_color,
+            self.bg_color))
 
     def trigger_sweep_start_position(self, socket_io) -> None:
         """

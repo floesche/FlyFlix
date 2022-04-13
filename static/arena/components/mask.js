@@ -21,7 +21,8 @@ class Mask extends Group {
         this.lid = 0;
         this.maskRadius = arenaRadius-0.01;
         this.maskHeight = arenaHeight;
-        this._setup(maskStart, maskEnd);
+        const bgColor = 0x000000;
+        this._setup(maskStart, maskEnd, bgColor);
     }
 
     /**
@@ -30,11 +31,10 @@ class Mask extends Group {
      * @param {number} panelAngle - width of a panel in radians
      * @param {number} intervalAngle - width of an interval between panels in radians
      */
-    _setup(maskStart, maskEnd){
-        const maskcolor = 0x000000;
+    _setup(maskStart, maskEnd, maskColor){
         const cylinderHorizSegments = 12;
 
-        this._log('panels-mask-color', maskcolor);
+        this._log('panels-mask-color', maskColor);
 
 
         if (maskStart != maskEnd){
@@ -44,11 +44,12 @@ class Mask extends Group {
                 cylinderHorizSegments, 1,
                 true,
                 maskStart, maskEnd-maskStart);
-            const maskMaterial = new MeshBasicMaterial( { color: maskcolor, side:BackSide});
+            const maskMaterial = new MeshBasicMaterial( { color: maskColor, side:BackSide});
             const mask = new Mesh(maskGeometry, maskMaterial);
             this.add(mask);
             this._log('panels-add-mask-start', maskStart);
             this._log('panels-add-mask-end', maskEnd);
+            this._log('panels-add-mask-color', maskColor);
         }
     }
 
@@ -58,10 +59,10 @@ class Mask extends Group {
      * @param {number} panelAngle - width of the panel in radians
      * @param {number} intervalAngle  - width of interval between panels in radians
      */
-    changeMask(maskStart, maskEnd) {
+    changeMask(maskStart, maskEnd, bgColor) {
         this.clear();
         this._log('mask-change-clear')
-        this._setup(maskStart, maskEnd);
+        this._setup(maskStart, maskEnd, bgColor);
     }
 
     /**

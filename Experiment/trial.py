@@ -14,6 +14,7 @@ class Trial():
                  start_mask_deg=0, end_mask_deg=0,
                  openloop_duration=Duration(3000), sweep=None,
                  closedloop_bar_deg = None, closedloop_duration=Duration(5000), gain=1,
+                 fg_color=0x00ff00, bg_color=0x000000,
                  fps=60,
                  pretrial_duration=Duration(500), posttrial_duration=Duration(500),
                  comment=None) -> None:
@@ -53,7 +54,8 @@ class Trial():
             bar_deg=bar_deg,
             space_deg=space_deg,
             rotate_deg_hz=rotate_deg_hz,
-            start_mask_deg=start_mask_deg, end_mask_deg=end_mask_deg)
+            start_mask_deg=start_mask_deg, end_mask_deg=end_mask_deg,
+            fg_color=fg_color, bg_color=bg_color)
         if openloop_duration is not None:
             olc = OpenLoopCondition(
                 spatial_temporal=openloop_spatial_temporal,

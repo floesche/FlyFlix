@@ -22,7 +22,9 @@ class Panels extends Group {
         this.arenaRadius = arenaRadius;
         this.arenaHeight = arenaHeight;
         this.rotateRadHz = 0;
-        this._setup(panelAngle, intervalAngle);
+        const fgColor = 0x00ff00;
+        const bgColor = 0x000000;
+        this._setup(panelAngle, intervalAngle, fgColor, bgColor);
     }
 
     /**
@@ -31,8 +33,8 @@ class Panels extends Group {
      * @param {number} panelAngle - width of a panel in radians
      * @param {number} intervalAngle - width of an interval between panels in radians
      */
-    _setup(panelAngle, intervalAngle){
-        const barcolor = 0x00ff00;
+    _setup(panelAngle, intervalAngle, fgColor, bgColor){
+        
         const cylinderHorizSegments = 12;
         
         this._log('panels-panel-angle', panelAngle);
@@ -41,7 +43,7 @@ class Panels extends Group {
         this._log('panels-arena-height', this.arenaHeight);
         this._log('panels-type', 'CylinderBufferGeometry');
         this._log('panels-horizontal-segments', cylinderHorizSegments);
-        this._log('panels-bar-color', barcolor);
+        this._log('panels-bar-color', fgColor);
 
         const geometry = new CylinderBufferGeometry(
             this.arenaRadius, this.arenaRadius,
@@ -50,7 +52,7 @@ class Panels extends Group {
             true, // TODO Test with "false" instead of "true" to have it openEnded
             0, panelAngle);
 
-        const material = new MeshBasicMaterial({ color: barcolor, side:BackSide });
+        const material = new MeshBasicMaterial({ color: fgColor, side:BackSide });
 
         for (let alpha = 0; alpha < 2*Math.PI; alpha += panelAngle + intervalAngle) {
             const bar = new Mesh(geometry, material);
@@ -67,10 +69,10 @@ class Panels extends Group {
      * @param {number} panelAngle - width of the panel in radians
      * @param {number} intervalAngle  - width of interval between panels in radians
      */
-    changePanels(panelAngle, intervalAngle) {
+    changePanels(panelAngle, intervalAngle, fgColor, bgColor) {
         this.clear();
         this._log('panels-change-clear')
-        this._setup(panelAngle, intervalAngle);
+        this._setup(panelAngle, intervalAngle, fgColor, bgColor);
     }
 
     /**

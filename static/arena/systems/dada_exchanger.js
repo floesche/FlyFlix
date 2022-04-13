@@ -1,16 +1,17 @@
 /**
  * Module to exchange data between server and client. This is FlyFlix specific.
  */
+ import { Color } from '/static/vendor/three.module.js';
  class DadaExchanger{
-
     /**
      * FlyFlix specific module for data exchange between server and client.
      * 
      * @param {Camera} camera - The camera used in the scene
+     * @param {Scene} scene
      * @param {Loop} loop - The animation loop
      * @param {Panels} panels - the group of panels
      */
-    constructor(camera, loop, panels, masks){
+    constructor(camera, scene, loop, panels, masks){
 
         // The data exchanger connects to a Socket IO at port 17000
         const socketurl = window.location.hostname + ":17000";
@@ -83,11 +84,12 @@
          * @param {number} barWidth - bar width in radians
          * @param {number} spaceWidth - interval width between bars in radians
          */
-        this.socket.on('spatial-setup', (lid, barWidth, spaceWidth, maskStart, maskEnd) => {
+        this.socket.on('spatial-setup', (lid, barWidth, spaceWidth, maskStart, maskEnd, fgColor, bgColor) => {
             panels.setLid(lid);
-            panels.changePanels(barWidth, spaceWidth);
+            panels.changePanels(barWidth, spaceWidth, fgColor, bgColor);
+            scene.background = new Color(bgColor);
             masks.setLid(lid);
-            masks.changeMask(maskStart, maskEnd);
+            masks.changeMask(maskStart, maskEnd, bgColor);
         });
 
         /**

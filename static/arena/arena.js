@@ -47,9 +47,9 @@ class Arena {
         scene.add(masks);
         loop.updateables.push(panels);
         if (orientation < 180){
-            io = new DadaExchanger(camera, loop, panels, masks);
+            io = new DadaExchanger(camera, scene, loop, panels, masks);
         } else {
-            io = new DataExchanger(camera, loop, panels, masks);
+            io = new DataExchanger(camera, scene, loop, panels, masks);
         }
 
         camera.loggable = io;

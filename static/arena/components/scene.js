@@ -1,4 +1,4 @@
-import { Scene } from '/static/vendor/three.module.js';
+import { Scene, Color } from '/static/vendor/three.module.js';
 
 /**
  * Scene creation module.
@@ -9,6 +9,7 @@ import { Scene } from '/static/vendor/three.module.js';
  */
 function createScene() {
     const scene = new Scene();
+    scene.background = new Color(0x0000FF);
     return scene;
 }
 
