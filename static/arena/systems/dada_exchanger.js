@@ -1,7 +1,7 @@
 /**
  * Module to exchange data between server and client. This is FlyFlix specific.
  */
-class DataExchanger{
+ class DadaExchanger{
 
     /**
      * FlyFlix specific module for data exchange between server and client.
@@ -19,7 +19,7 @@ class DataExchanger{
 
         /**
          * Event handler for `disconnect` sends the event `end-experiment` and stops camera 
-         *      and panels rotation.
+         *      rotation.
          */
         this.socket.on('disconnect', () => {
             const endEvent = new Event('end-experiment');
@@ -42,7 +42,6 @@ class DataExchanger{
         this.socket.on('speed', (lid, speed) => {
             panels.setLid(lid);
             panels.setRotateRadHz(speed);
-            this.log(lid, 'de-panel-speed', speed);
         });
 
         /**
@@ -64,7 +63,6 @@ class DataExchanger{
         this.socket.on('rotate-to', (lid, targetRotationRad) => {
             panels.setLid(lid);
             panels.setRotationRad(targetRotationRad);
-            this.log(lid, 'de-rotate-panel-to', targetRotationRad);
         })
 
         /**
@@ -76,7 +74,6 @@ class DataExchanger{
         this.socket.on('fps', (lid, fps) => {
             loop.setLid(lid);
             loop.setFPS(fps);
-            this.log(lid, 'de-fps', fps);
         });
 
         /**
@@ -91,10 +88,6 @@ class DataExchanger{
             panels.changePanels(barWidth, spaceWidth);
             masks.setLid(lid);
             masks.changeMask(maskStart, maskEnd);
-            this.log(lid, 'de-spatial-setup-bar', barWidth);
-            this.log(lid, 'de-spatial-setup-space', spaceWidth);
-            this.log(lid, 'de-spatial-setup-mask-start', maskStart);
-            this.log(lid, 'de-spatial-setup-mask-end', maskEnd);
         });
 
         /**
@@ -105,7 +98,6 @@ class DataExchanger{
          * @param {string} value - value of key-value-pair
          */
         this.socket.on('meta', (lid, key, value) => {
-            this.log(lid, key, value);
         })
 
         /**
@@ -115,7 +107,6 @@ class DataExchanger{
         window.addEventListener('start-experiment', () => {
             this.isLogging = true;
             this.socket.emit('start-experiment', 1);
-            this.log(0, 'de-start-experiment');
         });
 
     }
@@ -129,12 +120,13 @@ class DataExchanger{
      * @param {string} value - value of key-value-pair
      */
     log(lid, key, value){
-        if (this.isLogging){
-            this.socket.emit('dl', performance.now(), lid, key, value);
-        }
+        
+        // if (this.isLogging){
+        //     this.socket.emit('dl', performance.now(), lid, key, value);
+        // }
     }
 }
 
 
 
-export { DataExchanger };
+export { DadaExchanger };

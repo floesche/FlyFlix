@@ -13,7 +13,7 @@ class SpatialTemporal():
     Description of spatial and temporal stimulation.
     """
 
-    def __init__(self, bar_deg=60, space_deg=60, rotate_deg_hz=0) -> None:
+    def __init__(self, bar_deg=60, space_deg=60, rotate_deg_hz=0, start_mask_deg=0, end_mask_deg=0) -> None:
         """
         Constructor for a spatial-temporal description of a stimulus. The assumption is that the
         arena covers 360° and the bars and spaces alternate. All bars and all spaces are of the
@@ -32,9 +32,13 @@ class SpatialTemporal():
                 f"Spatial pattern is not seamless with bar {bar_deg}° and space {space_deg}")
         if rotate_deg_hz is None:
             warnings.warn("temporal components needs to be set.")
+        if start_mask_deg > end_mask_deg:
+            warnings.warn("mask has invalid range.")
         self.bar_deg = bar_deg
         self.space_deg = space_deg
         self.rotate_deg_hz = rotate_deg_hz
+        self.start_mask_deg = start_mask_deg
+        self.end_mask_deg = end_mask_deg
 
     def is_bar_sweep(self) -> bool:
         """
@@ -124,7 +128,9 @@ class SpatialTemporal():
         socket_io.emit('spatial-setup', (
             shared_key,
             math.radians(self.bar_deg),
-            math.radians(self.space_deg)))
+            math.radians(self.space_deg),
+            math.radians(self.start_mask_deg),
+            math.radians(self.end_mask_deg)))
 
     def trigger_sweep_start_position(self, socket_io) -> None:
         """

@@ -4,7 +4,7 @@ import { Group, MathUtils, PlaneBufferGeometry, CylinderBufferGeometry, MeshBasi
  * Definition of the panels that form a cylindrical arena.
  */
 
-class Panels extends Group {
+class Mask extends Group {
 
     /**
      * Representation of the panels in a virtual fly arena.
@@ -15,14 +15,13 @@ class Panels extends Group {
      * @param {number} arenaRadius - radius of the arena in m (default: 0.1525m; same as G4 arena)
      * @param {number} arenaHeight - height of the arena in m (default: 0.8m)
      */
-    constructor(panelAngle, intervalAngle, arenaRadius=0.1525, arenaHeight=0.8) {
+    constructor(maskStart, maskEnd, arenaRadius=0.1525, arenaHeight=0.8) {
         super();
         this.loggable = null;
         this.lid = 0;
-        this.arenaRadius = arenaRadius;
-        this.arenaHeight = arenaHeight;
-        this.rotateRadHz = 0;
-        this._setup(panelAngle, intervalAngle);
+        this.maskRadius = arenaRadius-0.01;
+        this.maskHeight = arenaHeight;
+        this._setup(maskStart, maskEnd);
     }
 
     /**
@@ -31,33 +30,25 @@ class Panels extends Group {
      * @param {number} panelAngle - width of a panel in radians
      * @param {number} intervalAngle - width of an interval between panels in radians
      */
-    _setup(panelAngle, intervalAngle){
-        const barcolor = 0x00ff00;
+    _setup(maskStart, maskEnd){
+        const maskcolor = 0x000000;
         const cylinderHorizSegments = 12;
-        
-        this._log('panels-panel-angle', panelAngle);
-        this._log('panels-interval-angle', intervalAngle);
-        this._log('panels-arena-radius', this.arenaRadius);
-        this._log('panels-arena-height', this.arenaHeight);
-        this._log('panels-type', 'CylinderBufferGeometry');
-        this._log('panels-horizontal-segments', cylinderHorizSegments);
-        this._log('panels-bar-color', barcolor);
 
-        const geometry = new CylinderBufferGeometry(
-            this.arenaRadius, this.arenaRadius,
-            this.arenaHeight, 
-            cylinderHorizSegments, 1, 
-            true, // TODO Test with "false" instead of "true" to have it openEnded
-            0, panelAngle);
+        this._log('panels-mask-color', maskcolor);
 
-        const material = new MeshBasicMaterial({ color: barcolor, side:BackSide });
 
-        for (let alpha = 0; alpha < 2*Math.PI; alpha += panelAngle + intervalAngle) {
-            const bar = new Mesh(geometry, material);
-            // bar.rotation.y = MathUtils.degToRad(alpha);
-            bar.rotation.y = alpha;
-            this.add(bar);
-            this._log('panels-bar', alpha);
+        if (maskStart != maskEnd){
+            const maskGeometry = new CylinderBufferGeometry(
+                this.maskRadius, this.maskRadius,
+                this.maskHeight,
+                cylinderHorizSegments, 1,
+                true,
+                maskStart, maskEnd-maskStart);
+            const maskMaterial = new MeshBasicMaterial( { color: maskcolor, side:BackSide});
+            const mask = new Mesh(maskGeometry, maskMaterial);
+            this.add(mask);
+            this._log('panels-add-mask-start', maskStart);
+            this._log('panels-add-mask-end', maskEnd);
         }
     }
 
@@ -67,10 +58,10 @@ class Panels extends Group {
      * @param {number} panelAngle - width of the panel in radians
      * @param {number} intervalAngle  - width of interval between panels in radians
      */
-    changePanels(panelAngle, intervalAngle) {
+    changeMask(maskStart, maskEnd) {
         this.clear();
-        this._log('panels-change-clear')
-        this._setup(panelAngle, intervalAngle);
+        this._log('mask-change-clear')
+        this._setup(maskStart, maskEnd);
     }
 
     /**
@@ -81,7 +72,7 @@ class Panels extends Group {
      */
     setRotateRadHz(rotateRadHz){
         this.rotateRadHz = rotateRadHz;
-        this._log('panels-set-rotateRadHz', rotateRadHz);
+        this._log('mask-set-rotateRadHz', rotateRadHz);
     }
 
     /**
@@ -92,18 +83,8 @@ class Panels extends Group {
     */
     setRotateDegHz(rotate_deg_hz){
         this.rotateRadHz = MathUtils.degToRad(rotate_deg_hz);
-        this._log('panels-set-rotate_deg_hz', rotate_deg_hz);
+        this._log('mask-set-rotate_deg_hz', rotate_deg_hz);
     }
-
-        /**
-     * Rotate the camera to an absolute angle.
-     * 
-     * @param {number} rotation - set the absolute rotation of the camera in radians
-     */
-         setRotationRad(rotation){
-            this.rotation.y = rotation % (2*Math.PI);
-            this._log('panels-set-rotationRad', rotation);
-        }
 
 
     /**
@@ -113,7 +94,7 @@ class Panels extends Group {
      */
     tick(delta){
         this.rotation.y = (this.rotation.y + delta * this.rotateRadHz) % (2*Math.PI);
-        this._log('panels-tick-rotation', this.rotation.y);
+        this._log('mask-tick-rotation', this.rotation.y);
     }
 
     /**
@@ -122,7 +103,7 @@ class Panels extends Group {
      * @param {bigint} lid - Loop ID
      */
     setLid(lid){
-        this._log('panels-set-lid-old', lid);
+        this._log('mask-set-lid-old', lid);
         this.lid = lid;
     }
 
@@ -139,4 +120,4 @@ class Panels extends Group {
     }
 }
 
-export { Panels };
+export { Mask };

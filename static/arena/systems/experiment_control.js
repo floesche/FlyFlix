@@ -43,11 +43,15 @@ const addStartButton = (container) => {
     startExperiment.style.left = "70%";
     container.appendChild(startExperiment);
 
-    startExperiment.addEventListener('click', function () {
+    window.addEventListener('experiment-started', () =>{
+        //startExperiment.style.visibility = 'hidden';
         const controllers = container.getElementsByClassName('experiment-controller');
         for (const element of controllers) {
             element.style.visibility = "hidden";
         }
+    })
+
+    startExperiment.addEventListener('click', function () {
         const startEvent = new Event('start-experiment');
         window.dispatchEvent(startEvent);
     });

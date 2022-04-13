@@ -11,6 +11,7 @@ class Trial():
     def __init__(self,
                  trial_id,
                  bar_deg=30, space_deg=None, rotate_deg_hz=0,
+                 start_mask_deg=0, end_mask_deg=0,
                  openloop_duration=Duration(3000), sweep=None,
                  closedloop_bar_deg = None, closedloop_duration=Duration(5000), gain=1,
                  fps=60,
@@ -51,7 +52,8 @@ class Trial():
         openloop_spatial_temporal = SpatialTemporal(
             bar_deg=bar_deg,
             space_deg=space_deg,
-            rotate_deg_hz=rotate_deg_hz)
+            rotate_deg_hz=rotate_deg_hz,
+            start_mask_deg=start_mask_deg, end_mask_deg=end_mask_deg)
         if openloop_duration is not None:
             olc = OpenLoopCondition(
                 spatial_temporal=openloop_spatial_temporal,
@@ -76,11 +78,11 @@ class Trial():
             elif 180 < closedloop_bar_deg <= 360:
                 closedloop_spatial_temporal = SpatialTemporal(
                     bar_deg=closedloop_bar_deg-180, space_deg=360-closedloop_bar_deg)
-        clc = ClosedLoopCondition(
-            spatial_temporal=closedloop_spatial_temporal, trial_duration=closedloop_duration,
-            gain=gain, fps=fps,
-            pretrial_duration=pretrial_duration, posttrial_duration=posttrial_duration)
-        self.conditions.append(clc)
+            clc = ClosedLoopCondition(
+                spatial_temporal=closedloop_spatial_temporal, trial_duration=closedloop_duration,
+                gain=gain, fps=fps,
+                pretrial_duration=pretrial_duration, posttrial_duration=posttrial_duration)
+            self.conditions.append(clc)
 
 
     def trigger(self, socket_io) -> None:
