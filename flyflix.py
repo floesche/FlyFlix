@@ -359,41 +359,43 @@ def l4l5left():
     gaincount = 0
     log_metadata()
 
-    # ## rotation with  soeed tuning
-    # for alpha in [15, 45]:
-    #     for speed in [0.25, 2, 7.5, 15]:
-    #         for direction in [-1, 1]:
-    #             for bright in [26, 255]:
-    #                 for contrast in [0.1, 0.2, 0.5]:
-    #                     fg_color = bright << 8
-    #                     bg_color = round((1-contrast)/(1+contrast)*bright) << 8
-    #                     rotation_speed = alpha*2*speed*direction
-    #                     t = Trial(
-    #                         counter, 
-    #                         bar_deg=alpha, 
-    #                         rotate_deg_hz=rotation_speed,
-    #                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
-    #                         fg_color=fg_color, bg_color=bg_color,
-    #                         comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
-    #                     block.append(t)
-    # alpha = 15
-    # for speed in [2, 4, 8]:
-    #     for direction in [-1, 1]: # Progressive and regressive
-    #         for start_deg in [0, 180]: # Left / right
-    #             for bright in [26, 255]:
-    #                 for contrast in [0.1, 0.2, 0.5]:
-    #                     fg_color = bright << 8
-    #                     bg_color = round((1-contrast)/(1+contrast)*bright) << 8
-    #                     rotation_speed = alpha*2*speed*direction
-    #                     t = Trial(
-    #                         counter, 
-    #                         bar_deg=alpha, 
-    #                         rotate_deg_hz=rotation_speed,
-    #                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
-    #                         start_mask_deg=start_deg, end_mask_deg=start_deg+180,
-    #                         fg_color=fg_color, bg_color=bg_color,
-    #                         comment=f"Progressive-Regressive speed {speed} direction {direction} left-right {start_deg} brightness {bright} contrast {contrast}")
-    #                     block.append(t)
+    ## rotation with  soeed tuning
+    for alpha in [15, 45]:
+        for speed in [0.25, 2, 7.5, 15]:
+            for direction in [-1, 1]:
+                for bright in [26, 255]:
+                    for contrast in [0.1, 0.2, 0.5]:
+                        fg_color = bright << 8
+                        bg_color = round((1-contrast)/(1+contrast)*bright) << 8
+                        rotation_speed = alpha*2*speed*direction
+                        t = Trial(
+                            counter, 
+                            bar_deg=alpha, 
+                            rotate_deg_hz=rotation_speed,
+                            pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                            fg_color=fg_color, bg_color=bg_color,
+                            comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
+                        block.append(t)
+                        counter = counter + 1
+    alpha = 15
+    for speed in [2, 4, 8]:
+        for direction in [-1, 1]: # Progressive and regressive
+            for start_deg in [0, 180]: # Left / right
+                for bright in [26, 255]:
+                    for contrast in [0.1, 0.2, 0.5]:
+                        fg_color = bright << 8
+                        bg_color = round((1-contrast)/(1+contrast)*bright) << 8
+                        rotation_speed = alpha*2*speed*direction
+                        t = Trial(
+                            counter, 
+                            bar_deg=alpha, 
+                            rotate_deg_hz=rotation_speed,
+                            pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                            start_mask_deg=start_deg, end_mask_deg=start_deg+180,
+                            fg_color=fg_color, bg_color=bg_color,
+                            comment=f"Progressive-Regressive speed {speed} direction {direction} left-right {start_deg} brightness {bright} contrast {contrast}")
+                        block.append(t)
+                        counter = counter + 1
 
     for freq in [0.5, 1, 2]:
         for direction in [-1, 1]:
@@ -401,15 +403,15 @@ def l4l5left():
                 for contrast in [0.1, 0.2, 0.5]:
                     fg_color = bright << 8
                     bg_color = round((1-contrast)/(1+contrast)*bright) << 8
-
                     t = Trial(
                         counter, 
                         bar_deg=345, space_deg=15, 
                         osc_freq=freq, osc_width=90*direction,
                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
                         fg_color=fg_color, bg_color=bg_color,
-                        comment=f"Oscillation")
+                        comment=f"Oscillation with frequency {freq} direction {direction} brightness {bright} contrast {contrast}")
                     block.append(t)
+                    counter = counter + 1
 
     while not start:
         time.sleep(0.1)
@@ -417,7 +419,8 @@ def l4l5left():
     RUN_FICTRAC = True
     _ = socketio.start_background_task(target = log_fictrac_timestamp)
 
-    repetitions = 1
+    repetitions = 3
+    counter = 0
     opening_black_screen = Duration(100)
     opening_black_screen.trigger_delay(socketio)
     for i in range(repetitions):
