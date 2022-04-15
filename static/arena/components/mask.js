@@ -19,7 +19,7 @@ class Mask extends Group {
         super();
         this.loggable = null;
         this.lid = 0;
-        this.maskRadius = arenaRadius-0.01;
+        this.maskRadius = arenaRadius-0.001;
         this.maskHeight = arenaHeight;
         const bgColor = 0x000000;
         this._setup(maskStart, maskEnd, bgColor);
@@ -35,8 +35,6 @@ class Mask extends Group {
         const cylinderHorizSegments = 12;
 
         this._log('panels-mask-color', maskColor);
-
-
         if (maskStart != maskEnd){
             const maskGeometry = new CylinderBufferGeometry(
                 this.maskRadius, this.maskRadius,

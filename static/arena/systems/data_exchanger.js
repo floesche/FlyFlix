@@ -1,7 +1,7 @@
 /**
  * Module to exchange data between server and client. This is FlyFlix specific.
  */
-import { Color } from '/static/vendor/three.module.js';
+import { Color, MathUtils } from '/static/vendor/three.module.js';
 class DataExchanger{
 
     /**
@@ -18,6 +18,8 @@ class DataExchanger{
         const socketurl = window.location.hostname + ":17000";
         this.socket = io(socketurl);
         this.isLogging = false;
+
+        const mr = MathUtils.degToRad(35);
 
         /**
          * Event handler for `disconnect` sends the event `end-experiment` and stops camera 
@@ -100,7 +102,7 @@ class DataExchanger{
             //scene.changeBgColor(bgColor);
             scene.background = new Color(bgColor);
             masks.setLid(lid);
-            masks.changeMask(maskStart, maskEnd, bgColor);
+            masks.changeMask(maskStart+mr, maskEnd+mr, bgColor);
             this.log(lid, 'de-spatial-setup-bar', barWidth);
             this.log(lid, 'de-spatial-setup-space', spaceWidth);
             this.log(lid, 'de-spatial-setup-mask-start', maskStart);

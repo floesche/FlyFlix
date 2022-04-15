@@ -43,14 +43,6 @@ const addStartButton = (container) => {
     startExperiment.style.left = "70%";
     container.appendChild(startExperiment);
 
-    window.addEventListener('experiment-started', () =>{
-        //startExperiment.style.visibility = 'hidden';
-        const controllers = container.getElementsByClassName('experiment-controller');
-        for (const element of controllers) {
-            element.style.visibility = "hidden";
-        }
-    })
-
     startExperiment.addEventListener('click', function () {
         const startEvent = new Event('start-experiment');
         window.dispatchEvent(startEvent);
@@ -69,9 +61,19 @@ class ExperimentControl{
      * @constructor
      * @param {Element} container - HTML element to which the start and restart button attaches
      */
-    constructor(container){
+    constructor(container, add_start=true){
         addRestartButton(container);
-        addStartButton(container);
+        if (add_start){
+            addStartButton(container);
+        }
+
+        window.addEventListener('experiment-started', () =>{
+            //startExperiment.style.visibility = 'hidden';
+            const controllers = container.getElementsByClassName('experiment-controller');
+            for (const element of controllers) {
+                element.style.visibility = "hidden";
+            }
+        })
     }
 }
 

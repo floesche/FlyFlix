@@ -27,6 +27,7 @@ class RotatingCamera extends PerspectiveCamera {
         this.lid = 0;
 
         this.rotation.y = MathUtils.degToRad(defaultAngle + startOffset);
+        //this.position.z = -0.07;
     }
 
     /**

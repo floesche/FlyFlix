@@ -198,6 +198,7 @@ def log_fictrac_timestamp():
         sock.settimeout(0.1)
         data = ""
         prevts = 0
+        prevfrm = 0
         try:
             sock.bind(( '127.0.0.1', 1717))
             new_data = sock.recv(1)
@@ -220,10 +221,10 @@ def log_fictrac_timestamp():
             if (len(toks) < 24) | (toks[0] != "FT"):
                 continue # This is not the expected fictrac data package
             cnt = int(toks[1])
-            timestamp = float(toks[22])
-            if timestamp-prevts > 1000:
-                socketio.emit("meta", (shared_key, "fictrac-ts", timestamp))
-                prevts = timestamp
+            if cnt-prevfrm > 100:
+                socketio.emit("meta", (shared_key, "fictrac-frame", cnt))
+                prevfrm = cnt
+
 
 
 @app.route('/closed-loop/')
@@ -359,7 +360,7 @@ def l4l5left():
     gaincount = 0
     log_metadata()
 
-    ## rotation with  soeed tuning
+    ## rotation 
     for alpha in [15, 45]:
         for speed in [0.25, 2, 7.5, 15]:
             for direction in [-1, 1]:
@@ -377,6 +378,7 @@ def l4l5left():
                             comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
                         block.append(t)
                         counter = counter + 1
+    ## progressive / regressive
     alpha = 15
     for speed in [2, 4, 8]:
         for direction in [-1, 1]: # Progressive and regressive
@@ -396,8 +398,8 @@ def l4l5left():
                             comment=f"Progressive-Regressive speed {speed} direction {direction} left-right {start_deg} brightness {bright} contrast {contrast}")
                         block.append(t)
                         counter = counter + 1
-
-    for freq in [0.5, 1, 2]:
+    # dark bar tracking
+    for freq in [0.16, 0.333, 0.666]:
         for direction in [-1, 1]:
             for bright in [26, 255]:
                 for contrast in [0.1, 0.2, 0.5]:
@@ -472,34 +474,35 @@ def log_metadata():
     TODO: Editing code to store information is not good. Needs to change.
     """
     metadata = {
-        "fly-strain": "DL",
-        "fly-batch": "2022-04-12",
+        "fly-strain": "Bsh-KD",
+        "fly-batch": "x4",
         "day-night-since": "2022-04-05",
 
-        "birth-start": "2022-04-10 08:00:00",
-        "birth-end": "2022-04-11 08:00:00",
+        "birth-start": "2022-04-11 17:00:00",
+        "birth-end": "2022-04-12 14:00:00",
 
-        "starvation-start": "2022-04-14 13:00:00",
+        "starvation-start": "2022-04-14 11:30:00",
 
-        "tether-start": "2022-04-14 14:30:00",
-        "fly": 1,
-        "tether-end"  : "2022-04-14 14:50:00",
+        "tether-start": "2022-04-14 15:30:00",
+        "fly": 3,
+        "tether-end"  : "2022-04-14 15:48:00",
         "sex": "f",
         
-        "day-start": "21:00:00",
-        "day-end": "13:00:00",
+        "day-start": "1:00:00",
+        "day-end": "17:00:00",
         
 
-        "ball": "1",
+        "ball": "25",
         "air": "wall",
         "glue": "KOA",
         
         "temperature": 32,
         "distance": 35,
         "protocol": 1,
-        "screen-brightness": 24,
+        "screen-brightness": 67,
         "display": "fire",
         "color": "#00FF00",
+        "filter": "trace-paper",
     }
     shared_key = time.time_ns()
     for key, value in metadata.items():

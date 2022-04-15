@@ -11,7 +11,7 @@ import { ExperimentControl } from './arena/systems/experiment_control.js';
 function main() {
     const container = document.querySelector('#scene-container');
   
-    const arena = new Arena(container, 290);
+    const arena = new Arena(container, 310);
 
     const fullScreenButton = new FullScreener(container);
     const experimentController = new ExperimentControl(container);
