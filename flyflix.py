@@ -221,9 +221,9 @@ def log_fictrac_timestamp():
             if (len(toks) < 24) | (toks[0] != "FT"):
                 continue # This is not the expected fictrac data package
             cnt = int(toks[1])
-            if cnt-prevfrm > 100:
-                socketio.emit("meta", (shared_key, "fictrac-frame", cnt))
-                prevfrm = cnt
+            #if cnt-prevfrm > 100:
+            socketio.emit("meta", (shared_key, "fictrac-frame", cnt))
+            #    prevfrm = cnt
 
 
 
@@ -474,18 +474,18 @@ def log_metadata():
     TODO: Editing code to store information is not good. Needs to change.
     """
     metadata = {
-        "fly-strain": "Bsh-KD",
-        "fly-batch": "x4",
+        "fly-strain": "ctr-merry-Ri",
+        "fly-batch": "x3",
         "day-night-since": "2022-04-05",
 
-        "birth-start": "2022-04-11 17:00:00",
-        "birth-end": "2022-04-12 14:00:00",
+        "birth-start": "2022-04-16 16:30:00",
+        "birth-end": "2022-04-17 13:30:00",
 
-        "starvation-start": "2022-04-14 11:30:00",
+        "starvation-start": "2022-04-19 12:09:00",
 
-        "tether-start": "2022-04-14 15:30:00",
-        "fly": 3,
-        "tether-end"  : "2022-04-14 15:48:00",
+        "tether-start": "2022-04-19 16:28:00",
+        "fly": 7,
+        "tether-end"  : "2022-04-19 16:41:00",
         "sex": "f",
         
         "day-start": "1:00:00",
@@ -498,7 +498,7 @@ def log_metadata():
         
         "temperature": 32,
         "distance": 35,
-        "protocol": 1,
+        "protocol": 2,
         "screen-brightness": 67,
         "display": "fire",
         "color": "#00FF00",
