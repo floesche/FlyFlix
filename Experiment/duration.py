@@ -27,7 +27,9 @@ class Duration():
             the standard interface, but not used in this particular method.
         :rtype: None
         """
-        del socket_io # unused
+        shared_key = time.time_ns()
         ttime = datetime.now() + timedelta(milliseconds=self.time_duration)
+        socket_io.emit("meta", (shared_key, "duration-delay-start", self.time_duration))
         while datetime.now() < ttime:
             time.sleep(0.01)
+        socket_io.emit("meta", (shared_key, "duration-delay-end", self.time_duration))

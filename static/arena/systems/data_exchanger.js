@@ -52,7 +52,7 @@ class DataExchanger{
         this.socket.on('oscillation', (lid, osc_freq, osc_width) => {
             panels.setLid(lid);
             panels.setOscillation(osc_freq, osc_width);
-            this.log(lid, 'de-panels-oscillation');
+            this.log(lid, 'de-panels-oscillation', osc_freq);
         });
 
         /**
