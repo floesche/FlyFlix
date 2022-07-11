@@ -25,7 +25,7 @@ class Panels extends Group {
         this.startTime = undefined;
         const fgColor = 0x00ff00;
         const bgColor = 0x000000;
-        this._setup(panelAngle, intervalAngle, fgColor, bgColor);
+        this._setup(panelAngle, intervalAngle, fgColor, bgColor, arenaHeight);
     }
 
     /**
@@ -34,21 +34,21 @@ class Panels extends Group {
      * @param {number} panelAngle - width of a panel in radians
      * @param {number} intervalAngle - width of an interval between panels in radians
      */
-    _setup(panelAngle, intervalAngle, fgColor, bgColor){
+    _setup(panelAngle, intervalAngle, fgColor, bgColor, arenaHeight){
         
         const cylinderHorizSegments = 12;
         
         this._log('panels-panel-angle', panelAngle);
         this._log('panels-interval-angle', intervalAngle);
         this._log('panels-arena-radius', this.arenaRadius);
-        this._log('panels-arena-height', this.arenaHeight);
+        this._log('panels-arena-height', arenaHeight);
         this._log('panels-type', 'CylinderBufferGeometry');
         this._log('panels-horizontal-segments', cylinderHorizSegments);
         this._log('panels-bar-color', fgColor);
 
         const geometry = new CylinderBufferGeometry(
             this.arenaRadius, this.arenaRadius,
-            this.arenaHeight, 
+            arenaHeight, 
             cylinderHorizSegments, 1, 
             true, // TODO Test with "false" instead of "true" to have it openEnded
             0, panelAngle);
@@ -70,10 +70,11 @@ class Panels extends Group {
      * @param {number} panelAngle - width of the panel in radians
      * @param {number} intervalAngle  - width of interval between panels in radians
      */
-    changePanels(panelAngle, intervalAngle, fgColor, bgColor) {
+    changePanels(panelAngle, intervalAngle, fgColor, bgColor, barHeight) {
         this.clear();
-        this._log('panels-change-clear')
-        this._setup(panelAngle, intervalAngle, fgColor, bgColor);
+        this._log('panels-change-clear');
+        this._log('xxxx',barHeight )
+        this._setup(panelAngle, intervalAngle, fgColor, bgColor, barHeight);
     }
 
     /**

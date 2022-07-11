@@ -18,7 +18,8 @@ class SpatialTemporal():
         rotate_deg_hz=0, 
         start_mask_deg=0, end_mask_deg=0,
         osc_freq=0, osc_width=0,
-        fg_color=0x00ff00, bg_color=0x000000
+        fg_color=0x00ff00, bg_color=0x000000,
+        bar_height=0.8
     ) -> None:
         """
         Constructor for a spatial-temporal description of a stimulus. The assumption is that the
@@ -53,6 +54,7 @@ class SpatialTemporal():
         self.bg_color = bg_color
         self.osc_freq = osc_freq
         self.osc_width = osc_width
+        self.bar_height = bar_height
 
     def is_bar_sweep(self) -> bool:
         """
@@ -159,7 +161,8 @@ class SpatialTemporal():
             math.radians(self.start_mask_deg),
             math.radians(self.end_mask_deg),
             self.fg_color,
-            self.bg_color))
+            self.bg_color,
+            self.bar_height))
 
     def trigger_sweep_start_position(self, socket_io) -> None:
         """

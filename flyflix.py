@@ -170,28 +170,6 @@ def display_event(json):
     savedata(request.sid, json['cnt'], "display-offset", json['counter'])
 
 
-@app.route('/demo-sounds/')
-def hello_world():
-    """
-    Demo of using sounds to transmit rotational information between components.
-    """
-    return render_template('sounds.html')
-
-def closed_loop():
-    """
-    Closed loop condition with local fictrac client. Part of the `/fdev` route.
-    """
-    while not start:
-        time.sleep(0.1)
-    sptmp1 = SpatialTemporal(bar_deg=15, space_deg=105)
-    cnd = ClosedLoopCondition(
-        spatial_temporal=sptmp1, 
-        trial_duration=Duration(60000), 
-        gain=-1.0)
-    cnd.trigger(socketio)
-    socketio.emit('rotate-to', (0, math.radians(-15)))
-
-
 def log_fictrac_timestamp():
     shared_key = time.time_ns()
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
@@ -226,133 +204,7 @@ def log_fictrac_timestamp():
             #    prevfrm = cnt
 
 
-
-@app.route('/closed-loop/')
-def local_fictrac_dev():
-    """
-    Closed loop condition through the `closed_loop` function and `three-container-bars.html`
-        template.
-    """
-    _ = socketio.start_background_task(target = closed_loop)
-    return render_template('three-container-bars.html')
-
-
-@socketio.on('pong')
-def pingpong_time_diff(seq, dttime):
-    """
-    Calculate time difference between timestamp received via socketIO and the current timestamp.
-
-    :param float dttime: timestamp in ns
-    """
-    dff = time.time_ns() -dttime
-    print(f"{seq}, {dff}", )
-
-
-def pingpong():
-    """
-    Send a ping to the client with an attached sequence and a timestamp (in ns). Part of the 
-    `/ping` route application.
-    """
-    seq = 0
-    while 1:
-        socketio.emit("ping", (seq, time.time_ns()))
-        seq = seq + 1
-        time.sleep(0.1)
-
-
-@app.route('/ping/')
-def local_ping_dev():
-    """
-    The function `` sends `ping` messages with an attached timestamp via socket to the 
-    client. The client, which has rendered the `ping.html` template, responds to each `ping` 
-    with a `pong` and sends the original timestamp back to the server. The function 
-    `pingpong_time_diff` receives the socketIO message and calculates the roundtrip time.
-    """
-    _ = socketio.start_background_task(target = pingpong)
-    return render_template('ping.html')
-
-def localexperiment():
-    while not start:
-        time.sleep(0.1)
-    print(time.strftime("%H:%M:%S", time.localtime()))
-    log_metadata()
-
-    block = []
-    counter = 0
-
-    # ## Grating spatial tuning 1Hz
-    # for alpha in [60, 45,  30, 15, 10, 5, 2.5]:
-    #     for direction in [-1, 1]:
-    #         speed = 7.5
-    #         rotation_speed = alpha*2*speed*direction
-    #         clBar = (360 + alpha * direction) % 360
-    #         gain = 1.0
-    #         #gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
-    #         #gaincount += 1
-    #         t = Trial(counter, bar_deg=alpha, rotate_deg_hz=rotation_speed, closedloop_bar_deg=clBar, closedloop_duration=Duration(1000), gain=gain, comment=f"spatialtuning alpha {alpha} direction {direction} gain {gain}")
-    #         block.append(t)
-    
-    # ## grating 45° soeed tuning
-    # for speed in [0.25, 1, 2, 4, 7.5, 15, 30]:
-    #     for direction in [-1, 1]:
-    #         alpha = 45
-    #         rotation_speed = alpha*2*speed*direction
-    #         clBar = (360 + alpha * direction*-1) % 360
-    #         gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
-    #         gaincount += 1
-    #         t = Trial(counter, bar_deg=alpha, rotate_deg_hz=rotation_speed, closedloop_bar_deg=clBar, gain=gain, comment=f"speedtuning speed {speed} direction {direction} gain {gain}")
-    #         block.append(t)
-
-    # ## Stepsize tuning
-    # for fps in [60, 30, 15, 10, 5]:
-    #     for direction in [-1, 1]:
-    #         alpha = 45
-    #         speed = 7.5
-    #         rotation_speed = alpha*2*speed*direction
-    #         clBar = (360 + alpha * direction) % 360
-    #         gain = 1.0 + (((gaincount % 2)-0.5) * -2) * gains[(gaincount//2) % len(gains)]
-    #         gaincount += 1
-    #         t = Trial(counter, bar_deg=alpha, rotate_deg_hz=rotation_speed, closedloop_bar_deg=clBar, fps=fps, gain=gain, comment = f"stepsize fps {fps} direction {direction} gain {gain}")
-    #         block.append(t)
-
-    ## BarSweep
-    speedcount = 0
-    speeds = [0.25, 1, 4, 7.5, 15, 30, -0.25, -1, -4, -7.5, -15, -30]
-    alpha = 180
-    #for gain in [0, 0.5, 1, 1.5, 2, 10]:
-    for gain in [-1, -0.5, 0.5, 1, 1.5, 2, 4, 8]:
-        for cl_start in [0, 90, 180, 270]:
-            speed = speeds[speedcount % len(speeds)]
-            speedcount += 1
-            rotation_speed = alpha*2*speed            
-            current_trial = Trial(
-                counter, 
-                bar_deg=60, 
-                space_deg=300, 
-                openloop_duration=None, 
-                sweep=1, 
-                rotate_deg_hz=rotation_speed, 
-                closedloop_bar_deg=alpha, 
-                #closedloop_space_deg=alpha,    ## FIXME: doesn't exist anymore?
-                #cl_start_position=cl_start,    ## FIXME: doesn't exist anymore?
-                closedloop_duration=Duration(30000), 
-                gain=gain, 
-                comment = f"object speed {speed} bar {alpha} gain {gain}")
-            block.append(current_trial)
-    repetitions = 2
-    opening_black_screen = Duration(10000)
-    opening_black_screen.trigger_delay(socketio)
-    for i in range(repetitions):
-        socketio.emit("meta", (time.time_ns(), "block-repetition", i))
-        block = random.sample(block, k=len(block))
-        for current_trial in block:
-            counter = counter + 1
-            print(f"Condition {counter} of {len(block*repetitions)}")
-            current_trial.set_id(counter)
-            current_trial.trigger(socketio)
-    print(time.strftime("%H:%M:%S", time.localtime()))
-
-def l4l5left():
+def cshlfly22():
     print(time.strftime("%H:%M:%S", time.localtime()))
     block = []
     gains = [0.9, 1, 1.1]
@@ -361,12 +213,10 @@ def l4l5left():
     log_metadata()
 
     ## rotation 
-    for alpha in [15, 45]:
-        for speed in [0, 2, 4, 8]:
+    for alpha in [15]:
+        for speed in [4, 8]:
             for direction in [-1, 1]:
-                if speed == 0 and direction == -1:
-                    continue
-                for clrs in [(102, 152), (64, 190), (0, 254)]:
+                for clrs in [(64, 190)]:
                     bright = clrs[1]
                     contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
                     fg_color = clrs[1] << 8
@@ -381,44 +231,49 @@ def l4l5left():
                         comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
                     block.append(t)
                     counter = counter + 1
-    ## progressive / regressive
-    for alpha in [15, 45]:
-        for speed in [2, 4, 8]:
-            for direction in [-1, 1]: # Progressive and regressive
-                for start_deg in [0, 180]: # Left / right
-                    for clrs in [(102, 152), (64, 190), (0, 254)]:
-                        bright = clrs[1]
-                        contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                        fg_color = clrs[1] << 8
-                        bg_color = clrs[0] << 8
-                        rotation_speed = alpha*2*speed*direction
-                        t = Trial(
-                            counter, 
-                            bar_deg=alpha, 
-                            rotate_deg_hz=rotation_speed,
-                            pretrial_duration=Duration(250), posttrial_duration=Duration(250),
-                            start_mask_deg=start_deg, end_mask_deg=start_deg+180,
-                            fg_color=fg_color, bg_color=bg_color,
-                            comment=f"Progressive-Regressive speed {speed} direction {direction} left-right {start_deg} brightness {bright} contrast {contrast}")
-                        block.append(t)
-                        counter = counter + 1
-    # dark bar tracking
-    for freq in [0.16, 0.333, 0.666]:
-        for direction in [-1, 1]:
-            for clrs in [(102, 152), (64, 190), (0, 254)]:
-                bright = clrs[1]
-                contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                fg_color = clrs[1] << 8
-                bg_color = clrs[0] << 8
-                t = Trial(
-                    counter, 
-                    bar_deg=345, space_deg=15, 
-                    osc_freq=freq, osc_width=90*direction,
-                    pretrial_duration=Duration(250), posttrial_duration=Duration(250),
-                    fg_color=fg_color, bg_color=bg_color,
-                    comment=f"Oscillation with frequency {freq} direction {direction} brightness {bright} contrast {contrast}")
-                block.append(t)
-                counter = counter + 1
+
+    # Oscillation
+    for alpha in [15]:
+        for freq in [0.333]:
+            for direction in [-1, 1]:
+                for clrs in [(190, 64)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = clrs[1] << 8
+                    bg_color = clrs[0] << 8
+                    t = Trial(
+                        counter, 
+                        bar_deg=alpha,
+                        osc_freq=freq, osc_width=90*direction,
+                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        fg_color=fg_color, bg_color=bg_color,
+                        #bar_height=0.04,
+                        comment=f"Oscillation with frequency {freq} direction {direction} brightness {bright} contrast {contrast}")
+                    block.append(t)
+                    counter = counter + 1
+
+    # Small object
+    for alpha in [10]:
+        for speed in [2, 4]:
+            for direction in [-1, 1]:
+                for clrs in [(190, 64)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = clrs[1] << 8
+                    bg_color = clrs[0] << 8
+                    rotation_speed = alpha*2*speed*direction
+                    t = Trial(
+                        counter, 
+                        bar_deg=alpha, space_deg=180-alpha,
+                        rotate_deg_hz=rotation_speed,
+                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        fg_color=fg_color, bg_color=bg_color,
+                        bar_height=0.03,
+                        comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
+                    block.append(t)
+                    counter = counter + 1
+
+    
 
     while not start:
         time.sleep(0.1)
@@ -442,31 +297,11 @@ def l4l5left():
     RUN_FICTRAC = False
     print(time.strftime("%H:%M:%S", time.localtime()))
 
-def l4l5right():
-    pass
-    # while not start:
-    #     time.sleep(0.1)
-    # #cond1.trigger(socketio)
 
-@app.route('/l4l5left/')
-def local_l4l5_left():
-    _ = socketio.start_background_task(target=l4l5left)
-    return render_template('l4l5left.html')
-
-@app.route('/l4l5right/')
-def local_l4l5_right():
-    _ = socketio.start_background_task(target=l4l5right)
-    return render_template('l4l5right.html')
-
-@app.route('/open-loop/')
-def local_experiment_dev():
-    """
-    Runs function `localexperiment` for the route `/edev` in a background task and deliver the
-    three-container-bars.html template.
-    """
-    print("Starting edev")
-    _ = socketio.start_background_task(target = localexperiment)
-    return render_template('three-container-bars.html')
+@app.route('/cshlfly22/')
+def local_cshfly22():
+    _ = socketio.start_background_task(target=cshlfly22)
+    return render_template('cshlfly22.html')
 
 
 def log_metadata():
@@ -475,40 +310,39 @@ def log_metadata():
     
     This is a rudimentary way to save information related to the experiment to a file. Edit the 
     content of the dictionary for each experiment.
-
-    TODO: Editing code to store information is not good. Needs to change.
     """
     metadata = {
-        "fly-strain": "ctr-merry-Ri",
-        "fly-batch": "x3",
-        "day-night-since": "2022-04-05",
+        "fly-strain": "CTRL",
+        "fly-batch": "2022-07-06",
+        "day-night-since": "2022-07-06",
 
-        "birth-start": "2022-04-16 16:30:00",
-        "birth-end": "2022-04-17 13:30:00",
+        "birth-start": "2022-07-06 00:00:00",
+        "birth-end": "2022-07-08 16:30:00",
 
-        "starvation-start": "2022-04-19 12:09:00",
+        "starvation-start": "2022-07-10 21:00:00",
 
-        "tether-start": "2022-04-19 16:28:00",
-        "fly": 7,
-        "tether-end"  : "2022-04-19 16:41:00",
+        "tether-start": "2022-07-11 10:00:00",
+        "fly": 1,
+        "tether-end"  : "2022-07-11 11:00:00",
         "sex": "f",
         
-        "day-start": "1:00:00",
-        "day-end": "17:00:00",
+        "day-start": "07:00:00",
+        "day-end": "19:00:00",
         
 
-        "ball": "25",
+        "ball": "1",
         "air": "wall",
         "glue": "KOA",
         
-        "temperature": 32,
+        "temperature": 30,
         "distance": 35,
-        "protocol": 3,
+        "protocol": 1,
         "screen-brightness": 67,
-        "display": "fire",
-        "color": "#00FF00",
-        "filter": "trace-paper",
+        "display": "fire7",
+        "color": "#00FF00"
     }
+
+
     shared_key = time.time_ns()
     for key, value in metadata.items():
         logdata(1, 0, shared_key, key, value)

@@ -96,9 +96,9 @@ class DataExchanger{
          * @param {number} barWidth - bar width in radians
          * @param {number} spaceWidth - interval width between bars in radians
          */
-        this.socket.on('spatial-setup', (lid, barWidth, spaceWidth, maskStart, maskEnd, fgColor, bgColor) => {
+        this.socket.on('spatial-setup', (lid, barWidth, spaceWidth, maskStart, maskEnd, fgColor, bgColor, barHeight) => {
             panels.setLid(lid);
-            panels.changePanels(barWidth, spaceWidth, fgColor, bgColor);
+            panels.changePanels(barWidth, spaceWidth, fgColor, bgColor, barHeight);
             //scene.changeBgColor(bgColor);
             scene.background = new Color(bgColor);
             masks.setLid(lid);
@@ -109,6 +109,7 @@ class DataExchanger{
             this.log(lid, 'de-spatial-setup-mask-end', maskEnd);
             this.log(lid, 'de-spatial-setup-fgcolor', fgColor);
             this.log(lid, 'de-spatial-setup-bgcolor', bgColor);
+            this.log(lid, 'de-spatial-setup-barheight', barHeight);
         });
 
         /**

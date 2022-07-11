@@ -8,7 +8,7 @@ import { Resizer } from './systems/resizer.js';
 import { Loop } from './systems/loop.js';
 
 import { DataExchanger } from './systems/data_exchanger.js';
-import { DadaExchanger } from './systems/dada_exchanger.js';
+//import { DadaExchanger } from './systems/dada_exchanger.js';
 import { Mask } from './components/mask.js';
 
 let camera;
@@ -46,11 +46,11 @@ class Arena {
         scene.add(panels);
         scene.add(masks);
         loop.updateables.push(panels);
-        if (orientation < 180){
-            io = new DadaExchanger(camera, scene, loop, panels, masks);
-        } else {
-            io = new DataExchanger(camera, scene, loop, panels, masks);
-        }
+        // if (orientation < 180){
+        //     io = new DadaExchanger(camera, scene, loop, panels, masks);
+        // } else {
+        io = new DataExchanger(camera, scene, loop, panels, masks);
+        // }
 
         camera.loggable = io;
         loop.loggable = io;
