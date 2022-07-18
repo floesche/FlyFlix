@@ -250,7 +250,7 @@ def cshlfly22():
                         #bar_height=0.04,
                         comment=f"Oscillation with frequency {freq} direction {direction} brightness {bright} contrast {contrast}")
                     block.append(t)
-                    counter = counter + 1
+                    counter = counter + 1 #can make this counter += 1
 
     # Small object
     for alpha in [10]:
