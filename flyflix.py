@@ -230,7 +230,7 @@ def cshlfly22():
                         fg_color=fg_color, bg_color=bg_color,
                         comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
                     block.append(t)
-                    counter = counter + 1
+                    counter += 1
 
     # Oscillation
     for alpha in [15]:
@@ -250,7 +250,7 @@ def cshlfly22():
                         #bar_height=0.04,
                         comment=f"Oscillation with frequency {freq} direction {direction} brightness {bright} contrast {contrast}")
                     block.append(t)
-                    counter = counter + 1 #can make this counter += 1
+                    counter += 1
 
     # Small object
     for alpha in [10]:
@@ -271,7 +271,7 @@ def cshlfly22():
                         bar_height=0.03,
                         comment=f"Object alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
                     block.append(t)
-                    counter = counter + 1
+                    counter += 1
 
     
 

@@ -35,7 +35,7 @@ pip list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1  | xargs -n
 
 Once installed, you should be able to run FlyFlix by executing a python script on the terminal: `python flyflix.py`. Once the application is up and running, the client can be started by pointing a web browser to an URL with the IP address of the server at port 17000, for example <http://127.0.0.1:17000> or <http://192.168.1.27:17000>. If you are unsure what your IP address is, you might be able to see it through the terminal command `ip addr` (Mac and Linux) or `ipconfig` (Windows). On Linux, you should be able to start FlyFlix through `make localhost` instead of the direct call to the python script, which will also show you the currently used address.
 
-On Windows, once you use `ipconfig` to find out your IP address, please copy the IPv4 Address and then add a `:17000` at the end to open the FlyFlix server. 
+It is necessary to find the IP Address only if you are using a tablet. Once you find out your IP Address, please copy it and then add a `:17000` at the end to open the FlyFlix server. The link <http://127.0.0.1:17000> will work if you run FlyFlix on a computer. 
 
 ## Architecture
 
