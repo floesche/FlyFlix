@@ -37,6 +37,7 @@ Once installed, you should be able to run FlyFlix by executing a python script o
 
 If you want to run the client on another device than your FlyFlix server, for example a tablet, a smartphone, or another computer, you will need to find out the IP address of the FlyFlix server. You can find your current IP by running the terminal command `ip addr` (Linux and Mac) or `ipconfig` (Windows). 
 
+A resource to read more about the Client-Server model is <https://en.wikipedia.org/wiki/Client%E2%80%93server_model>. 
 
 ## Architecture
 
