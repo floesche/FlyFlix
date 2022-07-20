@@ -8,6 +8,7 @@ import random
 import inspect
 import warnings
 
+
 from datetime import datetime, timedelta
 from pathlib import Path
 from logging import FileHandler
@@ -203,7 +204,6 @@ def log_fictrac_timestamp():
             socketio.emit("meta", (shared_key, "fictrac-frame", cnt))
             #    prevfrm = cnt
 
-
 def cshlfly22():
     print(time.strftime("%H:%M:%S", time.localtime()))
     block = []
@@ -213,10 +213,10 @@ def cshlfly22():
     log_metadata()
 
     ## rotation 
-    for alpha in [15]:
-        for speed in [4, 8]:
+    for alpha in [5, 20, 60]:
+        for speed in [0.25, 2, 10]:
             for direction in [-1, 1]:
-                for clrs in [(64, 190)]:
+                for clrs in [(0, 254), (38.1, 215.9), (12.7, 241.3)]:
                     bright = clrs[1]
                     contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
                     fg_color = clrs[1] << 8
@@ -253,25 +253,25 @@ def cshlfly22():
                     counter += 1
 
     # Small object
-    for alpha in [10]:
-        for speed in [2, 4]:
-            for direction in [-1, 1]:
-                for clrs in [(190, 64)]:
-                    bright = clrs[1]
-                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                    fg_color = clrs[1] << 8
-                    bg_color = clrs[0] << 8
-                    rotation_speed = alpha*2*speed*direction
-                    t = Trial(
-                        counter, 
-                        bar_deg=alpha, space_deg=180-alpha,
-                        rotate_deg_hz=rotation_speed,
-                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
-                        fg_color=fg_color, bg_color=bg_color,
-                        bar_height=0.03,
-                        comment=f"Object alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
-                    block.append(t)
-                    counter += 1
+    #for alpha in [10]:
+    #    for speed in [2, 4]:
+    #        for direction in [-1, 1]:
+    #            for clrs in [(190, 64)]:
+    #                bright = clrs[1]
+    #                contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+    #                fg_color = clrs[1] << 8
+    #                bg_color = clrs[0] << 8
+    #                rotation_speed = alpha*2*speed*direction
+    #                t = Trial(
+    #                    counter, 
+    #                    bar_deg=alpha, space_deg=180-alpha,
+    #                    rotate_deg_hz=rotation_speed,
+    #                    pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+    #                    fg_color=fg_color, bg_color=bg_color,
+    #                    bar_height=0.03,
+    #                    comment=f"Object alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
+    #                block.append(t)
+    #                counter += 1
 
     
 
@@ -289,7 +289,7 @@ def cshlfly22():
         socketio.emit("meta", (time.time_ns(), "block-repetition", i))
         block = random.sample(block, k=len(block))
         for current_trial in block:
-            counter = counter + 1
+            counter += 1
             print(f"Condition {counter} of {len(block*repetitions)}")
             current_trial.set_id(counter)
             current_trial.trigger(socketio)
