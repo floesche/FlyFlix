@@ -216,7 +216,7 @@ def cshlfly22():
     for alpha in [5, 20, 60]:
         for speed in [0.25, 2, 10]:
             for direction in [-1, 1]:
-                for clrs in [(127, 127), (33, 221), (12, 242)]:
+                for clrs in [(0, 254), (107, 147), (121, 133)]:
                     bright = clrs[1]
                     contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
                     fg_color = clrs[1] << 8
