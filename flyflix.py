@@ -213,7 +213,7 @@ def cshlfly22():
     log_metadata()
 
     ## rotation 
-    for alpha in [30]:
+    for alpha in [40]:
         for speed in [2]:
             for direction in [-1, 1]:
                 for clrs in [(107, 147)]:
