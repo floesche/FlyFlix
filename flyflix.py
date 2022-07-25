@@ -361,7 +361,7 @@ def l4l5left():
     log_metadata()
 
     ## rotation 
-    for alpha in [20 5]: #the total duty cycle is also implemented here in alpha
+    for alpha in [20, 5]: #the total duty cycle is also implemented here in alpha
         for speed in [2]:
             for direction in [-1, 1]:
                 if speed == 0 and direction == -1:
