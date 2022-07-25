@@ -400,8 +400,8 @@ def l4l5left():
     #                        start_mask_deg=start_deg, end_mask_deg=start_deg+180,
     #                        fg_color=fg_color, bg_color=bg_color,
     #                        comment=f"Progressive-Regressive speed {speed} direction {direction} left-right {start_deg} brightness {bright} contrast {contrast}")
-                        block.append(t)
-                        counter = counter + 1
+                        #block.append(t)
+                        #counter = counter + 1
     # dark bar tracking
     #for freq in [0.16, 0.333, 0.666]:
     #    for direction in [-1, 1]:
