@@ -361,7 +361,7 @@ def l4l5left():
     log_metadata()
 
     ## rotation 
-    for alpha in [40]: #the total duty cycle is also implemented here in alpha
+    for alpha in [20 5]: #the total duty cycle is also implemented here in alpha
         for speed in [2]:
             for direction in [-1, 1]:
                 if speed == 0 and direction == -1:
@@ -375,12 +375,13 @@ def l4l5left():
                     t = Trial(
                         counter, 
                         bar_deg=alpha, 
+                        space_deg = (40 - alpha),
                         rotate_deg_hz=rotation_speed,
                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
                         fg_color=fg_color, bg_color=bg_color,
                         comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
                     block.append(t)
-                    counter = counter + 1
+                    counter += 1
     ## progressive / regressive
     #for alpha in [40]:
     #    for speed in [2]:
