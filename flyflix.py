@@ -339,7 +339,7 @@ def localexperiment():
                 gain=gain, 
                 comment = f"object speed {speed} bar {alpha} gain {gain}")
             block.append(current_trial)
-    repetitions = 2
+    repetitions = 3
     opening_black_screen = Duration(10000)
     opening_black_screen.trigger_delay(socketio)
     for i in range(repetitions):
@@ -361,7 +361,7 @@ def l4l5left():
     log_metadata()
 
     ## rotation 
-    for alpha in [40]:
+    for alpha in [40]: #the total duty cycle is also implemented here in alpha
         for speed in [2]:
             for direction in [-1, 1]:
                 if speed == 0 and direction == -1:

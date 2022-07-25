@@ -8,13 +8,15 @@ import time
 
 from . import Duration
 
+
 class SpatialTemporal():
     """
     Description of spatial and temporal stimulation.
     """
+    #duty cycles are implemented as bar_deg = 20 (5) and space_deg = 20 (35)
 
     def __init__(self,
-        bar_deg=60, space_deg=60, 
+        bar_deg=20, space_deg=20, 
         rotate_deg_hz=0, 
         start_mask_deg=0, end_mask_deg=0,
         osc_freq=0, osc_width=0,
