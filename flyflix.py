@@ -361,12 +361,12 @@ def l4l5left():
     log_metadata()
 
     ## rotation 
-    for alpha in [15, 45]:
-        for speed in [0, 2, 4, 8]:
+    for alpha in [40]:
+        for speed in [2]:
             for direction in [-1, 1]:
                 if speed == 0 and direction == -1:
                     continue
-                for clrs in [(102, 152), (64, 190), (0, 254)]:
+                for clrs in [(107, 147)]:
                     bright = clrs[1]
                     contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
                     fg_color = clrs[1] << 8
@@ -382,43 +382,43 @@ def l4l5left():
                     block.append(t)
                     counter = counter + 1
     ## progressive / regressive
-    for alpha in [15, 45]:
-        for speed in [2, 4, 8]:
-            for direction in [-1, 1]: # Progressive and regressive
-                for start_deg in [0, 180]: # Left / right
-                    for clrs in [(102, 152), (64, 190), (0, 254)]:
-                        bright = clrs[1]
-                        contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                        fg_color = clrs[1] << 8
-                        bg_color = clrs[0] << 8
-                        rotation_speed = alpha*2*speed*direction
-                        t = Trial(
-                            counter, 
-                            bar_deg=alpha, 
-                            rotate_deg_hz=rotation_speed,
-                            pretrial_duration=Duration(250), posttrial_duration=Duration(250),
-                            start_mask_deg=start_deg, end_mask_deg=start_deg+180,
-                            fg_color=fg_color, bg_color=bg_color,
-                            comment=f"Progressive-Regressive speed {speed} direction {direction} left-right {start_deg} brightness {bright} contrast {contrast}")
+    #for alpha in [40]:
+    #    for speed in [2]:
+    #        for direction in [-1, 1]: # Progressive and regressive
+    #            for start_deg in [0, 180]: # Left / right
+    #                for clrs in [(107, 147)]:
+    #                    bright = clrs[1]
+    #                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+    #                    fg_color = clrs[1] << 8
+    #                    bg_color = clrs[0] << 8
+    #                    rotation_speed = alpha*2*speed*direction
+    #                    t = Trial(
+    #                        counter, 
+    #                        bar_deg=alpha, 
+    #                        rotate_deg_hz=rotation_speed,
+    #                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+    #                        start_mask_deg=start_deg, end_mask_deg=start_deg+180,
+    #                        fg_color=fg_color, bg_color=bg_color,
+    #                        comment=f"Progressive-Regressive speed {speed} direction {direction} left-right {start_deg} brightness {bright} contrast {contrast}")
                         block.append(t)
                         counter = counter + 1
     # dark bar tracking
-    for freq in [0.16, 0.333, 0.666]:
-        for direction in [-1, 1]:
-            for clrs in [(102, 152), (64, 190), (0, 254)]:
-                bright = clrs[1]
-                contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                fg_color = clrs[1] << 8
-                bg_color = clrs[0] << 8
-                t = Trial(
-                    counter, 
-                    bar_deg=345, space_deg=15, 
-                    osc_freq=freq, osc_width=90*direction,
-                    pretrial_duration=Duration(250), posttrial_duration=Duration(250),
-                    fg_color=fg_color, bg_color=bg_color,
-                    comment=f"Oscillation with frequency {freq} direction {direction} brightness {bright} contrast {contrast}")
-                block.append(t)
-                counter = counter + 1
+    #for freq in [0.16, 0.333, 0.666]:
+    #    for direction in [-1, 1]:
+    #        for clrs in [(102, 152), (64, 190), (0, 254)]:
+    #            bright = clrs[1]
+    #            contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+    #            fg_color = clrs[1] << 8
+    #            bg_color = clrs[0] << 8
+    #            t = Trial(
+    #                counter, 
+    #                bar_deg=345, space_deg=15, 
+    #                osc_freq=freq, osc_width=90*direction,
+    #                pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+    #                fg_color=fg_color, bg_color=bg_color,
+    #                comment=f"Oscillation with frequency {freq} direction {direction} brightness {bright} contrast {contrast}")
+    #            block.append(t)
+    #            counter = counter + 1
 
     while not start:
         time.sleep(0.1)
