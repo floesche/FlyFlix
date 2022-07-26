@@ -186,7 +186,7 @@ def closed_loop():
     sptmp1 = SpatialTemporal(bar_deg=15, space_deg=105)
     cnd = ClosedLoopCondition(
         spatial_temporal=sptmp1, 
-        trial_duration=Duration(60000), 
+        trial_duration=Duration(10000), 
         gain=-1.0)
     cnd.trigger(socketio)
     socketio.emit('rotate-to', (0, math.radians(-15)))
