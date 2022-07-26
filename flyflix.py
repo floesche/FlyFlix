@@ -378,6 +378,7 @@ def l4l5left():
                         space_deg = (40 - alpha),
                         rotate_deg_hz=rotation_speed,
                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        closedloop_duration = Duration(10000),
                         fg_color=fg_color, bg_color=bg_color,
                         comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
                     block.append(t)
