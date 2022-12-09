@@ -213,10 +213,10 @@ def cshlfly22():
     log_metadata()
 
     ## rotation 
-    for alpha in [60]:
+    for alpha in [30]:
         for speed in [5]:
             for direction in [-1, 1]:
-                for clrs in [(0, 50), (0, 255)]
+                for clrs in [(0, 50), (0, 255)]:
                     bright = clrs[1]
                     contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
                     fg_color = clrs[1] << 8
@@ -225,6 +225,7 @@ def cshlfly22():
                     t = Trial(
                         counter, 
                         bar_deg=alpha, 
+                        space_deg = (60-alpha),
                         rotate_deg_hz=rotation_speed,
                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
                         fg_color=fg_color, bg_color=bg_color,
