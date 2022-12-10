@@ -253,7 +253,7 @@ def cshlfly22():
                         counter, 
                         bar_deg=alpha, 
                         space_deg = (60-alpha),
-                        rotate_deg_hz=rotation_speed,
+                       rotate_deg_hz=rotation_speed,
                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
                         fg_color=fg_color, bg_color=bg_color,
                         comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
