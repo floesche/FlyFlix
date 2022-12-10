@@ -214,7 +214,7 @@ def cshlfly22():
 
     ## rotation 
     for alpha in [30]:
-        for speed in [0, 5]:
+        for speed in [5]:
             for direction in [-1, 1]:
                 for clrs in [(0, 50), (0, 255)]:
                     for fg_color in [0x00ff00, 0xffffff]:
@@ -236,7 +236,30 @@ def cshlfly22():
                             comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
                         block.append(t)
                         counter += 1
-
+                        
+                        
+    ## Static
+    
+    for alpha in [30]:
+        for speed in [0]:
+            for direction in [-1, 1]:
+                for clrs in [(0, 50)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = clrs[1] << 8
+                    bg_color = clrs[0] << 8
+                    rotation_speed = alpha*2*speed*direction
+                    t = Trial(
+                        counter, 
+                        bar_deg=alpha, 
+                        space_deg = (60-alpha),
+                        rotate_deg_hz=rotation_speed,
+                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        fg_color=fg_color, bg_color=bg_color,
+                        comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
+                    block.append(t)
+                    counter += 1
+                        
     # Oscillation
     #for alpha in [15]:
     #    for freq in [0.333]:
