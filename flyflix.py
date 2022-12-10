@@ -220,7 +220,10 @@ def cshlfly22():
                     for clrs in [(0, 50), (0, 255)]:
                         bright = clrs[1]
                         contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                        fg_color = clrs[1] << 8
+                        if fg_color == 0x00ff00:
+                            fg_color = clrs[1] << 8
+                        elif fg_color == 0xffffff:
+                            fg_color = clrs[1] + (clrs[1] << 8) + (clrs[1] << 16)
                         bg_color = clrs[0] << 8
                         rotation_speed = alpha*2*speed*direction
                         t = Trial(
