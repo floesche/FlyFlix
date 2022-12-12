@@ -231,6 +231,7 @@ def cshlfly22():
                             bar_deg=alpha, 
                             space_deg = (60-alpha),
                             rotate_deg_hz=rotation_speed,
+                            openloop_duration = Duration(15000),
                             pretrial_duration=Duration(250), posttrial_duration=Duration(250),
                             fg_color=fg_color, bg_color=bg_color,
                             comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
@@ -253,7 +254,8 @@ def cshlfly22():
                         counter, 
                         bar_deg=alpha, 
                         space_deg = (60-alpha),
-                       rotate_deg_hz=rotation_speed,
+                        rotate_deg_hz=rotation_speed,
+                        openloop_duration = Duration(15000),
                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
                         fg_color=fg_color, bg_color=bg_color,
                         comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
@@ -309,9 +311,9 @@ def cshlfly22():
     RUN_FICTRAC = True
     _ = socketio.start_background_task(target = log_fictrac_timestamp)
 
-    repetitions = 3
+    repetitions = 1
     counter = 0
-    opening_black_screen = Duration(100)
+    opening_black_screen = Duration(5000)
     opening_black_screen.trigger_delay(socketio)
     for i in range(repetitions):
         socketio.emit("meta", (time.time_ns(), "block-repetition", i))
