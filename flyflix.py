@@ -331,7 +331,7 @@ def optomotor():
 @app.route('/optomotor/')
 def local_optomotor():
     _ = socketio.start_background_task(target=optomotor)
-    return render_template('optomotor.html')
+    return render_template('cshlfly22.html')
 
 
 def log_metadata():
