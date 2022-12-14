@@ -204,7 +204,7 @@ def log_fictrac_timestamp():
             socketio.emit("meta", (shared_key, "fictrac-frame", cnt))
             #    prevfrm = cnt
 
-def cshlfly22():
+def optomotor():
     print(time.strftime("%H:%M:%S", time.localtime()))
     block = []
     gains = [0.9, 1, 1.1]
@@ -328,10 +328,10 @@ def cshlfly22():
     print(time.strftime("%H:%M:%S", time.localtime()))
 
 
-@app.route('/cshlfly22/')
-def local_cshfly22():
+@app.route('/optomotor/')
+def local_optomotor():
     _ = socketio.start_background_task(target=cshlfly22)
-    return render_template('cshlfly22.html')
+    return render_template('optomotor.html')
 
 
 def log_metadata():
