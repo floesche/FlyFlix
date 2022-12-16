@@ -213,11 +213,11 @@ def optomotor():
     log_metadata()
 
     ## rotation 
-    for alpha in [30]:
-        for speed in [5]:
-            for direction in [-1, 1]:
-                for clrs in [(0, 50), (0, 255)]:
-                    for fg_color in [0x00ff00, 0xffffff]:
+    for alpha in [30]: #specifying the bar_deg
+        for speed in [5]: #specifying the tepmoral frequency (in Hz)
+            for direction in [-1, 1]: #specifying the direction of movement
+                for clrs in [(0, 50), (0, 255)]: #specifying the contrast/brightness
+                    for fg_color in [0x00ff00, 0xffffff]: #specifying the colors of the foreground
                         bright = clrs[1]
                         contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
                         if fg_color == 0x00ff00:
