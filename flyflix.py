@@ -217,13 +217,13 @@ def optomotor():
         for speed in [5]: #specifying the tepmoral frequency (in Hz)
             for direction in [-1, 1]: #specifying the direction of movement
                 for clrs in [(0, 50), (0, 255)]: #specifying the contrast/brightness
-                    for fg_color in [0x00ff00, 0xffffff]: #specifying the colors of the foreground
+                    for fg_color in [0x00ff00]:#, 0xffffff]: #specifying the colors of the foreground
                         bright = clrs[1]
                         contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
                         if fg_color == 0x00ff00:
                             fg_color = clrs[1] << 8
-                        elif fg_color == 0xffffff:
-                            fg_color = clrs[1] + (clrs[1] << 8) + (clrs[1] << 16)
+                        #elif fg_color == 0xffffff:
+                        #    fg_color = clrs[1] + (clrs[1] << 8) + (clrs[1] << 16)
                         bg_color = clrs[0] << 8
                         rotation_speed = alpha*2*speed*direction
                         t = Trial(
