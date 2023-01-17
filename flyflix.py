@@ -214,7 +214,7 @@ def optomotor():
 
     ## rotation 
     for alpha in [30]: #specifying the bar_deg
-        for speed in [5]: #specifying the tepmoral frequency (in Hz)
+        for speed in [5]: #specifying the temporal frequency (in Hz)
             for direction in [-1, 1]: #specifying the direction of movement
                 for clrs in [(0, 50), (0, 255)]: #specifying the contrast/brightness
                     for fg_color in [0x00ff00]:#, 0xffffff]: #specifying the colors of the foreground
