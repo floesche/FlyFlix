@@ -1,6 +1,5 @@
 import { Group, 
     MathUtils, 
-    PlaneBufferGeometry, 
     CylinderBufferGeometry, 
     MeshBasicMaterial, 
     Mesh, 
@@ -10,18 +9,18 @@ import { Group,
  * Definition of the panels that form a cylindrical arena.
  */
 
-class Panels extends Group {
+class Spheres extends Group {
 
     /**
      * Representation of the panels in a virtual fly arena.
      * 
      * @constructor
-     * @param {number} panelAngle - width of a single panel in radians
-     * @param {number} intervalAngle - width of the interval between panels in radians
+     * @param {number} sphereRadius - radius of a single panel in radians
+     * @param {number} intervalAngle - width of the interval between spheres in radians
      * @param {number} arenaRadius - radius of the arena in m (default: 0.1525m; same as G4 arena)
      * @param {number} arenaHeight - height of the arena in m (default: 0.8m)
      */
-    constructor(panelAngle, intervalAngle, arenaRadius=0.1525, arenaHeight=0.8) {
+    constructor(sphereAngle, intervalAngle, arenaRadius=0.1525, arenaHeight=0.8) {
         super();
         this.loggable = null;
         this.lid = 0;
@@ -31,38 +30,31 @@ class Panels extends Group {
         this.startTime = undefined;
         const fgColor = 0x00ff00;
         const bgColor = 0x000000;
-        this._setup(panelAngle, intervalAngle, fgColor, bgColor, arenaHeight);
+        this._setup(sphereAngle, intervalAngle, fgColor, bgColor, arenaHeight);
     }
 
     /**
      * (private) Method to set up the arena with a specific panel and interval angle.
      * 
-     * @param {number} panelAngle - width of a panel in radians
+     * @param {number} sphereAngle - radius of a sphere in radians
      * @param {number} intervalAngle - width of an interval between panels in radians
      */
-    _setup(panelAngle, intervalAngle, fgColor, bgColor, arenaHeight){
+    _setup(sphereAngle, intervalAngle, fgColor, bgColor, arenaHeight){
         
-        const cylinderHorizSegments = 12;
+        this._log('spheres-sphere-angle', sphereAngle);
+        this._log('spheres-interval-angle', intervalAngle);
+        this._log('spheres-arena-radius', this.arenaRadius);
+        this._log('spheres-arena-height', arenaHeight);
+        this._log('spheres-type', 'CylinderBufferGeometry');
+        this._log('spheres-horizontal-segments', cylinderHorizSegments);
+        this._log('spheres-bar-color', fgColor);
         
-        this._log('panels-panel-angle', panelAngle);
-        this._log('panels-interval-angle', intervalAngle);
-        this._log('panels-arena-radius', this.arenaRadius);
-        this._log('panels-arena-height', arenaHeight);
-        this._log('panels-type', 'CylinderBufferGeometry');
-        this._log('panels-horizontal-segments', cylinderHorizSegments);
-        this._log('panels-bar-color', fgColor);
-        
-        const geometry = new CylinderBufferGeometry(
-            this.arenaRadius, this.arenaRadius,
-            arenaHeight, 
-            cylinderHorizSegments, 1, 
-            true, // TODO Test with "false" instead of "true" to have it openEnded
-            0, panelAngle);
+        const geometry = new SphereGeometry( .75*Math.PI, 32, 16 );
 
 
         const material = new MeshBasicMaterial({ color: fgColor, side:BackSide });
 
-        for (let alpha = 0; alpha < 2*Math.PI; alpha += panelAngle + intervalAngle) {
+        for (let alpha = 0; alpha < 2*Math.PI; alpha += sphereAngle + intervalAngle) {
             const bar = new Mesh(geometry, material);
             // bar.rotation.y = MathUtils.degToRad(alpha);
             bar.rotation.y = alpha;
@@ -77,11 +69,11 @@ class Panels extends Group {
      * @param {number} panelAngle - width of the panel in radians
      * @param {number} intervalAngle  - width of interval between panels in radians
      */
-    changePanels(panelAngle, intervalAngle, fgColor, bgColor, barHeight) {
+    changePanels(sphereAngle, intervalAngle, fgColor, bgColor, barHeight) {
         this.clear();
         this._log('panels-change-clear');
         this._log('xxxx',barHeight )
-        this._setup(panelAngle, intervalAngle, fgColor, bgColor, barHeight);
+        this._setup(sphereAngle, intervalAngle, fgColor, bgColor, barHeight);
     }
 
     /**
@@ -166,4 +158,4 @@ class Panels extends Group {
     }
 }
 
-export { Panels };
+export { Spheres };
