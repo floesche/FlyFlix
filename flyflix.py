@@ -303,9 +303,9 @@ def local_cshfly22():
     _ = socketio.start_background_task(target=cshlfly22)
     return render_template('cshlfly22.html')
 
-@app.route('/starfield23/')
-def local_starfield23():
-    return render_template('starfield23.html')
+@app.route('/starfield/')
+def local_starfield():
+    return render_template('starfield.html')
 
 
 def log_metadata():

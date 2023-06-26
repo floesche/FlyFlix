@@ -9,7 +9,7 @@ import { Scene, Color } from '/static/vendor/three.module.js';
  */
 function createScene() {
     const scene = new Scene();
-    scene.background = new Color(0x0000FF);
+    scene.background = new Color(0x000000);
     return scene;
 }
 
