@@ -13,6 +13,8 @@ from logging import FileHandler
 
 import eventlet
 
+import json
+
 from flask import Flask, render_template, request, abort, url_for
 from flask.logging import default_handler
 from flask_socketio import SocketIO
@@ -29,6 +31,13 @@ start = False
 UPDATE_FICTRAC = False
 FICTRAC_GAIN = 100
 SWEEPCOUNTERREACHED = False
+
+#metadata defaults - do not change - use control panel
+flyStrain = "N/A"
+flyBatch = "N/A"
+fly = "N/A"
+flySex = "N/A"
+metadata = {}
 
 
 Payload.max_decode_packets = 500
@@ -361,6 +370,22 @@ def disconnect():
     print("Client disconnected", request.sid)
 
 
+@socketio.on('stop-pressed')
+def trigger_stop(empty):
+    socketio.emit('stop-triggered', empty)
+
+@socketio.on('start-pressed')
+def trigger_start(empty):
+    socketio.emit('start-triggered', empty)
+    #socketio.broadcast.emit('start-triggered', num)
+    #print("recieved by flyflix")
+
+@socketio.on('restart-pressed')
+def trigger_restart(empty):
+    socketio.emit('restart-triggered', empty)
+    
+
+
 @socketio.on('start-experiment')
 def finally_start(number):
     """
@@ -423,6 +448,7 @@ def set_sweep_counter_reached():
     global SWEEPCOUNTERREACHED
     SWEEPCOUNTERREACHED = True
 
+
 @app.route('/demo-sounds/')
 def hello_world():
     """
@@ -445,6 +471,14 @@ def hello():
 def local_dev():
     _ = socketio.start_background_task(target = localmove)
     return render_template('canvas-bars.html')
+
+@app.route('/control-panel/')
+def control_panel():
+    """
+    Control panel for experiments. Only use if you have multiple devices connected to the server.
+    """
+    #_ = socketio.start_background_task(target = localmove)
+    return render_template('control-panel.html')
 
 
 def closed_loop():
@@ -600,78 +634,33 @@ def local_experiment_dev():
     return render_template('three-container-bars.html')
 
 
+@socketio.on('metadata-submit')
+def handle_data(data):
+    """
+    Triggered when metadata is submitted via the control panel
+    takes the javascript objects and converts it to a python dictionary
+    stores the dictionary in the metadata variable that is used in log_metadata()
+    """
+    metadata_string = json.dumps(data)
+    print(metadata_string)
+    global metadata
+    metadata = json.loads(metadata_string)
+    print(metadata)
+    
+
+
 def log_metadata():
     """
-    The content of the `metadata` dictionary gets logged.
+    The content of the `metadata` dictionary gets logged and printed
     
-    This is a rudimentary way to save information related to the experiment to a file. Edit the 
-    content of the dictionary for each experiment.
+    This is a rudimentary way to save information related to the experiment to a file.
 
-    TODO: Editing code to store information is not good. Needs to change.
     """
-    metadata = {
-        "fly-strain": "DL",
-        "fly-batch": "2021-03-02",
-        # "day-start": "7:00:00",
-        # "day-end": "19:00:00",
-        "day-night-since": "2021-02-12",
-
-        "birth-start": "2021-03-10 21:00:00",
-        "birth-end": "2021-03-11 20:00:00",
-
-        "starvation-start": "2021-03-16 16:50:00",
-
-        # "tether-start": "2021-03-15 17:08:00",
-        # "fly": 370,
-        # "tether-end"  : "2021-03-15 17:16:00",
-        # "sex": "f",
-        # "fly": 371,
-        # "tether-end"  : "2021-03-15 17:19:00",
-        # "sex": "m",
-        # "fly": 372,
-        # "tether-end"  : "2021-03-15 17:22:00",
-        # "sex": "m",
-        # "fly": 373,
-        # "tether-end"  : "2021-03-15 17:25:00",
-        # "sex": "m",
-        # "fly": 374,
-        # "tether-end"  : "2021-03-15 17:27:00",
-        # "sex": "m",
-
-        "day-start": "21:00:00",
-        "day-end": "13:00:00",
-        "tether-start": "2021-03-16 20:11:00",
-
-        # "fly": 375,
-        # "tether-end"  : "2021-03-16 20:20:00",
-        # "sex": "m",
-        # "fly": 376,
-        # "tether-end"  : "2021-03-16 20:23:00",
-        # "sex": "f",
-        # "fly": 377,
-        # "tether-end"  : "2021-03-16 20:26:00",
-        # "sex": "f",
-        # "fly": 378,
-        # "tether-end"  : "2021-03-16 20:29:00",
-        # "sex": "f",
-        "fly": 379,
-        "tether-end"  : "2021-03-16 20:32:00",
-        "sex": "f",
-
-        "ball": "1",
-        "air": "wall",
-        "glue": "KOA",
-        
-        "temperature": 32,
-        "distance": 35,
-        "protocol": 12,
-        "screen-brightness": 100,
-        "display": "fire",
-        "color": "#FFFFFF",
-    }
+    
     shared_key = time.time_ns()
     for key, value in metadata.items():
         logdata(0, shared_key, key, value)
+        print( key, ": ", value)
 
 
 @app.route("/")

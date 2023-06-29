@@ -244,6 +244,18 @@
             });
         })();
 
+        socket.on('start-triggered', function(empty){
+            document.getElementById('fullscreen').style.visibility = "hidden";
+            document.body.requestFullscreen();
+            socket.emit('start-experiment', 1);
+            initCanvas();
+        })
+
+        socket.on('stop-triggered', function(empty){
+            window.location.reload(true);
+            //document.getElementById('restart').style.visibility = "visible";
+        })
+
     </script>
 </body>
 </html>

@@ -51,6 +51,7 @@ const addStartButton = (container) => {
         const startEvent = new Event('start-experiment');
         window.dispatchEvent(startEvent);
     });
+
 };
 
 
@@ -65,10 +66,33 @@ class ExperimentControl{
      * @constructor
      * @param {Element} container - HTML element to which the start and restart button attaches
      */
-    constructor(container){
+    constructor(container, socket){
         addRestartButton(container);
         addStartButton(container);
+
+        // socket configuration for control panel buttons
+        socket.on('start-triggered', function(empty){
+            const controllers = container.getElementsByClassName('experiment-controller');
+            for (const element of controllers) {
+                element.style.visibility = "hidden";
+            }
+            const startEvent = new Event('start-experiment');
+            window.dispatchEvent(startEvent);
+        })
+
+        socket.on('restart-triggered', function(empty){
+            window.location.reload();
+        })
+
+        socket.on('stop-triggered', function(empty){
+            const stopEvent = new Event('end-experiment');
+            window.dispatchEvent(stopEvent);
+            //window.location.reload();
+        })
+
     }
+
+    
 }
 
 export { ExperimentControl };
