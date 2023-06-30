@@ -22,6 +22,12 @@ The file `requirements.txt` contains the dependencies for FlyFlix and can be ins
 pip install -r requirements.txt
 ```
 
+Additionally, install yaml using:
+
+```sh
+pip install pyyaml
+```
+
 The most important requirements are [Flask](https://pypi.org/project/Flask/) and [Flask-SocketIO](https://pypi.org/project/Flask-SocketIO/). Most of the other packages are dependencies of these two items. If you prefer installing python packages in a different way, make sure the two packages mentioned above are installed with all their dependencies.
 
 If you experience issues when running FlyFlix, you might want to upgrade installed packages. On Linux, you can run a `make update`, otherwise the following two commands run from the terminal should achieve the same:
@@ -38,6 +44,11 @@ Once installed, you should be able to run FlyFlix by executing a python script o
 If you want to run the client on another device than your FlyFlix server, for example a tablet, a smartphone, or another computer, you will need to find out the IP address of the FlyFlix server. You can find your current IP by running the terminal command `ip addr` (Linux and Mac) or `ipconfig` (Windows). 
 
 A resource to read more about the Client-Server model is <https://en.wikipedia.org/wiki/Client%E2%80%93server_model>. 
+
+Data about trials can be saved by entering information in the control panel or by editing defaultsconfig.yaml.
+Information stored in defaultsconfig.yaml will be stored for all trials and is good for saving information that will be true across many trials.
+Any information saved to the trial through the control panel will only be saved for that experiment.
+If a key in the information about the experiment is repeated in both the control panel and defaultsconfig.yaml, only data from the control panel will be saved under that key.
 
 ## Architecture
 
