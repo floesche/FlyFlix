@@ -14,6 +14,8 @@ from logging import FileHandler
 
 import eventlet
 
+import json
+
 from flask import Flask, render_template, request, abort, url_for
 from flask.logging import default_handler
 from flask_socketio import SocketIO
@@ -31,7 +33,11 @@ SWEEPCOUNTERREACHED = False
 RUN_FICTRAC = False
 
 
-Payload.max_decode_packets = 500
+Payload.max_decode_packets = 1500
+
+# metadata variable - DO NOT CHANGE
+# use control panel to update values
+metadata = {}
 
 # Using eventlet breaks UDP reading thread unless patched. 
 # See http://eventlet.net/doc/basic_usage.html?highlight=monkey_patch#patching-functions for more.
@@ -168,6 +174,25 @@ def data_logger(client_timestamp, request_timestamp, key, value):
 @socketio.on('display')
 def display_event(json):
     savedata(request.sid, json['cnt'], "display-offset", json['counter'])
+    
+
+@socketio.on('stop-pressed')
+def trigger_stop(empty):
+    socketio.emit('stop-triggered', empty)
+    print("Stopped")
+    global start
+    start = False
+
+
+@socketio.on('start-pressed')
+def trigger_start(empty):
+    socketio.emit('start-triggered', empty)
+    #socketio.broadcast.emit('start-triggered', num)
+    #print("recieved by flyflix")
+
+@socketio.on('restart-pressed')
+def trigger_restart(empty):
+    socketio.emit('restart-triggered', empty)
 
 
 def log_fictrac_timestamp():
@@ -210,7 +235,6 @@ def cshlfly22():
     gains = [0.9, 1, 1.1]
     counter = 0
     gaincount = 0
-    log_metadata()
 
     ## rotation 
     for alpha in [15]:
@@ -232,6 +256,8 @@ def cshlfly22():
                     block.append(t)
                     counter += 1
 
+                    
+
     # Oscillation
     for alpha in [15]:
         for freq in [0.333]:
@@ -251,6 +277,8 @@ def cshlfly22():
                         comment=f"Oscillation with frequency {freq} direction {direction} brightness {bright} contrast {contrast}")
                     block.append(t)
                     counter += 1
+
+                    
 
     # Small object
     for alpha in [10]:
@@ -273,12 +301,12 @@ def cshlfly22():
                     block.append(t)
                     counter += 1
 
-    
 
     while not start:
         time.sleep(0.1)
     global RUN_FICTRAC
     RUN_FICTRAC = True
+    log_metadata()
     _ = socketio.start_background_task(target = log_fictrac_timestamp)
 
     repetitions = 3
@@ -304,6 +332,30 @@ def local_cshfly22():
     return render_template('cshlfly22.html')
 
 
+@app.route('/control-panel/')
+def control_panel():
+    """
+    Control panel for experiments. Only use if you have multiple devices connected to the server.
+    """
+    #_ = socketio.start_background_task(target = localmove)
+    return render_template('control-panel.html')
+
+
+
+@socketio.on('metadata-submit')
+def handle_data(data):
+    """
+    Triggered when metadata is submitted via the control panel
+    takes the javascript objects and converts it to a python dictionary
+    stores the dictionary in the metadata variable that is used in log_metadata()
+    """
+    metadata_string = json.dumps(data)
+    print(metadata_string)
+    global metadata
+    metadata = json.loads(metadata_string)
+    print(metadata)
+
+
 def log_metadata():
     """
     The content of the `metadata` dictionary gets logged.
@@ -311,41 +363,10 @@ def log_metadata():
     This is a rudimentary way to save information related to the experiment to a file. Edit the 
     content of the dictionary for each experiment.
     """
-    metadata = {
-        "fly-strain": "CTRL",
-        "fly-batch": "2022-07-06",
-        "day-night-since": "2022-07-06",
-
-        "birth-start": "2022-07-06 00:00:00",
-        "birth-end": "2022-07-08 16:30:00",
-
-        "starvation-start": "2022-07-10 21:00:00",
-
-        "tether-start": "2022-07-11 10:00:00",
-        "fly": 1,
-        "tether-end"  : "2022-07-11 11:00:00",
-        "sex": "f",
-        
-        "day-start": "07:00:00",
-        "day-end": "19:00:00",
-        
-
-        "ball": "1",
-        "air": "wall",
-        "glue": "KOA",
-        
-        "temperature": 30,
-        "distance": 35,
-        "protocol": 1,
-        "screen-brightness": 67,
-        "display": "fire7",
-        "color": "#00FF00"
-    }
-
-
     shared_key = time.time_ns()
     for key, value in metadata.items():
         logdata(1, 0, shared_key, key, value)
+        print(key, ": ", value)
 
 
 @app.route("/")

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {# control-panel.html #}
+    <meta charset="UTF-8">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+    <script src="/static/vendor/socket.io.min.js"></script>
+    <style>
+        html,
+        body {
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: hidden;
+            background-color:#FFFFFF;
+        }
+        #topBox{
+            position:absolute;
+            height:20%;
+            width: 100%;
+        }
+        #title{
+            text-align: center;
+            font-family:Arial;
+            font-size:20pt;
+            position:absolute;
+            left: 50%;
+            margin-right: -50%;
+            transform: translate(-50%, -50%);
+        }
+        #directions{
+            text-align: center;
+            font-family:Arial;
+            position:absolute;
+            top: 15%;
+            width: 95%;
+            left: 2.5%;
+            padding: 7px;
+            background-color:#aae0b9;
+            border: 2px solid #14854f;
+        }
+        #bottomBox{
+            position:absolute;
+            height:80%;
+            top:20%;
+            width: 100%;
+        }
+        #leftBox{
+            position:absolute;
+            top: 0%;
+            left:0%;
+            height:100%;
+            width: 50%;
+        }
+        #metadata, #submitButton{
+            text-align: center;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            font-family:Arial;
+            background-color:#eeeeee;
+            border: 2px solid #1c4587;
+            color:#1c4587;
+            font-size:15pt;
+            padding:5px;
+            width:90%;
+            top: 1%;
+            left: 2.5%;
+            position:absolute;
+        }
+        #submitButton{
+            top:90%;
+        }
+        #form{
+            font-family:Arial;
+            color:#595959;
+            position: absolute;
+            top: 10%;
+            left: 2.5%;
+            width: 97%;
+        }
+        input[type=text] {
+            width: 47%;
+            padding: 5px 10px;
+            margin: 2px 0;
+            box-sizing: border-box;
+            font-family:Arial;
+        }
+        #rightBox{
+            position:absolute;
+            top: 0%;
+            left:50%;
+            height:100%;
+            width: 50%;
+        }
+        #start, #restart, #stop{
+            text-align: center;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            font-family:Arial;
+            font-size:20pt;
+            background-color:#eeeeee;
+            position:absolute;
+            width: 93%;
+            height: 93%;
+            left: 3%;
+            top: 0%;
+        }
+        #start, #restart{
+            border: 2px solid #14854f;
+            color:#14854f;
+        }
+        #restart{
+            visibility:hidden;
+        }
+        #stop{
+            visibility:hidden;
+            border: 2px solid #d43839;
+            color:#d43839;
+        }
+        #container{
+            color: #FFFFFF;
+            visibility:hidden;
+            position:absolute;
+            left:0;
+            top:0;
+            width:100%;
+            height:100%;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="container"></canvas>
+
+    <div id="topBox">
+        <p id="title">Control Panel</p>
+        <p id="directions">
+            Welcome to the FlyFlix Control Panel!
+            <br>
+            Before you start your experiment:
+            <br>
+            1. Ensure that your experiment is completely set up (including navigating to the experiment page and selecting fullscreen)
+            <br>
+            2. Enter any information that you want to store about the trial in the metadata as a key-value pair and click submit.
+        </p>
+    </div>
+
+    <div id="bottomBox">
+
+
+        <div id="leftBox">
+            <p id="metadata">metadata</p>
+
+            <form method="POST" id='form'>
+
+                <!--FIXME: this whole thing is bad practice but idk html so... -->
+                <div>
+                    <input type='text' id='key0' placeholder='enter key'>
+                    <input type='text' id='value0' placeholder='enter value'>
+                </div>
+
+
+                <div>
+                    <input type='text' id='key1' placeholder='ex. fly strain'>
+                    <input type='text' id='value1' placeholder=' DL '>
+                </div>
+
+
+                <div>
+                    <input type='text' id='key2' placeholder='ex. sex'>
+                    <input type='text' id='value2' placeholder='female'>
+                </div>
+
+                <div>
+                    <input type='text' id='key3' placeholder='N/A' >
+                    <input type='text' id='value3' placeholder='N/A'>
+                </div>
+
+                <div>
+                    <input type='text' id='key4' placeholder='N/A' >
+                    <input type='text' id='value4' placeholder='N/A'>
+                </div>
+
+                <div>
+                    <input type='text' id='key5' placeholder='N/A' >
+                    <input type='text' id='value5' placeholder='N/A'>
+                </div>
+
+                <div>
+                    <input type='text' id='key6' placeholder='N/A' >
+                    <input type='text' id='value6' placeholder='N/A'>
+                </div>
+
+                <div>
+                    <input type='text' id='key7' placeholder='N/A' >
+                    <input type='text' id='value7' placeholder='N/A'>
+                </div>
+
+                <div>
+                    <input type='text' id='key8' placeholder='N/A' >
+                    <input type='text' id='value8' placeholder='N/A'>
+                </div>
+
+                <div>
+                    <input type='text' id='key9' placeholder='N/A' >
+                    <input type='text' id='value9' placeholder='N/A'>
+                </div>
+
+                <div>
+                    <input type='text' id='key10' placeholder='N/A' >
+                    <input type='text' id='value10' placeholder='N/A'>
+                </div>
+
+                <div>
+                    <input type='text' id='key11' placeholder='N/A' >
+                    <input type='text' id='value11' placeholder='N/A'>
+                </div>
+
+                <div>
+                    <input type='text' id='key12' placeholder='N/A' >
+                    <input type='text' id='value12' placeholder='N/A'>
+                </div>
+
+                <div>
+                    <input type='text' id='key13' placeholder='N/A' >
+                    <input type='text' id='value13' placeholder='N/A'>
+                </div>
+
+                <div>
+                    <input type='text' id='key14' placeholder='N/A' >
+                    <input type='text' id='value14' placeholder='N/A'>
+                </div>
+
+                <div>
+                    <input type='text' id='key15' placeholder='N/A' >
+                    <input type='text' id='value15' placeholder='N/A'>
+                </div>
+
+                <div>
+                    <input type='text' id='key16' placeholder='N/A' >
+                    <input type='text' id='value16' placeholder='N/A'>
+                </div>
+
+                <div>
+                    <input type='text' id='key17' placeholder='N/A' >
+                    <input type='text' id='value17' placeholder='N/A'>
+                </div>
+
+            </form>
+
+            <p id="submitButton">submit</p>
+
+        </div>
+
+
+        <div id="rightBox">
+            <p id="start">Start</p>
+            <p id="restart">Restart</p>
+            <p id="stop">Stop</p>
+        </div>
+
+
+
+    </div>
+
+    <script>
+        /**
+         * status variables
+        */
+        var socket = io();
+        let screenOn = true;
+        
+        /**
+        * metadata variables
+        */
+        let flyStrain;
+        let flyBatch;
+        let flySex;
+
+        /**
+         * 
+         * 
+         * 
+         * 
+         * 
+        */
+        socket.on('connect', function(){});
+        socket.on('event', function(data){});
+
+        socket.on('disconnect', function(){
+        });
+
+
+        socket.on('screen', function(onoff){
+            if (onoff == 0){
+                screenOn = false;
+            } else {
+                screenOn = true;
+            }
+        });
+
+        /**
+         * Add event listeners for clicking fullscreen and restart buttons.
+        */
+        (function () {
+
+            document.getElementById('start').addEventListener('click', function () {
+                 //document.body.requestFullscreen();;
+                 socket.emit('start-pressed', {});
+                 document.getElementById('start').style.visibility = 'hidden';
+                 document.getElementById('stop').style.visibility = 'visible';
+            });
+
+            document.getElementById('stop').addEventListener('click', function () {
+                socket.emit('stop-pressed', {});
+                document.getElementById('stop').style.visibility = 'hidden';
+                document.getElementById('restart').style.visibility = 'visible';
+            });
+
+            document.getElementById('restart').addEventListener('click', function () {
+                socket.emit('restart-pressed', {});
+                document.getElementById('restart').style.visibility = 'hidden';
+                document.getElementById('start').style.visibility = 'visible';
+            });
+
+
+            document.getElementById('submitButton').addEventListener('click', function () {
+                
+                //metadata dictionary
+                var data = {};
+                // all the keys & values - also bad practice
+                keys = ['key0', 'key1', 'key2', 'key3', 'key4', 'key5', 'key6', 'key7', 'key8', 'key9', 'key10', 'key11', 'key12', 'key13', 'key14', 'key15', 'key16', 'key17'];
+                values = ['value0', 'value1', 'value2', 'value3', 'value4', 'value5', 'value6', 'value7', 'value8', 'value9', 'value10', 'value11', 'value12', 'value13', 'value14', 'value15', 'value16', 'value17'];
+
+
+                for (i = 0; i < keys.length; i++){
+                    let key = document.getElementById(keys[i]).value;
+                    if ( key != ""){
+                        data[key] = document.getElementById(values[i]).value;
+                    }
+                }
+
+                socket.emit('metadata-submit', data);
+
+            });
+           
+        })();
+
+    </script>
+</body>
+</html>
