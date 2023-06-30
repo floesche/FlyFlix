@@ -26,10 +26,6 @@ function main() {
       arena.stop();
     })
 
-    socket.on('restart-freeze', function(empty){
-      arena.stop();
-    })
-
 
   }
 

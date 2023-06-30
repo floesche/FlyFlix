@@ -321,6 +321,8 @@ def cshlfly22():
             print(f"Condition {counter} of {len(block*repetitions)}")
             current_trial.set_id(counter)
             current_trial.trigger(socketio)
+            if not start:
+                return
 
     RUN_FICTRAC = False
     print(time.strftime("%H:%M:%S", time.localtime()))
