@@ -1,0 +1,7 @@
+# enter trial defaults if necessary
+# these will be saved for all experiments unless they are deleted
+# ex. 
+# strain: Dl
+# sex: female
+strain: DL
+sex: female

@@ -14,6 +14,7 @@ from logging import FileHandler
 import eventlet
 
 import json
+import yaml
 
 from flask import Flask, render_template, request, abort, url_for
 from flask.logging import default_handler
@@ -32,15 +33,20 @@ UPDATE_FICTRAC = False
 FICTRAC_GAIN = 100
 SWEEPCOUNTERREACHED = False
 
-#metadata defaults - do not change - use control panel
-flyStrain = "N/A"
-flyBatch = "N/A"
-fly = "N/A"
-flySex = "N/A"
+# metadata variable - DO NOT CHANGE
+# use control panel to update values or defaultsconfig.yaml to set defaults
 metadata = {}
 
+# read in defaults from defaultsconfig.yaml
+with open("defaultsconfig.yaml", "r") as stream:
+    try:
+        metadata = yaml.safe_load(stream)
+        print(metadata)
+    except yaml.YAMLError as exc:
+        print(exc)
 
-Payload.max_decode_packets = 500
+
+Payload.max_decode_packets = 1500
 
 # Using eventlet breaks UDP reading thread unless patched. 
 # See http://eventlet.net/doc/basic_usage.html?highlight=monkey_patch#patching-functions for more.
@@ -478,7 +484,7 @@ def control_panel():
     Control panel for experiments. Only use if you have multiple devices connected to the server.
     """
     #_ = socketio.start_background_task(target = localmove)
-    return render_template('control-panel.html')
+    return render_template('control-panel.html', metadata=json.dumps(metadata))
 
 
 def closed_loop():
@@ -644,7 +650,7 @@ def handle_data(data):
     metadata_string = json.dumps(data)
     print(metadata_string)
     global metadata
-    metadata = json.loads(metadata_string)
+    metadata.update(json.loads(metadata_string))
     print(metadata)
     
 

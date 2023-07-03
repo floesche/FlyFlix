@@ -22,6 +22,12 @@ The file `requirements.txt` contains the dependencies for FlyFlix and can be ins
 pip install -r requirements.txt
 ```
 
+Additionally, install yaml using:
+
+```sh
+pip install pyyaml
+```
+
 The most important requirements are [Flask](https://pypi.org/project/Flask/) and [Flask-SocketIO](https://pypi.org/project/Flask-SocketIO/). Most of the other packages are dependencies of these two items. If you prefer installing python packages in a different way, make sure the two packages mentioned above are installed with all their dependencies.
 
 If you experience issues when running FlyFlix, you might want to upgrade installed packages. On Linux, you can run a `make update`, otherwise the following two commands run from the terminal should achieve the same:
@@ -34,6 +40,11 @@ pip list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1  | xargs -n
 ### Run FlyFlix
 
 Once installed, you should be able to run FlyFlix by executing a python script on the terminal: `python flyflix.py`. Once the application is up and running, the client can be started by pointing a web browser to an URL with the IP address of the server at port 17000, for example <http://127.0.0.1:17000> or <http://192.168.1.27:17000>. If you are unsure what your IP address is, you might be able to see it through the terminal command `ip addr` (Mac and Linux) or `ifconfig` (Windows). On Linux, you should be able to start FlyFlix through `make localhost` instead of the direct call to the python script, which will also show you the currently used address.
+
+Data about trials can be saved by entering information in the control panel or by editing defaultsconfig.yaml.
+Information stored in defaultsconfig.yaml will be stored for all trials and is good for saving information that will be true across many trials.
+Any information saved to the trial through the control panel will only be saved for that experiment.
+If a key in the information about the experiment is repeated in both the control panel and defaultsconfig.yaml, only data from the control panel will be saved under that key.
 
 ## Architecture
 

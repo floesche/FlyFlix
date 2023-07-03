@@ -28,7 +28,7 @@
             margin-right: -50%;
             transform: translate(-50%, -50%);
         }
-        #directions{
+        #directions, #defaults{
             text-align: center;
             font-family:Arial;
             position:absolute;
@@ -38,6 +38,9 @@
             padding: 7px;
             background-color:#aae0b9;
             border: 2px solid #14854f;
+        }
+        #defaults{
+            top: 80%;
         }
         #bottomBox{
             position:absolute;
@@ -145,6 +148,9 @@
             <br>
             2. Enter any information that you want to store about the trial in the metadata as a key-value pair and click submit.
         </p>
+        <p id="defaults"> 
+            Trial defaults: {{metadata}}
+        </p>
     </div>
 
     <div id="bottomBox">
@@ -153,102 +159,16 @@
         <div id="leftBox">
             <p id="metadata">metadata</p>
 
-            <form method="POST" id='form'>
-
-                <!--FIXME: this whole thing is bad practice but idk html so... -->
-                <div>
-                    <input type='text' id='key0' placeholder='enter key'>
-                    <input type='text' id='value0' placeholder='enter value'>
-                </div>
-
-
-                <div>
-                    <input type='text' id='key1' placeholder='ex. fly strain'>
-                    <input type='text' id='value1' placeholder=' DL '>
-                </div>
-
-
-                <div>
-                    <input type='text' id='key2' placeholder='ex. sex'>
-                    <input type='text' id='value2' placeholder='female'>
-                </div>
-
-                <div>
-                    <input type='text' id='key3' placeholder='N/A' >
-                    <input type='text' id='value3' placeholder='N/A'>
-                </div>
-
-                <div>
-                    <input type='text' id='key4' placeholder='N/A' >
-                    <input type='text' id='value4' placeholder='N/A'>
-                </div>
-
-                <div>
-                    <input type='text' id='key5' placeholder='N/A' >
-                    <input type='text' id='value5' placeholder='N/A'>
-                </div>
-
-                <div>
-                    <input type='text' id='key6' placeholder='N/A' >
-                    <input type='text' id='value6' placeholder='N/A'>
-                </div>
-
-                <div>
-                    <input type='text' id='key7' placeholder='N/A' >
-                    <input type='text' id='value7' placeholder='N/A'>
-                </div>
-
-                <div>
-                    <input type='text' id='key8' placeholder='N/A' >
-                    <input type='text' id='value8' placeholder='N/A'>
-                </div>
-
-                <div>
-                    <input type='text' id='key9' placeholder='N/A' >
-                    <input type='text' id='value9' placeholder='N/A'>
-                </div>
-
-                <div>
-                    <input type='text' id='key10' placeholder='N/A' >
-                    <input type='text' id='value10' placeholder='N/A'>
-                </div>
-
-                <div>
-                    <input type='text' id='key11' placeholder='N/A' >
-                    <input type='text' id='value11' placeholder='N/A'>
-                </div>
-
-                <div>
-                    <input type='text' id='key12' placeholder='N/A' >
-                    <input type='text' id='value12' placeholder='N/A'>
-                </div>
-
-                <div>
-                    <input type='text' id='key13' placeholder='N/A' >
-                    <input type='text' id='value13' placeholder='N/A'>
-                </div>
-
-                <div>
-                    <input type='text' id='key14' placeholder='N/A' >
-                    <input type='text' id='value14' placeholder='N/A'>
-                </div>
-
-                <div>
-                    <input type='text' id='key15' placeholder='N/A' >
-                    <input type='text' id='value15' placeholder='N/A'>
-                </div>
-
-                <div>
-                    <input type='text' id='key16' placeholder='N/A' >
-                    <input type='text' id='value16' placeholder='N/A'>
-                </div>
-
-                <div>
-                    <input type='text' id='key17' placeholder='N/A' >
-                    <input type='text' id='value17' placeholder='N/A'>
-                </div>
-
-            </form>
+            <form method="POST" id='form'></form>
+            
+            <script>
+                var x ="";
+                for (let h=0; h<18; h++){
+                    x = x + "<div> <input type='text' id='key" + h + "' placeholder='N/A' >";
+                    x = x + "<input type='text' id='value" + h + "' placeholder='N/A' > </div>";
+                }
+                document.getElementById("form").innerHTML = x;
+            </script>
 
             <p id="submitButton">submit</p>
 
@@ -269,21 +189,12 @@
         /**
          * status variables
         */
+        
         var socket = io();
         let screenOn = true;
-        
-        /**
-        * metadata variables
-        */
-        let flyStrain;
-        let flyBatch;
-        let flySex;
+
 
         /**
-         * 
-         * 
-         * 
-         * 
          * 
         */
         socket.on('connect', function(){});
@@ -330,15 +241,13 @@
                 
                 //metadata dictionary
                 var data = {};
-                // all the keys & values
-                keys = ['key0', 'key1', 'key2', 'key3', 'key4', 'key5', 'key6', 'key7', 'key8', 'key9', 'key10', 'key11', 'key12', 'key13', 'key14', 'key15', 'key16', 'key17'];
-                values = ['value0', 'value1', 'value2', 'value3', 'value4', 'value5', 'value6', 'value7', 'value8', 'value9', 'value10', 'value11', 'value12', 'value13', 'value14', 'value15', 'value16', 'value17'];
-
-
-                for (i = 0; i < keys.length; i++){
-                    let key = document.getElementById(keys[i]).value;
+                
+                for (i = 0; i < 18; i++){
+                    let keyStr = "key" + i;
+                    let valStr = "value" + i;
+                    let key = document.getElementById(keyStr).value;
                     if ( key != ""){
-                        data[key] = document.getElementById(values[i]).value;
+                        data[key] = document.getElementById(valStr).value;
                     }
                 }
 
