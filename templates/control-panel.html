@@ -148,7 +148,7 @@
             <br>
             2. Enter any information that you want to store about the trial in the metadata as a key-value pair and click submit.
         </p>
-        <p id="defaults"> 
+        <p id="defaults">
             Trial defaults: {{metadata}}
         </p>
     </div>
@@ -160,20 +160,17 @@
             <p id="metadata">metadata</p>
 
             <form method="POST" id='form'></form>
-            
+
             <script>
                 var x ="";
                 for (let h=0; h<18; h++){
-                    x = x + "<div> <input type='text' id='key" + h + "' placeholder='N/A' >";
-                    x = x + "<input type='text' id='value" + h + "' placeholder='N/A' > </div>";
+                    x = x + `<div><input type='text' id='key${h}' placeholder='N/A' >`;
+                    x = x + "<input type='text' id='value${h}' placeholder='N/A' > </div>";
                 }
                 document.getElementById("form").innerHTML = x;
             </script>
-
-            <p id="submitButton">submit</p>
-
+            <button id="submitButton">submit</button>
         </div>
-
 
         <div id="rightBox">
             <p id="start">Start</p>
@@ -181,21 +178,19 @@
             <p id="stop">Stop</p>
         </div>
 
-
-
     </div>
 
     <script>
         /**
          * status variables
         */
-        
+
         var socket = io();
         let screenOn = true;
 
 
         /**
-         * 
+         *
         */
         socket.on('connect', function(){});
         socket.on('event', function(data){});
@@ -238,10 +233,8 @@
 
 
             document.getElementById('submitButton').addEventListener('click', function () {
-                
                 //metadata dictionary
                 var data = {};
-                
                 for (i = 0; i < 18; i++){
                     let keyStr = "key" + i;
                     let valStr = "value" + i;
@@ -250,11 +243,10 @@
                         data[key] = document.getElementById(valStr).value;
                     }
                 }
-
                 socket.emit('metadata-submit', data);
 
             });
-           
+
         })();
 
     </script>
