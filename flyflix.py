@@ -61,7 +61,6 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 
 # socketio = SocketIO(app, async_mode='threading')
 
-@app.before_first_request
 def before_first_request():
     """
     Server initiator: check for paths  and initialize logger.
@@ -395,4 +394,5 @@ def sitemap():
 
 
 if __name__ == '__main__':
+    before_first_request()
     socketio.run(app, host='0.0.0.0', port = 17000)
