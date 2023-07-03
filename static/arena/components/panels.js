@@ -1,4 +1,4 @@
-import { Group, MathUtils, PlaneBufferGeometry, CylinderBufferGeometry, MeshBasicMaterial, Mesh, BackSide } from '/static/vendor/three.module.js';
+import { Group, MathUtils, CylinderGeometry, MeshBasicMaterial, Mesh, BackSide } from '/static/vendor/three.module.js';
 
 /**
  * Definition of the panels that form a cylindrical arena.
@@ -42,11 +42,11 @@ class Panels extends Group {
         this._log('panels-interval-angle', intervalAngle);
         this._log('panels-arena-radius', this.arenaRadius);
         this._log('panels-arena-height', arenaHeight);
-        this._log('panels-type', 'CylinderBufferGeometry');
+        this._log('panels-type', 'CylinderGeometry');
         this._log('panels-horizontal-segments', cylinderHorizSegments);
         this._log('panels-bar-color', fgColor);
 
-        const geometry = new CylinderBufferGeometry(
+        const geometry = new CylinderGeometry(
             this.arenaRadius, this.arenaRadius,
             arenaHeight, 
             cylinderHorizSegments, 1, 

@@ -1,5 +1,5 @@
 // FIXME: To be deleted?
-import { PlaneBufferGeometry, Mesh, MeshBasicMaterial, DoubleSide} from '/static/vendor/three.module.js';
+import { PlaneGeometry, Mesh, MeshBasicMaterial, DoubleSide} from '/static/vendor/three.module.js';
 
 function createCube() {
 
@@ -9,7 +9,7 @@ function createCube() {
   const width = Math.atan((angle / 2) * Math.PI / 180) * radius * 2;
 
   // const geometry = new BoxBufferGeometry(4, 2, 2);
-  const geometry = new PlaneBufferGeometry(width, 1)
+  const geometry = new PlaneGeometry(width, 1)
   const material = new MeshBasicMaterial({ color: 0x00ff00, side: DoubleSide });
   const cube = new Mesh(geometry, material);
   cube.position.set(0, 0, -0.15);
