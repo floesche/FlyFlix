@@ -154,28 +154,24 @@
     </div>
 
     <div id="bottomBox">
-
-
         <div id="leftBox">
             <p id="metadata">metadata</p>
-
             <form method="POST" id='form'></form>
-
             <script>
                 var x ="";
                 for (let h=0; h<18; h++){
                     x = x + `<div><input type='text' id='key${h}' placeholder='N/A' >`;
-                    x = x + "<input type='text' id='value${h}' placeholder='N/A' > </div>";
+                    x = x + `<input type='text' id='value${h}' placeholder='N/A' > </div>`;
                 }
                 document.getElementById("form").innerHTML = x;
             </script>
-            <button id="submitButton">submit</button>
+            <button id="submitButton" type="button">submit</button>
         </div>
 
         <div id="rightBox">
-            <p id="start">Start</p>
-            <p id="restart">Restart</p>
-            <p id="stop">Stop</p>
+            <button id="start" type="button">Start</button>
+            <button id="restart" type="button">Restart</button>
+            <button id="stop" type="button">Stop</button>
         </div>
 
     </div>
@@ -188,16 +184,11 @@
         var socket = io();
         let screenOn = true;
 
-
-        /**
-         *
-        */
         socket.on('connect', function(){});
         socket.on('event', function(data){});
 
         socket.on('disconnect', function(){
         });
-
 
         socket.on('screen', function(onoff){
             if (onoff == 0){
@@ -231,7 +222,6 @@
                 document.getElementById('start').style.visibility = 'visible';
             });
 
-
             document.getElementById('submitButton').addEventListener('click', function () {
                 //metadata dictionary
                 var data = {};
@@ -244,9 +234,7 @@
                     }
                 }
                 socket.emit('metadata-submit', data);
-
             });
-
         })();
 
     </script>
