@@ -1,4 +1,4 @@
-import { Group, MathUtils, PlaneBufferGeometry, CylinderBufferGeometry, MeshBasicMaterial, Mesh, BackSide } from '/static/vendor/three.module.js';
+import { Group, MathUtils, CylinderGeometry, MeshBasicMaterial, Mesh, BackSide } from '/static/vendor/three.module.js';
 
 /**
  * Definition of the panels that form a cylindrical arena.
@@ -36,7 +36,7 @@ class Mask extends Group {
 
         this._log('panels-mask-color', maskColor);
         if (maskStart != maskEnd){
-            const maskGeometry = new CylinderBufferGeometry(
+            const maskGeometry = new CylinderGeometry(
                 this.maskRadius, this.maskRadius,
                 this.maskHeight,
                 cylinderHorizSegments, 1,

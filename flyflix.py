@@ -1,31 +1,30 @@
 #!/bin/env python
 
 import socket
-import math
 import time
 import logging
 import random
 import inspect
 import warnings
+import json
+from threading import Lock
 
-from datetime import datetime, timedelta
 from pathlib import Path
 from logging import FileHandler
 
-import eventlet
-
-import json
 import yaml
 
-from flask import Flask, render_template, request, abort, url_for
+import eventlet
+
+
+
+from flask import Flask, render_template, request, url_for
 from flask.logging import default_handler
 from flask_socketio import SocketIO
 
-from jinja2 import TemplateNotFound
-
 from engineio.payload import Payload
 
-from Experiment import SpatialTemporal, Duration, OpenLoopCondition, SweepCondition, ClosedLoopCondition, Trial, CsvFormatter
+from Experiment import Duration, Trial, CsvFormatter
 
 app = Flask(__name__)
 
@@ -39,19 +38,12 @@ Payload.max_decode_packets = 1500
 # metadata variable - DO NOT CHANGE
 # use control panel to update values or defaultsconfig.yaml to set defaults
 metadata = {}
-
-# read in defaults from defaultsconfig.yaml
-with open("defaultsconfig.yaml", "r") as stream:
-    try:
-        metadata = yaml.safe_load(stream)
-        print(metadata)
-    except yaml.YAMLError as exc:
-        print(exc)
+metadata_lock = Lock()
 
 
-# Using eventlet breaks UDP reading thread unless patched. 
+# Using eventlet breaks UDP reading thread unless patched.
 # See http://eventlet.net/doc/basic_usage.html?highlight=monkey_patch#patching-functions for more.
-# Alternatively disable eventlet and use development libraries via 
+# Alternatively disable eventlet and use development libraries via
 # `socketio = SocketIO(app, async_mode='threading')`
 
 eventlet.monkey_patch()
@@ -61,7 +53,21 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 
 # socketio = SocketIO(app, async_mode='threading')
 
-@app.before_first_request
+def read_metadata():
+    """
+    read metadata values from a config file
+    """
+    global metadata
+    # read in defaults from defaultsconfig.yaml
+    with open("defaultsconfig.yaml", "r") as stream:
+        try:
+            with metadata_lock:
+                metadata = yaml.safe_load(stream)
+            print(metadata)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+
 def before_first_request():
     """
     Server initiator: check for paths  and initialize logger.
@@ -78,6 +84,7 @@ def before_first_request():
             raise Exception("'data' exists as a file, but we need to create a directory with that name to log data")
     else:
         data_path.mkdir()
+    read_metadata()
     csv_handler = FileHandler("data/repeater_{}.csv".format(time.strftime("%Y%m%d_%H%M%S")))
     csv_handler.setFormatter(CsvFormatter())
     app.logger.removeHandler(default_handler)
@@ -89,7 +96,7 @@ def before_first_request():
 def savedata(sid, shared, key, value=0):
     """
     Store data on disk. It is intended to be key-value pairs, together with a shared knowledge
-    item. Data storage is done through the logging.FileHandler. 
+    item. Data storage is done through the logging.FileHandler.
 
     :param str shared: intended for shared knowledge between client and server
     :param str key: Key from the key-value pair
@@ -101,7 +108,7 @@ def savedata(sid, shared, key, value=0):
 def logdata(sid, client_timestamp, request_timestamp, key, value):
     """
     Store data on disk. In addition to a key-value pair, the interface allows to store a client
-    timestamp and an additional timestamp, for example from the initial server request. In 
+    timestamp and an additional timestamp, for example from the initial server request. In
     practice, all these values are just logged to disk and stored no matter what they are.
 
     :param str client_timestamp: timestamp received from the client
@@ -140,7 +147,7 @@ def finally_start(number):
     print("Started")
     global start
     start = True
-    socketio.emit('experiment-started');
+    socketio.emit('experiment-started')
 
 
 @socketio.on('slog')
@@ -156,13 +163,13 @@ def server_log(json):
 @socketio.on('csync')
 def server_client_sync(client_timestamp, request_timestamp, key):
     """
-    Save parameters to disk together with a current timestamp. This can be used for precisely 
+    Save parameters to disk together with a current timestamp. This can be used for precisely
     logging the round trip times.
 
     :param client_timestamp: timestamp from the client
-    :param request_timestamp: timestamp that the client initially received from the server and 
+    :param request_timestamp: timestamp that the client initially received from the server and
         which started the process
-    :param key: key that should be logged. 
+    :param key: key that should be logged.
     """
     logdata(request.sid, client_timestamp, request_timestamp, key, time.time_ns())
 
@@ -173,7 +180,7 @@ def data_logger(client_timestamp, request_timestamp, key, value):
     data logger routine for data sent from the client.
 
     :param client_timestamp: timestamp from the client
-    :param request_timestamp: timestamp that the client initially received from the server and 
+    :param request_timestamp: timestamp that the client initially received from the server and
         which started the process
     :param key: key from key-value pair
     :param value: value from key-value pair
@@ -182,9 +189,9 @@ def data_logger(client_timestamp, request_timestamp, key, value):
 
 
 @socketio.on('display')
-def display_event(json):
-    savedata(request.sid, json['cnt'], "display-offset", json['counter'])
-    
+def display_event(data):
+    savedata(request.sid, data['cnt'], "display-offset", data['counter'])
+
 
 @socketio.on('stop-pressed')
 def trigger_stop(empty):
@@ -210,8 +217,6 @@ def log_fictrac_timestamp():
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
         sock.settimeout(0.1)
         data = ""
-        prevts = 0
-        prevfrm = 0
         try:
             sock.bind(( '127.0.0.1', 1717))
             new_data = sock.recv(1)
@@ -242,11 +247,9 @@ def log_fictrac_timestamp():
 def cshlfly22():
     print(time.strftime("%H:%M:%S", time.localtime()))
     block = []
-    gains = [0.9, 1, 1.1]
     counter = 0
-    gaincount = 0
 
-    ## rotation 
+    ## rotation
     for alpha in [15]:
         for speed in [4, 8]:
             for direction in [-1, 1]:
@@ -256,17 +259,17 @@ def cshlfly22():
                     fg_color = clrs[1] << 8
                     bg_color = clrs[0] << 8
                     rotation_speed = alpha*2*speed*direction
-                    t = Trial(
-                        counter, 
-                        bar_deg=alpha, 
+                    trial = Trial(
+                        counter,
+                        bar_deg=alpha,
                         rotate_deg_hz=rotation_speed,
                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
                         fg_color=fg_color, bg_color=bg_color,
                         comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
-                    block.append(t)
+                    block.append(trial)
                     counter += 1
 
-                    
+
 
     # Oscillation
     for alpha in [15]:
@@ -277,18 +280,18 @@ def cshlfly22():
                     contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
                     fg_color = clrs[1] << 8
                     bg_color = clrs[0] << 8
-                    t = Trial(
-                        counter, 
+                    trial = Trial(
+                        counter,
                         bar_deg=alpha,
                         osc_freq=freq, osc_width=90*direction,
                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
                         fg_color=fg_color, bg_color=bg_color,
                         #bar_height=0.04,
                         comment=f"Oscillation with frequency {freq} direction {direction} brightness {bright} contrast {contrast}")
-                    block.append(t)
+                    block.append(trial)
                     counter += 1
 
-                    
+
 
     # Small object
     for alpha in [10]:
@@ -300,17 +303,16 @@ def cshlfly22():
                     fg_color = clrs[1] << 8
                     bg_color = clrs[0] << 8
                     rotation_speed = alpha*2*speed*direction
-                    t = Trial(
-                        counter, 
+                    trial = Trial(
+                        counter,
                         bar_deg=alpha, space_deg=180-alpha,
                         rotate_deg_hz=rotation_speed,
                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
                         fg_color=fg_color, bg_color=bg_color,
                         bar_height=0.03,
                         comment=f"Object alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
-                    block.append(t)
+                    block.append(trial)
                     counter += 1
-
 
     while not start:
         time.sleep(0.1)
@@ -364,15 +366,16 @@ def handle_data(data):
     metadata_string = json.dumps(data)
     print(metadata_string)
     global metadata
-    metadata.update(json.loads(metadata_string))
+    with metadata_lock:
+        metadata.update(json.loads(metadata_string))
     print(metadata)
 
 
 def log_metadata():
     """
     The content of the `metadata` dictionary gets logged.
-    
-    This is a rudimentary way to save information related to the experiment to a file. Edit the 
+
+    This is a rudimentary way to save information related to the experiment to a file. Edit the
     content of the dictionary for each experiment.
     """
     shared_key = time.time_ns()
@@ -395,4 +398,5 @@ def sitemap():
 
 
 if __name__ == '__main__':
+    before_first_request()
     socketio.run(app, host='0.0.0.0', port = 17000)

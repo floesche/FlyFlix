@@ -148,40 +148,31 @@
             <br>
             2. Enter any information that you want to store about the trial in the metadata as a key-value pair and click submit.
         </p>
-        <p id="defaults"> 
+        <p id="defaults">
             Trial defaults: {{metadata}}
         </p>
     </div>
 
     <div id="bottomBox">
-
-
         <div id="leftBox">
             <p id="metadata">metadata</p>
-
             <form method="POST" id='form'></form>
-            
             <script>
                 var x ="";
                 for (let h=0; h<18; h++){
-                    x = x + "<div> <input type='text' id='key" + h + "' placeholder='N/A' >";
-                    x = x + "<input type='text' id='value" + h + "' placeholder='N/A' > </div>";
+                    x = x + `<div><input type='text' id='key${h}' placeholder='N/A' >`;
+                    x = x + `<input type='text' id='value${h}' placeholder='N/A' > </div>`;
                 }
                 document.getElementById("form").innerHTML = x;
             </script>
-
-            <p id="submitButton">submit</p>
-
+            <button id="submitButton" type="button">submit</button>
         </div>
-
 
         <div id="rightBox">
-            <p id="start">Start</p>
-            <p id="restart">Restart</p>
-            <p id="stop">Stop</p>
+            <button id="start" type="button">Start</button>
+            <button id="restart" type="button">Restart</button>
+            <button id="stop" type="button">Stop</button>
         </div>
-
-
 
     </div>
 
@@ -189,20 +180,15 @@
         /**
          * status variables
         */
-        
+
         var socket = io();
         let screenOn = true;
 
-
-        /**
-         * 
-        */
         socket.on('connect', function(){});
         socket.on('event', function(data){});
 
         socket.on('disconnect', function(){
         });
-
 
         socket.on('screen', function(onoff){
             if (onoff == 0){
@@ -236,12 +222,9 @@
                 document.getElementById('start').style.visibility = 'visible';
             });
 
-
             document.getElementById('submitButton').addEventListener('click', function () {
-                
                 //metadata dictionary
                 var data = {};
-                
                 for (i = 0; i < 18; i++){
                     let keyStr = "key" + i;
                     let valStr = "value" + i;
@@ -250,11 +233,8 @@
                         data[key] = document.getElementById(valStr).value;
                     }
                 }
-
                 socket.emit('metadata-submit', data);
-
             });
-           
         })();
 
     </script>
