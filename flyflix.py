@@ -145,9 +145,14 @@ def data_as_string(dictionary):
     """
     reformats the data so that dates are saved as strings in ISO format
 
-    { delKey } - list of keys in metadata that need to be deleted
-    { f_pairs } - dictionary with reformatted keys that needs to replace old keys
+    Parameters:
+    -----------
+    dictionary: dict
+        The datetimes in this dictionary will be replaced with strings.
 
+    Returns:
+    --------
+        dictionary without datetime data types
     """
     del_key = []
     f_pairs = {}
