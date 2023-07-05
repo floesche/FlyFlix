@@ -63,13 +63,12 @@ def read_metadata():
     # read in defaults from defaultsconfig.yaml
     with open("defaultsconfig.yaml", "r") as stream:
         try:
-            with metadata_lock:
-                filedata = yaml.safe_load(stream)
-                metadata = data_as_string(filedata)
-            print(metadata)
+            filedata = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
             print(exc)
-
+    with metadata_lock:
+        metadata = data_as_string(filedata)
+    print(metadata)
 
 def data_as_string(dictionary):
     """
