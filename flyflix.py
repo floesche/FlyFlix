@@ -71,39 +71,39 @@ def read_metadata():
             print(exc)
 
 
-def data_as_string(dict):
+def data_as_string(dictionary):
     """
     reformats the data so that dates are saved as strings in ISO format
-    
+
     { delKey } - list of keys in metadata that need to be deleted
     { f_pairs } - dictionary with reformatted keys that needs to replace old keys
-    
+
     """
-    delKey = []
+    del_key = []
     f_pairs = {}
-    for key in dict:
-        val = dict[key]
+    for key in dictionary:
+        val = dictionary[key]
         key_type = type(key)
-        val_type = type(dict[key])
+        val_type = type(dictionary[key])
         if (val_type == datetime.date or val_type == datetime.datetime or val_type == datetime.time):
             val = val.isoformat()
-            dict[key] = val
+            dictionary[key] = val
         elif (val == None):
-            dict[key] = ""
+            dictionary[key] = ""
         if (key_type == datetime.date or key_type == datetime.datetime or key_type == datetime.time):
             key_f = key.isoformat()
             f_pairs[key_f] = val
-            delKey.append(key)
-    
+            del_key.append(key)
+
     #deletes all keys in datetime format
-    for key in delKey:
-        del dict[key]
-        
+    for key in del_key:
+        del dictionary[key]
+
     #adds keys that were reformatted to ISO
-    dict.update(f_pairs)
-    
-    return dict
-        
+    dictionary.update(f_pairs)
+
+    return dictionary
+
 
 def before_first_request():
     """
