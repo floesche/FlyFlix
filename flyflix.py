@@ -146,7 +146,7 @@ def metadata_as_string():
     reformats the metadata so that dates are saved as strings in ISO format
     
     { delKey } - list of keys in metadata that need to be deleted
-    { f_pairs } - dictionary with reformatted keys that needs added
+    { f_pairs } - dictionary with reformatted keys that needs to replace old keys
     
     """
     delKey = []
