@@ -64,16 +64,16 @@ def read_metadata():
     with open("defaultsconfig.yaml", "r") as stream:
         try:
             with metadata_lock:
-                metadata = yaml.safe_load(stream)
-                metadata_as_string()
+                filedata = yaml.safe_load(stream)
+                metadata = data_as_string(filedata)
             print(metadata)
         except yaml.YAMLError as exc:
             print(exc)
 
 
-def metadata_as_string():
+def data_as_string(dict):
     """
-    reformats the metadata so that dates are saved as strings in ISO format
+    reformats the data so that dates are saved as strings in ISO format
     
     { delKey } - list of keys in metadata that need to be deleted
     { f_pairs } - dictionary with reformatted keys that needs to replace old keys
@@ -81,12 +81,11 @@ def metadata_as_string():
     """
     delKey = []
     f_pairs = {}
-    global metadata
-    for key in metadata:
-        val = metadata[key]
-        if (type(metadata[key]) == datetime.date):
+    for key in dict:
+        val = dict[key]
+        if (type(dict[key]) == datetime.date or type(dict[key]) == datetime.datetime):
             val = val.isoformat()
-            metadata[key] = val
+            dict[key] = val
         if (type(key) == datetime.date):
             key_f = key.isoformat()
             f_pairs[key_f] = val
@@ -94,10 +93,12 @@ def metadata_as_string():
     
     #deletes all keys in datetime format
     for key in delKey:
-        del metadata[key]
+        del dict[key]
         
     #adds keys that were reformatted to ISO
-    metadata.update(f_pairs)
+    dict.update(f_pairs)
+    
+    return dict
         
 
 def before_first_request():
