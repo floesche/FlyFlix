@@ -192,10 +192,12 @@ def data_as_string(dict):
     f_pairs = {}
     for key in dict:
         val = dict[key]
-        if (type(dict[key]) == datetime.date or type(dict[key]) == datetime.datetime):
+        key_type = type(key)
+        val_type = type(dict[key])
+        if (val_type == datetime.date or val_type == datetime.datetime or val_type == datetime.time):
             val = val.isoformat()
             dict[key] = val
-        if (type(key) == datetime.date):
+        if (key_type == datetime.date or key_type == datetime.datetime or key_type == datetime.time):
             key_f = key.isoformat()
             f_pairs[key_f] = val
             delKey.append(key)
