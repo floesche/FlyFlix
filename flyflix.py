@@ -107,6 +107,35 @@ def data_as_string(dictionary):
     return dictionary
 
 
+def metadata_as_string():
+    """
+    reformats the metadata so that dates are saved as strings in ISO format
+    
+    { delKey } - list of keys in metadata that need to be deleted
+    { f_pairs } - dictionary with reformatted keys that needs added
+    
+    """
+    delKey = []
+    f_pairs = {}
+    global metadata
+    for key in metadata:
+        val = metadata[key]
+        if (type(metadata[key]) == datetime.date):
+            val = val.isoformat()
+            metadata[key] = val
+        if (type(key) == datetime.date):
+            key_f = key.isoformat()
+            f_pairs[key_f] = val
+            delKey.append(key)
+    
+    #deletes all keys in datetime format
+    for key in delKey:
+        del metadata[key]
+        
+    #adds keys that were reformatted to ISO
+    metadata.update(f_pairs)
+        
+
 def before_first_request():
     """
     Server initiator: check for paths  and initialize logger.
