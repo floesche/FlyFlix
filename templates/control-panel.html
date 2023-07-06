@@ -23,7 +23,7 @@
             text-align: center;
             font-size:20pt;
         }
-        #directions, #defaults, #status{
+        #directions, #status{
             text-align: center;
             width: 95%;
             margin-left: 2.5%;
@@ -117,9 +117,6 @@
                 <br>
                 2. Enter any information that you want to store about the trial in the metadata as a key-value pair and click submit.
             </p>
-            <p id="defaults">
-                Trial defaults: {{metadata}}
-            </p>
             <p id="status">
                 Once the experiment is started, status will be shown here.
             </p>
@@ -171,6 +168,7 @@
             }
         });
 
+
         /**
          * Add event listeners for clicking start buttons.
         */
@@ -210,10 +208,26 @@
             });
         })();
 
-        //reads in metadata and puts it in the inputs
+        //reads in metadata and prefills it in the metadata inputs
         var intakeData = {{ metadata|tojson }};
-        document.getElementById('defaults').innerText = intakeData;
-        //var configData = JSON.parse(intakeData);
+        var configData = JSON.parse(intakeData);
+        let count = 0;
+        for (let k in configData){
+            let strKey = "key" + count;
+            let strVal = "value" + count;
+            document.getElementById(strKey).value = k;
+            document.getElementById(strVal).value = configData[k];
+            if (configData[k] == ""){
+                document.getElementById(strKey).style.backgroundColor = "#ffd9d9";
+                document.getElementById(strVal).style.backgroundColor = "#ffd9d9";
+            }
+            count++;
+
+            //prevents the loop from continuing past 18 (the amount of input boxes)
+            if (count >= 18){
+                break;
+            }
+        }
     
 
 
