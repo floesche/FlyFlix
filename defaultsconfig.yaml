@@ -14,7 +14,7 @@ starvation-start: 2022-07-10 21:00:00
 
 tether-start: 2022-07-11 10:00:00
 tether-end: 2022-07-11 10:05:00
-fly: 1
+fly:
 sex: f
 
 day-start: 07:00:00
@@ -29,4 +29,4 @@ distance: 35
 protocol: 1
 screen-brightness: 67
 display: fire8
-color: #00FF00
+color: "#00FF00"
