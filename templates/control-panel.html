@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {# control-panel.html #}
+    <meta charset="UTF-8">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="/static/vendor/socket.io.min.js"></script>
+    <link href="/static/style/controlpanel.css" rel="stylesheet" type="text/css">
+    <style>
+        html,
+        body {
+            padding: 0 !important;
+            margin: 0 !important;
+            background-color:#FFFFFF;
+        }
+        #wrapper{
+            margin-left:auto;
+            margin-right:auto;
+            overflow:auto;
+        }
+        #topBox{
+            width: 100%;
+        }
+        #title{
+            text-align: center;
+            font-family:Arial;
+            font-size:20pt;
+            margin-top: 2%;
+            margin-left: 50%;
+            margin-right: -50%;
+            transform: translate(-50%, -50%);
+        }
+        #directions, #defaults{
+            text-align: center;
+            font-family:Arial;
+            margin-top: 1%;
+            width: 95%;
+            margin-left: 2.5%;
+            padding: 2px;
+            background-color:#aae0b9;
+            border: 2px solid #14854f;
+        }
+        #bottomBox{
+            margin-top:0%;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+        }
+        #leftBox{
+            margin-top: 0%;
+            margin-left:0%;
+            height:100%;
+            width: 50%;
+        }
+        #metadata, #submitButton{
+            text-align: center;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background-color:#eeeeee;
+            border: 2px solid #1c4587;
+            color:#1c4587;
+            font-size:12pt;
+            padding:3px;
+            width:95%;
+            margin-top: 1%;
+            margin-left: 2.5%;
+        }
+        #form{
+            display: flex;
+            flex-direction: column;
+            font-size:10pt;
+            color:#595959;
+            margin-left: 4%;
+            margin-top: 0%;
+            width: 92%;
+            height: 50%;
+            overflow:auto;
+        }
+        #row{
+            margin-top: 0%;
+            display: flex;
+            flex-direction: row;
+        }
+        input[type=text] {
+            width: 47%;
+            padding: 3px 10px;
+            margin: 1px 0;
+            box-sizing: border-box;
+        }
+        #rightBox{
+            top: 0%;
+            margin-left:0%;
+            height:100%;
+            width: 50%;
+        }
+        #start, #restart, #stop{
+            text-align: center;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            font-size:20pt;
+            background-color:#eeeeee;
+            width: 93%;
+            height: 99%;
+            margin-left: 3%;
+            margin-top: 0%;
+        }
+        #start, #restart{
+            border: 2px solid #14854f;
+            color:#14854f;
+        }
+        #restart{
+            visibility:hidden;
+        }
+        #stop{
+            visibility:hidden;
+            border: 2px solid #d43839;
+            color:#d43839;
+        }
+        #container{
+            color: #FFFFFF;
+            visibility:hidden;
+            position:absolute;
+            left:0;
+            top:0;
+            width:100%;
+            height:100%;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="container"></canvas>
+    <div id='wrapper'>
+        <div id="topBox">
+            <!--<p id="title">Control Panel</p>-->
+            <p id="directions">
+                Welcome to the FlyFlix Control Panel!
+                <br>
+                Before you start your experiment:
+                <br>
+                1. Ensure that your experiment is completely set up (including navigating to the experiment page and selecting fullscreen)
+                <br>
+                2. Enter any information that you want to store about the trial in the metadata as a key-value pair and click submit.
+            </p>
+            <p id="defaults">
+                Trial defaults: {{metadata}}
+            </p>
+        </div>
+        
+        <div id="bottomBox">
+            <div id="leftBox">
+                <p id="metadata">metadata</p>
+                <form method="POST" id='form'></form>
+                <script>
+                    var x ="";
+                    for (let h=0; h<18; h++){
+                        x = x + `<div id="row"><input type='text' id='key${h}' placeholder='N/A' >`;
+                        x = x + `<input type='text' id='value${h}' placeholder='N/A' > </div>`;
+                    }
+                    document.getElementById("form").innerHTML = x;
+                </script>
+                <button id="submitButton" type="button">submit</button>
+            </div>
+
+            <div id="rightBox">
+                <button id="start" type="button">Start</button>
+                <button id="restart" type="button">Restart</button>
+                <button id="stop" type="button">Stop</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        /**
+         * status variables
+        */
+
+        var socket = io();
+        let screenOn = true;
+
+        socket.on('connect', function(){});
+        socket.on('event', function(data){});
+
+        socket.on('disconnect', function(){
+        });
+
+        socket.on('screen', function(onoff){
+            if (onoff == 0){
+                screenOn = false;
+            } else {
+                screenOn = true;
+            }
+        });
+
+        /**
+         * Add event listeners for clicking fullscreen and restart buttons.
+        */
+        (function () {
+
+            document.getElementById('start').addEventListener('click', function () {
+                 //document.body.requestFullscreen();;
+                 socket.emit('start-pressed', {});
+                 document.getElementById('start').style.visibility = 'hidden';
+                 document.getElementById('stop').style.visibility = 'visible';
+            });
+
+            document.getElementById('stop').addEventListener('click', function () {
+                socket.emit('stop-pressed', {});
+                document.getElementById('stop').style.visibility = 'hidden';
+                document.getElementById('restart').style.visibility = 'visible';
+            });
+
+            document.getElementById('restart').addEventListener('click', function () {
+                socket.emit('restart-pressed', {});
+                document.getElementById('restart').style.visibility = 'hidden';
+                document.getElementById('start').style.visibility = 'visible';
+            });
+
+            document.getElementById('submitButton').addEventListener('click', function () {
+                //metadata dictionary
+                var data = {};
+                for (i = 0; i < 18; i++){
+                    let keyStr = "key" + i;
+                    let valStr = "value" + i;
+                    let key = document.getElementById(keyStr).value;
+                    if ( key != ""){
+                        data[key] = document.getElementById(valStr).value;
+                    }
+                }
+                socket.emit('metadata-submit', data);
+            });
+        })();
+
+    </script>
+</body>
+</html>
