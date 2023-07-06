@@ -158,6 +158,8 @@ def data_as_string(dict):
         if (val_type == datetime.date or val_type == datetime.datetime or val_type == datetime.time):
             val = val.isoformat()
             dict[key] = val
+        elif (val == None):
+            dict[key] = ""
         if (key_type == datetime.date or key_type == datetime.datetime or key_type == datetime.time):
             key_f = key.isoformat()
             f_pairs[key_f] = val
