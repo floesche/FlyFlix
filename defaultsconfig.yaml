@@ -3,9 +3,30 @@
 # ex. 
 # strain: Dl
 # sex: female
-strain: DL
-sex: female
-experimenter:
-date: 2023-07-05
-starvation-start: 2023-07-05 11:00:00
-time: '11:11:11'
+fly-strain: DL
+fly-batch: 2022-07-06
+day-night-since: 2022-07-06
+
+birth-start: 2022-07-06 00:00:00
+birth-end: 2022-07-08 00:00:00
+
+starvation-start: 2022-07-10 21:00:00
+
+tether-start: 2022-07-11 10:00:00
+tether-end: 2022-07-11 10:05:00
+fly: 1
+sex: f
+
+day-start: 07:00:00
+day-end: 19:00:00
+
+ball: 1
+air: wall
+glue: KOA
+
+temperature: 32
+distance: 35
+protocol: 1
+screen-brightness: 67
+display: fire8
+color: #00FF00
