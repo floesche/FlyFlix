@@ -4,121 +4,90 @@
     {# control-panel.html #}
     <meta charset="UTF-8">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="/static/vendor/socket.io.min.js"></script>
+    <link href="/static/style/controlpanel.css" rel="stylesheet" type="text/css">
     <style>
         html,
         body {
             padding: 0 !important;
             margin: 0 !important;
-            overflow: hidden;
             background-color:#FFFFFF;
         }
-        #topBox{
-            position:absolute;
-            height:20%;
-            width: 100%;
+        #wrapper{
+            margin-left:auto;
+            margin-right:auto;
+            overflow:auto;
         }
         #title{
             text-align: center;
-            font-family:Arial;
             font-size:20pt;
-            position:absolute;
-            left: 50%;
-            margin-right: -50%;
-            transform: translate(-50%, -50%);
         }
-        #directions, #defaults{
+        #directions, #status{
             text-align: center;
-            font-family:Arial;
-            position:absolute;
-            top: 15%;
             width: 95%;
-            left: 2.5%;
-            padding: 7px;
+            margin-left: 2.5%;
+            padding: 2px;
             background-color:#aae0b9;
             border: 2px solid #14854f;
         }
-        #defaults{
-            top: 80%;
-        }
         #bottomBox{
-            position:absolute;
-            height:80%;
-            top:20%;
-            width: 100%;
+            display: flex;
+            flex-direction: row;
         }
         #leftBox{
-            position:absolute;
-            top: 0%;
-            left:0%;
-            height:100%;
             width: 50%;
         }
-        #metadata, #submitButton{
+
+        #start, #restart, #stop, #metadata, #submitButton{
             text-align: center;
             display:flex;
             justify-content:center;
             align-items:center;
-            font-family:Arial;
             background-color:#eeeeee;
+            width: 93%;
+            margin-left: 3%;
+            margin-top: 0%;
+        }
+        #metadata, #submitButton{
             border: 2px solid #1c4587;
             color:#1c4587;
-            font-size:15pt;
-            padding:5px;
-            width:90%;
-            top: 1%;
-            left: 2.5%;
-            position:absolute;
-        }
-        #submitButton{
-            top:90%;
+            font-size:12pt;
+            padding:3px;
         }
         #form{
-            font-family:Arial;
+            display: flex;
+            flex-direction: column;
+            font-size:10pt;
             color:#595959;
-            position: absolute;
-            top: 10%;
-            left: 2.5%;
-            width: 97%;
+            margin-left: 4%;
+            margin-top: 0%;
+            width: 92%;
+            height: 50%;
+            overflow:auto;
+        }
+        #row{
+            margin-top: 0%;
+            display: flex;
+            flex-direction: row;
         }
         input[type=text] {
             width: 47%;
-            padding: 5px 10px;
-            margin: 2px 0;
+            padding: 3px 10px;
+            margin: 1px 0;
             box-sizing: border-box;
-            font-family:Arial;
         }
         #rightBox{
-            position:absolute;
-            top: 0%;
-            left:50%;
-            height:100%;
             width: 50%;
-        }
-        #start, #restart, #stop{
-            text-align: center;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            font-family:Arial;
-            font-size:20pt;
-            background-color:#eeeeee;
-            position:absolute;
-            width: 93%;
-            height: 93%;
-            left: 3%;
-            top: 0%;
         }
         #start, #restart{
             border: 2px solid #14854f;
             color:#14854f;
         }
-        #restart{
+        #restart, #stop{
             visibility:hidden;
         }
         #stop{
-            visibility:hidden;
             border: 2px solid #d43839;
             color:#d43839;
         }
@@ -136,73 +105,60 @@
 
 <body>
     <canvas id="container"></canvas>
+    <div id='wrapper'>
+        <div>
+            <p id="title">Control Panel</p>
+            <p id="directions">
+                Welcome to the FlyFlix Control Panel!
+                <br>
+                Before you start your experiment:
+                <br>
+                1. Ensure that your experiment is completely set up (including navigating to the experiment page and selecting fullscreen)
+                <br>
+                2. Enter any information that you want to store about the trial in the metadata as a key-value pair and click submit.
+            </p>
+            <p id="status">
+                Once the experiment is started, status will be shown here.
+            </p>
+        </div>
+        
+        <div id="bottomBox">
+            <div id="leftBox">
+                <p id="metadata">metadata</p>
+                <form method="POST" id='form'></form>
+                <script>
+                    var x ="";
+                    for (let h=0; h<18; h++){
+                        x = x + `<div id="row"><input type='text' id='key${h}' placeholder='N/A' >`;
+                        x = x + `<input type='text' id='value${h}' placeholder='N/A' > </div>`;
+                    }
+                    document.getElementById("form").innerHTML = x;
+                </script>
+                <button id="submitButton" type="button">submit</button>
+            </div>
 
-    <div id="topBox">
-        <p id="title">Control Panel</p>
-        <p id="directions">
-            Welcome to the FlyFlix Control Panel!
-            <br>
-            Before you start your experiment:
-            <br>
-            1. Ensure that your experiment is completely set up (including navigating to the experiment page and selecting fullscreen)
-            <br>
-            2. Enter any information that you want to store about the trial in the metadata as a key-value pair and click submit.
-        </p>
-        <p id="defaults"> 
-            Trial defaults: {{metadata}}
-        </p>
-    </div>
-
-    <div id="bottomBox">
-
-
-        <div id="leftBox">
-            <p id="metadata">metadata</p>
-
-            <form method="POST" id='form'></form>
-            
-            <script>
-                var x ="";
-                for (let h=0; h<18; h++){
-                    x = x + "<div> <input type='text' id='key" + h + "' placeholder='N/A' >";
-                    x = x + "<input type='text' id='value" + h + "' placeholder='N/A' > </div>";
-                }
-                document.getElementById("form").innerHTML = x;
-            </script>
-
-            <p id="submitButton">submit</p>
+            <div id="rightBox">
+                <button id="start" type="button">Start</button>
+                <button id="restart" type="button">Restart</button>
+                <button id="stop" type="button">Stop</button>
+            </div>
 
         </div>
-
-
-        <div id="rightBox">
-            <p id="start">Start</p>
-            <p id="restart">Restart</p>
-            <p id="stop">Stop</p>
-        </div>
-
-
-
     </div>
 
     <script>
         /**
          * status variables
         */
-        
+
         var socket = io();
         let screenOn = true;
 
-
-        /**
-         * 
-        */
         socket.on('connect', function(){});
         socket.on('event', function(data){});
 
         socket.on('disconnect', function(){
         });
-
 
         socket.on('screen', function(onoff){
             if (onoff == 0){
@@ -212,8 +168,9 @@
             }
         });
 
+
         /**
-         * Add event listeners for clicking fullscreen and restart buttons.
+         * Add event listeners for clicking start buttons.
         */
         (function () {
 
@@ -236,12 +193,9 @@
                 document.getElementById('start').style.visibility = 'visible';
             });
 
-
             document.getElementById('submitButton').addEventListener('click', function () {
-                
                 //metadata dictionary
                 var data = {};
-                
                 for (i = 0; i < 18; i++){
                     let keyStr = "key" + i;
                     let valStr = "value" + i;
@@ -250,12 +204,35 @@
                         data[key] = document.getElementById(valStr).value;
                     }
                 }
-
                 socket.emit('metadata-submit', data);
-
             });
-           
         })();
+
+        //reads in metadata and prefills it in the metadata inputs
+        var intakeData = {{ metadata|tojson }};
+        var configData = JSON.parse(intakeData);
+        let count = 0;
+        for (let k in configData){
+            let strKey = "key" + count;
+            let strVal = "value" + count;
+            document.getElementById(strKey).value = k;
+            document.getElementById(strVal).value = configData[k];
+            if (configData[k] == ""){
+                document.getElementById(strKey).style.backgroundColor = "#ffd9d9";
+                document.getElementById(strVal).style.backgroundColor = "#ffd9d9";
+            }
+            count++;
+
+            //prevents the loop from continuing past 18 (the amount of input boxes)
+            if (count >= 18){
+                break;
+            }
+        }
+    
+        //updates the progress as the experiment is completed
+        socket.on('condition-update', function(progress){
+            document.getElementById('status').innerText = progress;
+        })
 
     </script>
 </body>
