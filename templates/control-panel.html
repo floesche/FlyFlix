@@ -210,6 +210,12 @@
             });
         })();
 
+        //reads in metadata and puts it in the inputs
+        var intakeData = {{ metadata|tojson }};
+        document.getElementById('defaults').innerText = intakeData;
+        //var configData = JSON.parse(intakeData);
+    
+
 
         //updates the progress as the experiment is completed
         socket.on('condition-update', function(progress){
