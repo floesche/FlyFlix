@@ -20,8 +20,8 @@ import { Group,
 let scene;
 let camera;
 let renderer;
-const sphereCount = 5;
-let spheres = [];
+const sphereCount = 500;
+
 
 function main(){
 
@@ -36,25 +36,27 @@ function main(){
     container.append( renderer.domElement );
 
     // create a sphere
-    const geometry = new SphereGeometry( 1, 32, 16 );
+    const geometry = new SphereGeometry( .1, 32, 16 );
     const material = new MeshBasicMaterial( { color: 0x00ff00 } );
+
+    const sphereGroup = new Group();
 
     for ( let i=0; i<sphereCount; i++){
         let sphereMesh = new Mesh( geometry, material );
-        sphereMesh.position.x = -6 + 3*i;
-        spheres.push(sphereMesh);
-        scene.add(sphereMesh);
+        let positions = randomSpherePoint(0,0,0, 10);
+        sphereMesh.position.x = positions[0];
+        sphereMesh.position.y = positions[1];
+        sphereMesh.position.z = positions[2];
+        sphereGroup.add(sphereMesh);
     }
 
-    camera.position.z = 10;
+    scene.add(sphereGroup);
+
+    camera.position.z = 20;
 
     function animate() {
 	    requestAnimationFrame( animate );
-        for (let k=0; k<spheres.length; k++){
-            spheres[k].position.x += 0.01;
-        }
-        //sphere.rotation.x += 0.01;
-        //sphere.rotation.y += 0.01;
+        sphereGroup.rotateX(.01);
 	    renderer.render( scene, camera );
     }
 
@@ -64,6 +66,24 @@ function main(){
     const resizer = new Resizer(container, camera, renderer);
 
     animate();
+}
+
+/**
+ * Function that takes in a center point and a radius 
+ * and returns a random point on the sphere surrounding the point
+ * taken from https://stackoverflow.com/questions/5531827/random-point-on-a-given-sphere answer from user Neil Lamoureux
+ * 
+*/
+
+function randomSpherePoint(x0,y0,z0,radius){
+    var u = Math.random();
+    var v = Math.random();
+    var theta = 2 * Math.PI * u;
+    var phi = Math.acos(2 * v - 1);
+    var x = x0 + (radius * Math.sin(phi) * Math.cos(theta));
+    var y = y0 + (radius * Math.sin(phi) * Math.sin(theta));
+    var z = z0 + (radius * Math.cos(phi));
+    return [x,y,z];
 }
 
 main();
