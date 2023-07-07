@@ -16,6 +16,7 @@ import { Group,
     WebGLRenderer,
     BoxGeometry,
 } from '/static/vendor/three.module.js';
+import { createSpheres } from './components/spheres.js';
 
 
 let scene;
@@ -25,6 +26,7 @@ let io;
 const sphereCount = 500;
 const sphereRadius = 0.1;
 const sphereGroup = new Group();
+let spheres;
 
 class StarfieldArena {
 
@@ -37,23 +39,9 @@ class StarfieldArena {
         // add the renderer
         container.append( renderer.domElement );
 
-        // create a group spheres
-        const geometry = new SphereGeometry( sphereRadius, 32, 16 );
-        const material = new MeshBasicMaterial( { color: 0x00ff00 } );
-        
-        //const sphereGroup = new Group();
-    
-        for ( let i=0; i<sphereCount; i++){
-            let sphereMesh = new Mesh( geometry, material );
-            let positions = this._randomSpherePoint(0,0,0, 10);
-            sphereMesh.position.x = positions[0];
-            sphereMesh.position.y = positions[1];
-            sphereMesh.position.z = positions[2];
-            sphereGroup.add(sphereMesh);
-        }
-
-        scene.add(sphereGroup);
-        //loop.updateables.push(sphereGroup);
+        // create a group of spheres
+        spheres = createSpheres(sphereCount, sphereRadius);
+        scene.add(spheres);
 
         //camera.position.z = 20;
         
@@ -69,7 +57,7 @@ class StarfieldArena {
     }
 
     tick(){
-        sphereGroup.rotateX(-0.01);
+        spheres.rotateX(-0.01);
     }
 
 
