@@ -388,6 +388,62 @@ def log_fictrac_timestamp():
             #    prevfrm = cnt
 
 
+def optomotor_4dir():
+    print(time.strftime("%H:%M:%S", time.localtime()))
+    block = []
+    counter = 0
+
+    #TODO rotate up down
+    ## rotation
+    for alpha in [40]:
+        for speed in [4]:
+            for direction in [-1, 1]:
+                for clrs in [(0, 255)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = clrs[1] << 8
+                    bg_color = clrs[0] << 8
+                    rotation_speed = alpha*2*speed*direction
+                    trial = Trial(
+                        counter,
+                        bar_deg=alpha,
+                        rotate_deg_hz=rotation_speed,
+                        pretrial_duration=Duration(0), posttrial_duration=Duration(0),
+                        fg_color=fg_color, bg_color=bg_color,
+                        comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
+                    block.append(trial)
+                    counter += 1
+
+    while not start:
+        time.sleep(0.1)
+    global RUN_FICTRAC
+    RUN_FICTRAC = True
+    log_metadata()
+    _ = socketio.start_background_task(target = log_fictrac_timestamp)
+
+    repetitions = 4
+    counter = 0
+    opening_black_screen = Duration(100)
+    opening_black_screen.trigger_delay(socketio)
+    for i in range(repetitions):
+        socketio.emit("meta", (time.time_ns(), "block-repetition", i))
+        #block = random.sample(block, k=len(block))
+        for current_trial in block:
+            counter = counter + 1
+            progress = f"Condition {counter} of {len(block*repetitions)}"
+            print(progress)
+            socketio.emit("condition-update", progress)
+            current_trial.set_id(counter)
+            current_trial.trigger(socketio)
+            if not start:
+                return
+
+    RUN_FICTRAC = False
+    socketio.emit("condition-update", "Completed")
+    print(time.strftime("%H:%M:%S", time.localtime()))
+
+
+
 def cshlfly22():
     print(time.strftime("%H:%M:%S", time.localtime()))
     block = []
@@ -489,14 +545,25 @@ def cshlfly22():
 
 @app.route('/cshlfly22/')
 def local_cshfly22():
+    """
+    An example protocol from CSHL 2022
+    """
     _ = socketio.start_background_task(target=cshlfly22)
+    return render_template('cshlfly22.html')
+
+@app.route('/optomotor_4-directions/')
+def local_optomotor_4dir():
+    """
+    Short protocol with optomotor responses moving into four different directions.
+    """
+    _ = socketio.start_background_task(target=optomotor_4dir)
     return render_template('cshlfly22.html')
 
 
 @app.route('/control-panel/')
 def control_panel():
     """
-    Control panel for experiments. Only use if you have multiple devices connected to the server.
+    Control panel for experiments.
     """
     #_ = socketio.start_background_task(target = localmove)
     return render_template('control-panel.html', metadata=json.dumps(metadata))
