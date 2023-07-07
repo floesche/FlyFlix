@@ -23,6 +23,8 @@ let camera;
 let renderer;
 let io;
 const sphereCount = 500;
+const sphereRadius = 0.1;
+const sphereGroup = new Group();
 
 class StarfieldArena {
 
@@ -35,15 +37,15 @@ class StarfieldArena {
         // add the renderer
         container.append( renderer.domElement );
 
-        // create spheres
-        const geometry = new SphereGeometry( .1, 32, 16 );
+        // create a group spheres
+        const geometry = new SphereGeometry( sphereRadius, 32, 16 );
         const material = new MeshBasicMaterial( { color: 0x00ff00 } );
         
-        const sphereGroup = new Group();
+        //const sphereGroup = new Group();
     
         for ( let i=0; i<sphereCount; i++){
             let sphereMesh = new Mesh( geometry, material );
-            let positions = this.randomSpherePoint(0,0,0, 10);
+            let positions = this._randomSpherePoint(0,0,0, 10);
             sphereMesh.position.x = positions[0];
             sphereMesh.position.y = positions[1];
             sphereMesh.position.z = positions[2];
@@ -53,7 +55,7 @@ class StarfieldArena {
         scene.add(sphereGroup);
         //loop.updateables.push(sphereGroup);
 
-        camera.position.z = 20;
+        //camera.position.z = 20;
         
         const resizer = new Resizer(container, camera, renderer);
     }
@@ -61,18 +63,24 @@ class StarfieldArena {
     
     start() {
         renderer.setAnimationLoop(() => {
+            this.tick()
             renderer.render( scene, camera );
         });
     }
 
+    tick(){
+        sphereGroup.rotateX(-0.01);
+    }
+
 
     /**
-     * Function that takes in a center point and a radius 
-     * and returns a random point on the sphere surrounding the point
+     * (private)
+     * Function that takes in a center point (x0, y0, z0) and a radius 
+     * and returns a random point on the sphere surrounding the point with that radius
      * taken from https://stackoverflow.com/questions/5531827/random-point-on-a-given-sphere answer from user Neil Lamoureux
      * 
     */
-    randomSpherePoint(x0,y0,z0,radius){
+    _randomSpherePoint(x0,y0,z0,radius){
         var u = Math.random();
         var v = Math.random();
         var theta = 2 * Math.PI * u;
