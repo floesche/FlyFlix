@@ -177,14 +177,14 @@ class SpatialTemporal():
         start_angle = 0
         if self.is_bar_sweep():
             if self.rotate_deg_hz > 0:
-                start_angle = 90
+                start_angle = 360 - self.bar_deg
             else:
-                start_angle = 270+self.bar_deg
+                start_angle = 180+self.bar_deg
         elif self.is_space_sweep():
             if self.rotate_deg_hz > 0:
-                start_angle = 90 - self.space_deg
+                start_angle = 360 - self.space_deg
             else:
-                start_angle = 270
+                start_angle = 180
         else:
             warnings.warn("not 2 item pattern. Rotate to 0")
         socket_io.emit('rotate-to', (shared_key, math.radians(start_angle)))
