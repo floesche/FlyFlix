@@ -68,7 +68,6 @@ def read_metadata():
             print(exc)
     with metadata_lock:
         metadata = data_as_string(filedata)
-    print(metadata)
 
 def data_as_string(dictionary):
     """
@@ -284,14 +283,14 @@ def log_fictrac_timestamp():
             #    prevfrm = cnt
 
 
-def optomotor_4dir():
+def proto_optomotor_4dir():
     print(time.strftime("%H:%M:%S", time.localtime()))
     block = []
     counter = 0
 
     #TODO rotate up down
     ## rotation
-    for alpha in [40]:
+    for alpha in [20]:
         for speed in [4]:
             for direction in [-1, 1]:
                 for clrs in [(0, 255)]:
@@ -338,9 +337,85 @@ def optomotor_4dir():
     socketio.emit("condition-update", "Completed")
     print(time.strftime("%H:%M:%S", time.localtime()))
 
+def proto_smallfield():
+    print(time.strftime("%H:%M:%S", time.localtime()))
+    block = []
+    counter = 0
+
+    # TODO make it sweep
+    ## rotation
+    for alpha in [15]:
+        for speed in [2, 3, 6, 12]:
+            for direction in [-1, 1]:
+                for clrs in [(255, 0)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = clrs[1] << 8
+                    bg_color = clrs[0] << 8
+                    rotation_speed = alpha*2*speed*direction
+                    trial = Trial(
+                        counter,
+                        bar_deg=alpha,
+                        space_deg=180-alpha,
+                        rotate_deg_hz=rotation_speed,
+                        #pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        fg_color=fg_color, bg_color=bg_color,
+                        comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
+                    block.append(trial)
+                    counter += 1
 
 
-def cshlfly22():
+    # Small object
+    for alpha in [15]:
+        for speed in [2,3, 6, 12]:
+            for direction in [-1, 1]:
+                for clrs in [(255, 0)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = clrs[1] << 8
+                    bg_color = clrs[0] << 8
+                    rotation_speed = alpha*2*speed*direction
+                    trial = Trial(
+                        counter,
+                        bar_deg=alpha, space_deg=180-alpha,
+                        rotate_deg_hz=rotation_speed,
+                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        fg_color=fg_color, bg_color=bg_color,
+                        bar_height=0.03,
+                        comment=f"Object alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
+                    block.append(trial)
+                    counter += 1
+
+    while not start:
+        time.sleep(0.1)
+    global RUN_FICTRAC
+    RUN_FICTRAC = True
+    log_metadata()
+    _ = socketio.start_background_task(target = log_fictrac_timestamp)
+
+    repetitions = 4
+    counter = 0
+    opening_black_screen = Duration(100)
+    opening_black_screen.trigger_delay(socketio)
+    for i in range(repetitions):
+        socketio.emit("meta", (time.time_ns(), "block-repetition", i))
+        #block = random.sample(block, k=len(block))
+        for current_trial in block:
+            counter = counter + 1
+            progress = f"Condition {counter} of {len(block*repetitions)}"
+            print(progress)
+            socketio.emit("condition-update", progress)
+            current_trial.set_id(counter)
+            current_trial.trigger(socketio)
+            if not start:
+                return
+
+    RUN_FICTRAC = False
+    socketio.emit("condition-update", "Completed")
+    print(time.strftime("%H:%M:%S", time.localtime()))
+
+
+def proto_cshlfly22():
     print(time.strftime("%H:%M:%S", time.localtime()))
     block = []
     counter = 0
@@ -364,8 +439,6 @@ def cshlfly22():
                         comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
                     block.append(trial)
                     counter += 1
-
-
 
     # Oscillation
     for alpha in [15]:
@@ -439,31 +512,39 @@ def cshlfly22():
     print(time.strftime("%H:%M:%S", time.localtime()))
 
 
-@app.route('/cshlfly22/')
-def local_cshfly22():
-    """
-    An example protocol from CSHL 2022
-    """
-    _ = socketio.start_background_task(target=cshlfly22)
-    return render_template('cshlfly22.html')
-
-@app.route('/optomotor_4-directions/')
-def local_optomotor_4dir():
-    """
-    Short protocol with optomotor responses moving into four different directions.
-    """
-    _ = socketio.start_background_task(target=optomotor_4dir)
-    return render_template('cshlfly22.html')
-
-
 @app.route('/control-panel/')
 def control_panel():
     """
     Control panel for experiments.
     """
-    #_ = socketio.start_background_task(target = localmove)
     return render_template('control-panel.html', metadata=json.dumps(metadata))
 
+
+@app.route('/optomotor_4-directions/')
+def optomotor_4dir():
+    """
+    Short protocol with optomotor responses moving into four different directions.
+    """
+    _ = socketio.start_background_task(target=proto_optomotor_4dir)
+    return render_template('cshlfly22.html')
+
+
+@app.route('/smallfield/')
+def smallfield():
+    """
+    Small field stimuli
+    """
+    _ = socketio.start_background_task(target=proto_smallfield)
+    return render_template('cshlfly22.html')
+
+
+@app.route('/cshlfly22/')
+def cshfly22():
+    """
+    An example protocol from CSHL 2022
+    """
+    _ = socketio.start_background_task(target=proto_cshlfly22)
+    return render_template('cshlfly22.html')
 
 
 @socketio.on('metadata-submit')
@@ -474,11 +555,9 @@ def handle_data(data):
     stores the dictionary in the metadata variable that is used in log_metadata()
     """
     metadata_string = json.dumps(data)
-    print(metadata_string)
     global metadata
     with metadata_lock:
         metadata.update(json.loads(metadata_string))
-    print(metadata)
 
 
 def log_metadata():
@@ -491,7 +570,6 @@ def log_metadata():
     shared_key = time.time_ns()
     for key, value in metadata.items():
         logdata(1, 0, shared_key, key, value)
-        print(key, ": ", value)
 
 
 @app.route("/")
