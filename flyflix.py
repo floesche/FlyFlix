@@ -632,7 +632,7 @@ def optomotor_4dir():
     Short protocol with optomotor responses moving into four different directions.
     """
     _ = socketio.start_background_task(target=proto_optomotor_4dir)
-    return render_template('cshlfly22.html')
+    return render_template('cshlfly.html')
 
 
 @app.route('/smallfield/')
@@ -641,7 +641,7 @@ def smallfield():
     Small field stimuli
     """
     _ = socketio.start_background_task(target=proto_smallfield)
-    return render_template('cshlfly22.html')
+    return render_template('cshlfly.html')
 
 
 @app.route('/cshlfly22/')
@@ -650,7 +650,7 @@ def cshfly22():
     An example protocol from CSHL 2022
     """
     _ = socketio.start_background_task(target=proto_cshlfly22)
-    return render_template('cshlfly22.html')
+    return render_template('cshlfly.html')
 
 
 @socketio.on('metadata-submit')
