@@ -446,8 +446,7 @@ def proto_smallfield():
     block = []
     counter = 0
 
-    # TODO make it sweep
-    ## rotation
+    # ## rotation
     for alpha in [15]:
         for speed in [2, 3, 6, 12]:
             for direction in [-1, 1]:
@@ -460,35 +459,38 @@ def proto_smallfield():
                     trial = Trial(
                         counter,
                         bar_deg=alpha,
-                        space_deg=180-alpha,
+                        space_deg=360-alpha,
+                        sweep=1, openloop_duration=None,
                         rotate_deg_hz=rotation_speed,
                         #pretrial_duration=Duration(250), posttrial_duration=Duration(250),
                         fg_color=fg_color, bg_color=bg_color,
-                        comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
+                        comment=f"Sweep alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
                     block.append(trial)
                     counter += 1
 
 
     # Small object
     for alpha in [15]:
-        for speed in [2,3, 6, 12]:
-            for direction in [-1, 1]:
-                for clrs in [(255, 0)]:
-                    bright = clrs[1]
-                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                    fg_color = clrs[1] << 8
-                    bg_color = clrs[0] << 8
-                    rotation_speed = alpha*2*speed*direction
-                    trial = Trial(
-                        counter,
-                        bar_deg=alpha, space_deg=180-alpha,
-                        rotate_deg_hz=rotation_speed,
-                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
-                        fg_color=fg_color, bg_color=bg_color,
-                        bar_height=0.03,
-                        comment=f"Object alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
-                    block.append(trial)
-                    counter += 1
+        for speed in [2, 3, 6, 12]:
+            for clrs in [(255, 0)]:
+                for counter in range(3):
+                    for direction in [-1, 1]:
+                        bright = clrs[1]
+                        contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                        fg_color = clrs[1] << 8
+                        bg_color = clrs[0] << 8
+                        rotation_speed = alpha*2*speed*direction
+                        trial = Trial(
+                            counter,
+                            bar_deg=alpha, space_deg=360-alpha,
+                            sweep=1, openloop_duration=None,
+                            rotate_deg_hz=rotation_speed,
+                            pretrial_duration=Duration(0), posttrial_duration=Duration(0),
+                            fg_color=fg_color, bg_color=bg_color,
+                            bar_height=0.03,
+                            comment=f"Object alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
+                        block.append(trial)
+                        counter += 1
 
     while not start:
         time.sleep(0.1)
