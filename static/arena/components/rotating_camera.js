@@ -22,8 +22,7 @@ class RotatingCamera extends PerspectiveCamera {
         this.defaultAngle = defaultAngle;
         this.offset = startOffset;
         this.rotateRadHz = rotationAnglePerSecond;
-        
-        
+
         this.loggable = null;
         this.lid = 0;
 
@@ -84,6 +83,11 @@ class RotatingCamera extends PerspectiveCamera {
         
     }
 
+    /**
+     * Flip the camera on its side. The movement then appears to be up/down instead of left/right.
+     * 
+     * @param {boolean} updown - flip camera on its side?
+     */
     flipUpDown(updown){
         if (updown) {
             this.rotation.z = 0.5*Math.PI;

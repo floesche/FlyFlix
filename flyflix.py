@@ -183,7 +183,7 @@ def finally_start(number):
     :param number: TODO find out what it does
     """
     # FIXME: bad practice. Will break at some point
-    print("Started")
+    print("Started at {}".format(time.strftime("%Y%m%d_%H%M%S")))
     global start
     start = True
     socketio.emit('experiment-started')
@@ -303,6 +303,7 @@ def proto_optomotor_4dir():
                             counter,
                             bar_deg=alpha,
                             rotate_deg_hz=rotation_speed,
+                            openloop_duration=Duration(5000),
                             pretrial_duration=Duration(0), posttrial_duration=Duration(0),
                             fg_color=fg_color, bg_color=bg_color,
                             flip_camera=updown,
@@ -338,6 +339,62 @@ def proto_optomotor_4dir():
     socketio.emit("condition-update", "Completed")
     print(time.strftime("%H:%M:%S", time.localtime()))
 
+def proto_grating():
+    print(time.strftime("%H:%M:%S", time.localtime()))
+    block = []
+    counter = 0
+
+    ## rotation
+    for alpha in [22.5, 45]:
+        for speed in [2, 4, 8]:
+            for clrs in [(0, 255)]:
+                for colorshift  in [8, 0]:
+                    for direction in [-1, 1]:
+                        bright = clrs[1]
+                        contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                        fg_color = clrs[1] << colorshift
+                        bg_color = clrs[0] << colorshift
+                        rotation_speed = alpha*2*speed*direction
+                        trial = Trial(
+                            counter,
+                            bar_deg=alpha,
+                            rotate_deg_hz=rotation_speed,
+                            openloop_duration=Duration(5000),
+                            pretrial_duration=Duration(0), posttrial_duration=Duration(0),
+                            fg_color=fg_color, bg_color=bg_color,
+                            comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
+                        block.append(trial)
+                        counter += 1
+
+    while not start:
+        time.sleep(0.1)
+    global RUN_FICTRAC
+    RUN_FICTRAC = True
+    log_metadata()
+    _ = socketio.start_background_task(target = log_fictrac_timestamp)
+
+    repetitions = 2
+    counter = 0
+    opening_black_screen = Duration(100)
+    opening_black_screen.trigger_delay(socketio)
+    for i in range(repetitions):
+        socketio.emit("meta", (time.time_ns(), "block-repetition", i))
+        #block = random.sample(block, k=len(block))
+        for current_trial in block:
+            counter = counter + 1
+            progress = f"Condition {counter} of {len(block*repetitions)}"
+            print(progress)
+            socketio.emit("condition-update", progress)
+            current_trial.set_id(counter)
+            current_trial.trigger(socketio)
+            if not start:
+                return
+
+    RUN_FICTRAC = False
+    socketio.emit("condition-update", "Completed")
+    print(time.strftime("%H:%M:%S", time.localtime()))
+
+
 def proto_smallfield():
     print(time.strftime("%H:%M:%S", time.localtime()))
     block = []
@@ -346,24 +403,25 @@ def proto_smallfield():
     # ## rotation
     for alpha in [15]:
         for speed in [2, 3, 6, 12]:
-            for direction in [-1, 1]:
-                for clrs in [(255, 0)]:
-                    bright = clrs[1]
-                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                    fg_color = clrs[1] << 8
-                    bg_color = clrs[0] << 8
-                    rotation_speed = alpha*2*speed*direction
-                    trial = Trial(
-                        counter,
-                        bar_deg=alpha,
-                        space_deg=360-alpha,
-                        sweep=1, openloop_duration=None,
-                        rotate_deg_hz=rotation_speed,
-                        #pretrial_duration=Duration(250), posttrial_duration=Duration(250),
-                        fg_color=fg_color, bg_color=bg_color,
-                        comment=f"Sweep alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
-                    block.append(trial)
-                    counter += 1
+            for counter in range(3):
+                for direction in [-1, 1]:
+                    for clrs in [(255, 0)]:
+                        bright = clrs[1]
+                        contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                        fg_color = clrs[1] << 8
+                        bg_color = clrs[0] << 8
+                        rotation_speed = alpha*2*speed*direction
+                        trial = Trial(
+                            counter,
+                            bar_deg=alpha,
+                            space_deg=360-alpha,
+                            sweep=1, openloop_duration=None,
+                            rotate_deg_hz=rotation_speed,
+                            pretrial_duration=Duration(0), posttrial_duration=Duration(0),
+                            fg_color=fg_color, bg_color=bg_color,
+                            comment=f"Sweep alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
+                        block.append(trial)
+                        counter += 1
 
 
     # Small object
@@ -526,16 +584,24 @@ def control_panel():
 @app.route('/optomotor_4-directions/')
 def optomotor_4dir():
     """
-    Short protocol with optomotor responses moving into four different directions.
+    Short protocol with optomotor responses moving into four different directions. (~0:50)
     """
     _ = socketio.start_background_task(target=proto_optomotor_4dir)
+    return render_template('cshlfly.html')
+
+@app.route('/grating/')
+def grating():
+    """
+    Protocol with different contrasts, bar widths, and movement speed (~7:00)
+    """
+    _ = socketio.start_background_task(target=proto_grating)
     return render_template('cshlfly.html')
 
 
 @app.route('/smallfield/')
 def smallfield():
     """
-    Small field stimuli
+    Small field stimuli: first a 15° dark bar and then a small square moves 3× left/rigth at 4 different velocities (~4:30)
     """
     _ = socketio.start_background_task(target=proto_smallfield)
     return render_template('cshlfly.html')
