@@ -392,26 +392,27 @@ def proto_optomotor_4dir():
     block = []
     counter = 0
 
-    #TODO rotate up down
     ## rotation
     for alpha in [20]:
         for speed in [4]:
-            for direction in [-1, 1]:
-                for clrs in [(0, 255)]:
-                    bright = clrs[1]
-                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                    fg_color = clrs[1] << 8
-                    bg_color = clrs[0] << 8
-                    rotation_speed = alpha*2*speed*direction
-                    trial = Trial(
-                        counter,
-                        bar_deg=alpha,
-                        rotate_deg_hz=rotation_speed,
-                        pretrial_duration=Duration(0), posttrial_duration=Duration(0),
-                        fg_color=fg_color, bg_color=bg_color,
-                        comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
-                    block.append(trial)
-                    counter += 1
+            for updown in [False, True]:
+                for direction in [-1, 1]:
+                    for clrs in [(0, 255)]:
+                        bright = clrs[1]
+                        contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                        fg_color = clrs[1] << 8
+                        bg_color = clrs[0] << 8
+                        rotation_speed = alpha*2*speed*direction
+                        trial = Trial(
+                            counter,
+                            bar_deg=alpha,
+                            rotate_deg_hz=rotation_speed,
+                            pretrial_duration=Duration(0), posttrial_duration=Duration(0),
+                            fg_color=fg_color, bg_color=bg_color,
+                            flip_camera=updown,
+                            comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast} updown {updown}")
+                        block.append(trial)
+                        counter += 1
 
     while not start:
         time.sleep(0.1)

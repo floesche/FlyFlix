@@ -23,6 +23,7 @@ class RotatingCamera extends PerspectiveCamera {
         this.offset = startOffset;
         this.rotateRadHz = rotationAnglePerSecond;
         
+        
         this.loggable = null;
         this.lid = 0;
 
@@ -81,6 +82,14 @@ class RotatingCamera extends PerspectiveCamera {
         this._log('camera-set-lid-old', lid);
         this.lid = lid;
         
+    }
+
+    flipUpDown(updown){
+        if (updown) {
+            this.rotation.z = 0.5*Math.PI;
+        } else {
+            this.rotation.z = 0;
+        }
     }
 
     /**

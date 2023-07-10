@@ -19,7 +19,8 @@ class SpatialTemporal():
         start_mask_deg=0, end_mask_deg=0,
         osc_freq=0, osc_width=0,
         fg_color=0x00ff00, bg_color=0x000000,
-        bar_height=0.8
+        bar_height=0.8,
+        flip_camera=False
     ) -> None:
         """
         Constructor for a spatial-temporal description of a stimulus. The assumption is that the
@@ -55,6 +56,7 @@ class SpatialTemporal():
         self.osc_freq = osc_freq
         self.osc_width = osc_width
         self.bar_height = bar_height
+        self.flip_camera = flip_camera
 
     def is_bar_sweep(self) -> bool:
         """
@@ -163,6 +165,7 @@ class SpatialTemporal():
             self.fg_color,
             self.bg_color,
             self.bar_height))
+        socket_io.emit('camera-flip', (shared_key, self.flip_camera))
 
     def trigger_sweep_start_position(self, socket_io) -> None:
         """

@@ -77,6 +77,13 @@ class DataExchanger{
             this.log(lid, 'de-rotate-panel-to', targetRotationRad);
         })
 
+
+        this.socket.on('camera-flip', (lid, updown) => {
+            camera.flipUpDown(updown);
+            this.log(lid, 'de-flip-camera-updown', updown);
+        }
+        )
+
         /**
          * Event handler for `fps` message to set the target frame rate.
          * 
