@@ -101,7 +101,7 @@ class SpatialTemporal():
     def get_oscillation_duration(self) -> Duration:
         return Duration(1.0/self.osc_freq * 2 * 1000)
 
-    def get_bar_sweep_duration(self, sweep_angle_deg=180) -> Duration:
+    def get_bar_sweep_duration(self, sweep_angle_deg=150) -> Duration:
         """
         Calculates the duration for a bar sweep and returns the duration in seconds.
 
@@ -111,7 +111,7 @@ class SpatialTemporal():
         """
         return Duration(((sweep_angle_deg + 2*self.bar_deg) / abs(self.rotate_deg_hz))*1000)
 
-    def get_space_sweep_duration(self, sweep_angle_deg=180) -> Duration:
+    def get_space_sweep_duration(self, sweep_angle_deg=150) -> Duration:
         """
         Calculates the duration for a space sweep and returns the duration in seconds.
 
@@ -180,14 +180,14 @@ class SpatialTemporal():
         start_angle = 0
         if self.is_bar_sweep():
             if self.rotate_deg_hz > 0:
-                start_angle = 360 - self.bar_deg
+                start_angle = 400 - self.bar_deg
             else:
-                start_angle = 180+self.bar_deg
+                start_angle = 220 + self.bar_deg
         elif self.is_space_sweep():
             if self.rotate_deg_hz > 0:
-                start_angle = 360 - self.space_deg
+                start_angle = 400 - self.space_deg
             else:
-                start_angle = 180
+                start_angle = 220 + self.space_deg
         else:
             warnings.warn("not 2 item pattern. Rotate to 0")
         socket_io.emit('rotate-to', (shared_key, math.radians(start_angle)))
