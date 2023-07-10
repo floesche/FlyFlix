@@ -18,6 +18,7 @@ class Trial():
                  osc_freq=0, osc_width=0,
                  bar_height=0.8,
                  fps=60,
+                 flip_camera=False,
                  pretrial_duration=Duration(500), posttrial_duration=Duration(500),
                  comment=None) -> None:
         """
@@ -59,7 +60,8 @@ class Trial():
             start_mask_deg=start_mask_deg, end_mask_deg=end_mask_deg,
             osc_freq=osc_freq, osc_width=osc_width,
             fg_color=fg_color, bg_color=bg_color,
-            bar_height=bar_height)
+            bar_height=bar_height,
+            flip_camera=flip_camera)
         if openloop_duration is not None:
             olc = OpenLoopCondition(
                 spatial_temporal=openloop_spatial_temporal,
