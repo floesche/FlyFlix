@@ -24,7 +24,7 @@ let camera;
 let renderer;
 let io;
 const sphereCount = 500;
-const sphereRadius = 0.1;
+const sphereRadius = .5;
 const shellRadius = 20;
 let spheres;
 
