@@ -6,7 +6,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="/static/vendor/socket.io.min.js"></script>
-    <link href="/static/style/controlpanel.css" rel="stylesheet" type="text/css">
+    <link href="/static/style/sitemap.css" rel="stylesheet" type="text/css">
     <style>
         html,
         body {
@@ -39,7 +39,7 @@
             width: 50%;
         }
 
-        #start, #restart, #stop, #metadata, #submitButton{
+        #start, #restart, #stop, #metadata{
             text-align: center;
             display:flex;
             justify-content:center;
@@ -49,7 +49,7 @@
             margin-left: 3%;
             margin-top: 0%;
         }
-        #metadata, #submitButton{
+        #metadata{
             border: 2px solid #1c4587;
             color:#1c4587;
             font-size:12pt;
@@ -115,7 +115,7 @@
                 <br>
                 1. Ensure that your experiment is completely set up (including navigating to the experiment page and selecting fullscreen)
                 <br>
-                2. Enter any information that you want to store about the trial in the metadata as a key-value pair and click submit.
+                2. Enter any information that you want to store about the trial in the metadata as a key-value pair (saved when you click start).
             </p>
             <p id="status">
                 Once the experiment is started, status will be shown here.
@@ -126,15 +126,6 @@
             <div id="leftBox">
                 <p id="metadata">metadata</p>
                 <form method="POST" id='form'></form>
-                <script>
-                    var x ="";
-                    for (let h=0; h<18; h++){
-                        x = x + `<div id="row"><input type='text' id='key${h}' placeholder='N/A' >`;
-                        x = x + `<input type='text' id='value${h}' placeholder='N/A' > </div>`;
-                    }
-                    document.getElementById("form").innerHTML = x;
-                </script>
-                <button id="submitButton" type="button">submit</button>
             </div>
 
             <div id="rightBox">
@@ -154,6 +145,9 @@
         var socket = io();
         let screenOn = true;
 
+        // number of rows in the form
+        let inputRows = 0;
+
         socket.on('connect', function(){});
         socket.on('event', function(data){});
 
@@ -170,21 +164,40 @@
 
 
         /**
+         * Reads values in the input boxes and returns a dictionary of them
+        */
+        function readInputData(){
+            let inputData = {};
+            for (i = 0; i < inputRows; i++){
+                let keyStr = "key" + i;
+                let valStr = "value" + i;
+                let key = document.getElementById(keyStr).value;
+                if ( key != ""){
+                    inputData[key] = document.getElementById(valStr).value;
+                }
+            }
+            return inputData;
+        }
+
+
+        /**
          * Add event listeners for clicking start buttons.
         */
         (function () {
 
             document.getElementById('start').addEventListener('click', function () {
-                 //document.body.requestFullscreen();;
-                 socket.emit('start-pressed', {});
-                 document.getElementById('start').style.visibility = 'hidden';
-                 document.getElementById('stop').style.visibility = 'visible';
+                let data = readInputData();
+                socket.emit('metadata-submit', data);
+                socket.emit('start-pressed', {});
+                document.getElementById('start').style.visibility = 'hidden';
+                document.getElementById('stop').style.visibility = 'visible';
             });
 
             document.getElementById('stop').addEventListener('click', function () {
                 socket.emit('stop-pressed', {});
                 document.getElementById('stop').style.visibility = 'hidden';
                 document.getElementById('restart').style.visibility = 'visible';
+                document.getElementById('status').innerText = "Stopped at " + document.getElementById('status').innerText;
             });
 
             document.getElementById('restart').addEventListener('click', function () {
@@ -193,46 +206,75 @@
                 document.getElementById('start').style.visibility = 'visible';
             });
 
-            document.getElementById('submitButton').addEventListener('click', function () {
-                //metadata dictionary
-                var data = {};
-                for (i = 0; i < 18; i++){
-                    let keyStr = "key" + i;
-                    let valStr = "value" + i;
-                    let key = document.getElementById(keyStr).value;
-                    if ( key != ""){
-                        data[key] = document.getElementById(valStr).value;
-                    }
-                }
-                socket.emit('metadata-submit', data);
-            });
+        
         })();
 
+        
+        // form set up
         //reads in metadata and prefills it in the metadata inputs
         var intakeData = {{ metadata|tojson }};
         var configData = JSON.parse(intakeData);
-        let count = 0;
-        for (let k in configData){
-            let strKey = "key" + count;
-            let strVal = "value" + count;
-            document.getElementById(strKey).value = k;
-            document.getElementById(strVal).value = configData[k];
-            if (configData[k] == ""){
-                document.getElementById(strKey).style.backgroundColor = "#ffd9d9";
-                document.getElementById(strVal).style.backgroundColor = "#ffd9d9";
-            }
-            count++;
+        function inputSetup(inputCount){
 
-            //prevents the loop from continuing past 18 (the amount of input boxes)
-            if (count >= 18){
-                break;
+            inputRows = inputCount;
+            var x ="";
+            for (let h=0; h<inputCount; h++){
+            x = x + `<div id="row"><input type='text' id='key${h}' placeholder='N/A' >`;
+            x = x + `<input type='text' id='value${h}' placeholder='N/A' > </div>`;
             }
+            document.getElementById("form").innerHTML += x;
+
+
         }
-    
+        inputSetup(Object.keys(configData).length + 5);
+        
+
+        /**
+        * fills in the inputs with the defaults from configData
+        * adds listeners to each input to make them red when empty and white when filled in
+        */
+        (function () {
+            let count = 0;
+            for (let k in configData){
+                let strKey = "key" + count;
+                let strVal = "value" + count;
+                document.getElementById(strKey).value = k;
+                document.getElementById(strVal).value = configData[k];
+                if (configData[k] == ""){
+                    document.getElementById(strVal).style.backgroundColor = "#ffd9d9";
+                }
+                count++;
+                
+                //listeners to change colors
+                document.getElementById(strKey).addEventListener("input", function(){
+                    this.style.backgroundColor = !!this.value ? "#ffffff": "#ffd9d9";
+                })
+                document.getElementById(strVal).addEventListener("input", function(){
+                    this.style.backgroundColor = !!this.value ? "#ffffff": "#ffd9d9";
+                })
+            }
+
+        })();
+
         //updates the progress as the experiment is completed
         socket.on('condition-update', function(progress){
             document.getElementById('status').innerText = progress;
+            if (progress == 'Completed'){
+                document.getElementById('stop').style.visibility = 'hidden';
+                document.getElementById('restart').style.visibility = 'visible';
+            }
+            else if (progress == "Once the experiment is started, status will be shown here."){
+                document.getElementById('restart').style.visibility = 'hidden';
+                document.getElementById('start').style.visibility = 'visible';
+            }
+            else if (progress.includes("condition 1") && !progress.includes("Stopped")){
+                let data = readInputData();
+                socket.emit('metadata-submit', data);
+                document.getElementById('start').style.visibility = 'hidden';
+                document.getElementById('stop').style.visibility = 'visible';
+            }
         })
+
 
     </script>
 </body>

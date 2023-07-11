@@ -4,7 +4,7 @@
  * 
  * @param {Element} container - HTML to which the restart button should be added
  */
-const addRestartButton = (container) => {
+const addRestartButton = (container, socket) => {
     const restartExperiment = document.createElement("button");
         restartExperiment.innerHTML = "Restart";
         restartExperiment.style.position = "absolute";
@@ -17,6 +17,7 @@ const addRestartButton = (container) => {
         container.appendChild(restartExperiment);
 
         restartExperiment.addEventListener('click', function () {
+            manualRestart(socket);
             window.location.reload();
         });
 
@@ -56,6 +57,14 @@ const addStartButton = (container) => {
 
 
 /**
+ * function to trigger control panel update after restart is pressed
+ */
+function manualRestart(socket){
+    socket.emit('manual-restart', {});
+}
+
+
+/**
  * Module to add restart and start button.
  */
 class ExperimentControl{
@@ -67,7 +76,7 @@ class ExperimentControl{
      * @param {Element} container - HTML element to which the start and restart button attaches
      */
     constructor(container, socket){
-        addRestartButton(container);
+        addRestartButton(container, socket);
         addStartButton(container);
 
         // socket configuration for control panel buttons
