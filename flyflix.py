@@ -247,7 +247,13 @@ def trigger_start(empty):
 @socketio.on('restart-pressed')
 def trigger_restart(empty):
     socketio.emit('restart-triggered', empty)
+    socketio.emit('condition-update', "Once the experiment is started, status will be shown here.")
 
+@socketio.on('manual-restart')
+def manual_restart(empty):
+    print('manually restarted - recieved')
+    socketio.emit('condition-update', "Once the experiment is started, status will be shown here.")
+    
 
 def log_fictrac_timestamp():
     shared_key = time.time_ns()
@@ -369,7 +375,7 @@ def cshlfly22():
         block = random.sample(block, k=len(block))
         for current_trial in block:
             counter = counter + 1
-            progress = f"Condition {counter} of {len(block*repetitions)}"
+            progress = f"condition {counter} of {len(block*repetitions)}"
             print(progress)
             socketio.emit("condition-update", progress)
             current_trial.set_id(counter)
