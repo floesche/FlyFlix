@@ -25,7 +25,7 @@ let renderer;
 let io;
 const sphereCount = 500;
 const sphereRadius = 0.1;
-const sphereGroup = new Group();
+const shellRadius = 20;
 let spheres;
 
 class StarfieldArena {
@@ -40,7 +40,7 @@ class StarfieldArena {
         container.append( renderer.domElement );
 
         // create a group of spheres
-        spheres = createSpheres(sphereCount, sphereRadius);
+        spheres = createSpheres(sphereCount, sphereRadius, shellRadius);
         scene.add(spheres);
 
         //camera.position.z = 20;
@@ -60,24 +60,6 @@ class StarfieldArena {
         spheres.rotateX(-0.01);
     }
 
-
-    /**
-     * (private)
-     * Function that takes in a center point (x0, y0, z0) and a radius 
-     * and returns a random point on the sphere surrounding the point with that radius
-     * taken from https://stackoverflow.com/questions/5531827/random-point-on-a-given-sphere answer from user Neil Lamoureux
-     * 
-    */
-    _randomSpherePoint(x0,y0,z0,radius){
-        var u = Math.random();
-        var v = Math.random();
-        var theta = 2 * Math.PI * u;
-        var phi = Math.acos(2 * v - 1);
-        var x = x0 + (radius * Math.sin(phi) * Math.cos(theta));
-        var y = y0 + (radius * Math.sin(phi) * Math.sin(theta));
-        var z = z0 + (radius * Math.cos(phi));
-        return [x,y,z];
-    }
 }
 
 
