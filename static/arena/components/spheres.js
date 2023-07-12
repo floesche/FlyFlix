@@ -87,8 +87,7 @@ class Spheres extends Group {
      */
     changeSpheres(sphereCount, sphereRadius, shellRadius, color=0x00ff00) {
         this.clear();
-        this._log('panels-change-clear');
-        this._log('xxxx',barHeight )
+        this._log('spheres-change-clear');
         this._setup(sphereCount, sphereRadius, shellRadius, color);
     }
 
@@ -131,7 +130,7 @@ class Spheres extends Group {
      * @param {number} rotation - set the absolute rotation of the camera in radians
      */
     setRotationRad(rotation){
-        this.rotation.y = rotation % (2*Math.PI);
+        this.rotation.x = rotation % (2*Math.PI);
         this._log('spheres-set-rotationRad', rotation);
     }
 
