@@ -17,7 +17,7 @@ class Spheres extends Group {
      * @param {number} shellRadius - the radius of the shell / distance between camera and spheres
      * @param {color} color - color of the spheres (default is green)
      */
-    constructor( sphereCount, sphereRadius, shellRadius, color ){
+    constructor( sphereCount, sphereRadius, shellRadius, color=0x00ff00 ){
         super();
         this.sphereCount = sphereCount;
         this.sphereRadius = sphereRadius;
