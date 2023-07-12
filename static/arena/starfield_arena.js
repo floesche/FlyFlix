@@ -1,21 +1,8 @@
 
 import { createScene } from './components/scene.js';
 import { createStarfieldCamera } from './components/starfield_camera.js';
-import { ExperimentControl } from './systems/experiment_control.js';
-import { FullScreener } from './systems/full_screener.js';
 import { createRenderer } from './systems/renderer.js';
 import { Resizer } from './systems/resizer.js';
-import { Group, 
-    MathUtils, 
-    SphereGeometry, 
-    MeshBasicMaterial, 
-    Mesh,
-    PerspectiveCamera,
-    Scene,
-    Color,
-    WebGLRenderer,
-    BoxGeometry,
-} from '/static/vendor/three.module.js';
 import { Spheres } from './components/spheres.js';
 
 
@@ -39,8 +26,7 @@ class StarfieldArena {
         // add the renderer
         container.append( renderer.domElement );
 
-        // create a group of spheres
-        //spheres = createSpheres(sphereCount, sphereRadius, shellRadius);
+        // create a group of spheres;
         spheres = new Spheres(sphereCount, sphereRadius, shellRadius);
         scene.add(spheres);
 
