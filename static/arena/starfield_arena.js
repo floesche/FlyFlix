@@ -10,6 +10,7 @@ let scene;
 let camera;
 let renderer;
 let io;
+let loop;
 const sphereCount = 500;
 const sphereRadius = .5;
 const shellRadius = 20;
@@ -29,8 +30,6 @@ class StarfieldArena {
         // create a group of spheres;
         spheres = new Spheres(sphereCount, sphereRadius, shellRadius);
         scene.add(spheres);
-
-        //camera.position.z = 20;
         
         const resizer = new Resizer(container, camera, renderer);
     }
@@ -38,13 +37,13 @@ class StarfieldArena {
     
     start() {
         renderer.setAnimationLoop(() => {
-            //this.tick()
+            this.tick();
             renderer.render( scene, camera );
         });
     }
 
     tick(){
-        spheres.rotateX(-0.01);
+        spheres.tick();
     }
 
 }
