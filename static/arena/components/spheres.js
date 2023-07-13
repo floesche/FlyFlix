@@ -139,9 +139,21 @@ class Spheres extends Group {
      * Interface to allow arena to be animated.
      * 
      * @param {number} delta - time interval since last tick
+     * 
+     * To Do - update
      */
     tick(delta){
-        this.rotateX(-0.01);
+        //this.rotateX(-0.01);
+        if (this.startTime === undefined){
+            //the following line is used for testing purposes - please use the line below it
+            this.rotation.x += delta * 0.1;
+            //this.rotation.x = (this.rotation.x + delta * this.rotateRadHz) % (2*Math.PI);
+            this._log('spheres-tick-rotation', this.rotation.x);
+        } else {
+            const c_time = Date.now()/1000;
+            this.rotation.x = Math.sin((c_time - this.startTime) * this.osc_hz * (2*Math.PI)) * this.max_deg;
+            this._log('spheres-tick-rotation', this.rotation.x);
+        }
     }
 
     /**

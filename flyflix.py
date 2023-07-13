@@ -292,9 +292,7 @@ def log_fictrac_timestamp():
 def cshlfly22():
     print(time.strftime("%H:%M:%S", time.localtime()))
     block = []
-    gains = [0.9, 1, 1.1]
     counter = 0
-    gaincount = 0
 
     ## rotation 
     for alpha in [15]:
