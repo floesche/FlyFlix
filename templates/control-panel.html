@@ -164,7 +164,9 @@
 
 
         /**
-         * Reads values in the input boxes and returns a dictionary of them
+         * Reads values in the input boxes
+         (left boxes represent keys and right represent values in each row)
+         * returns a dictionary of them
         */
         function readInputData(){
             let inputData = {};
@@ -181,7 +183,7 @@
 
 
         /**
-         * Add event listeners for clicking start buttons.
+         * Add event listeners for clicking the start, stop, and restart buttons.
         */
         (function () {
 
@@ -226,6 +228,10 @@
 
 
         }
+
+        /**
+        * Creates inputs with the amount of values in the config file + 5 additional empty rows
+        */
         inputSetup(Object.keys(configData).length + 5);
         
 

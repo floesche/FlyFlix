@@ -27,7 +27,7 @@ class StarfieldArena {
         // add the renderer
         container.append( renderer.domElement );
 
-        // create a group of spheres;
+        // create an object made up of a group of spheres;
         spheres = new Spheres(sphereCount, sphereRadius, shellRadius);
         scene.add(spheres);
         
