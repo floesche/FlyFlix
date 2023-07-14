@@ -108,6 +108,7 @@ class StarsDataExchanger{
             this.log(lid, 'de-spatial-setup-color', color);
             this.log(lid, 'de-spatial-setup-sphereRadius', sphereRadius);
             this.log(lid, 'de-spatial-setup-shellRadius', shellRadius);
+            loop.start();
         });
 
         /**

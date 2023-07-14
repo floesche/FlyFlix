@@ -27,7 +27,7 @@ from jinja2 import TemplateNotFound
 from engineio.payload import Payload
 
 from Experiment import SpatialTemporal, Duration, OpenLoopCondition, SweepCondition, ClosedLoopCondition, Trial, CsvFormatter
-from Experiment.star_trial import StarTrial
+from Experiment.starfield_trial import StarfieldTrial
 app = Flask(__name__)
 
 start = False
@@ -393,52 +393,13 @@ def local_cshfly22():
 
 def starfield():
     print(time.strftime("%H:%M:%S", time.localtime()))
-    block = []
-    counter = 0
 
-    ## rotation 
-    for alpha in [400, 450]:
-        for speed in [4, 8]:
-            for direction in [-1, 1]:
-                rotation_speed = 2*speed*direction
-                t = StarTrial(
-                    counter, 
-                    sphere_count=alpha,
-                    sphere_radius=30,
-                    shell_radius=850, 
-                    rotate_deg_hz=rotation_speed,
-                    pretrial_duration=Duration(250), posttrial_duration=Duration(250),
-                    comment=f"SphereCount {alpha} speed {speed} direction {direction}")
-                block.append(t)
-                counter += 1
-
-
+    t = StarfieldTrial(trial_id=30, sphere_radius=30, shell_radius=850,)
+    
     while not start:
         time.sleep(0.1)
-    global RUN_FICTRAC
-    RUN_FICTRAC = True
-    log_metadata()
-    _ = socketio.start_background_task(target = log_fictrac_timestamp)
-
-    repetitions = 3
-    counter = 0
-    opening_black_screen = Duration(100)
-    opening_black_screen.trigger_delay(socketio)
-    for i in range(repetitions):
-        socketio.emit("meta", (time.time_ns(), "block-repetition", i))
-        block = random.sample(block, k=len(block))
-        for current_trial in block:
-            counter = counter + 1
-            progress = f"condition {counter} of {len(block*repetitions)}"
-            print(progress)
-            socketio.emit("condition-update", progress)
-            current_trial.set_id(counter)
-            current_trial.trigger(socketio)
-            if not start:
-                return
-
-    RUN_FICTRAC = False
-    socketio.emit("condition-update", "Completed")
+    t.trigger(socketio)
+    
     print(time.strftime("%H:%M:%S", time.localtime()))
 
 

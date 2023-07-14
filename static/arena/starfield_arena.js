@@ -39,6 +39,7 @@ class StarfieldArena {
 
         io = new StarsDataExchanger(camera, scene, loop, spheres)
         camera.loggable = io;
+        scene.loggable = io;
         loop.loggable = io;
         spheres.loggable = io;
         
