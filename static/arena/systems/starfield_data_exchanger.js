@@ -19,8 +19,6 @@ class StarfieldDataExchanger{
         this.socket = io(socketurl);
         this.isLogging = false;
 
-        const mr = MathUtils.degToRad(35);
-
         /**
          * Event handler for `disconnect` sends the event `end-experiment` and stops camera 
          *      and spheres rotation.

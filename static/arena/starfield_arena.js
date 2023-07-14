@@ -5,7 +5,8 @@ import { createRenderer } from './systems/renderer.js';
 import { Resizer } from './systems/resizer.js';
 import { Spheres } from './components/spheres.js';
 import { Loop } from './systems/loop.js';
-import { StarsDataExchanger } from './systems/stars_data_exchanger.js';
+import { StarfieldDataExchanger } from './systems/starfield_data_exchanger.js';
+
 
 
 let scene;
@@ -37,12 +38,11 @@ class StarfieldArena {
         scene.add(spheres);
         loop.updateables.push(spheres);
 
-        io = new StarsDataExchanger(camera, scene, loop, spheres)
+        io = new StarfieldDataExchanger(camera, scene, loop, spheres);
         camera.loggable = io;
-        scene.loggable = io;
         loop.loggable = io;
         spheres.loggable = io;
-        
+
         const resizer = new Resizer(container, camera, renderer);
     }
     
