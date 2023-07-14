@@ -19,8 +19,9 @@ class StarfieldTrial():
         self.sphere_count = sphere_count
         self.sphere_radius = sphere_radius
         self.shell_radius = shell_radius
+        self.color = color
     
     def trigger(self, socket_io) -> None:
-        socket_io.emit('spatial-setup', (self.trial_id, self.sphere_count, self.sphere_radius, self.shell_radius))
+        socket_io.emit('spatial-setup', (self.trial_id, self.sphere_count, self.sphere_radius, self.shell_radius, self.color))
     
         

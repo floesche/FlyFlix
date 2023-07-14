@@ -392,14 +392,51 @@ def local_cshfly22():
     return render_template('cshlfly22.html')
 
 def starfield():
+    
+    print(time.strftime("%H:%M:%S", time.localtime()))
+    block = []
+    counter = 0
     print(time.strftime("%H:%M:%S", time.localtime()))
 
-    t = StarfieldTrial(trial_id=30, sphere_radius=30, shell_radius=850,)
+    # test trials
+    for count in [100,500]:
+        for direction in [-1, 1]:
+            t = StarfieldTrial(
+                    sphere_count = count,
+                    trial_id=30,
+                    sphere_radius=30,
+                    shell_radius=850,
+                    color=0x00ff00)
+            block.append(t)
+            counter += 1
     
     while not start:
         time.sleep(0.1)
-    t.trigger(socketio)
+    global RUN_FICTRAC
+    RUN_FICTRAC = True
+    log_metadata()
+    _ = socketio.start_background_task(target = log_fictrac_timestamp)
+
+    repetitions = 3
+    counter = 0
+    opening_black_screen = Duration(100)
+    opening_black_screen.trigger_delay(socketio)
+    for i in range(repetitions):
+        socketio.emit("meta", (time.time_ns(), "block-repetition", i))
+        block = random.sample(block, k=len(block))
+        for current_trial in block:
+            counter = counter + 1
+            progress = f"condition {counter} of {len(block*repetitions)}"
+            print(progress)
+            socketio.emit("condition-update", progress)
+            #current_trial.set_id(counter)
+            current_trial.trigger(socketio)
+            time.sleep(2.5)
+            if not start:
+                return
     
+    RUN_FICTRAC = False
+    socketio.emit("condition-update", "Completed")
     print(time.strftime("%H:%M:%S", time.localtime()))
 
 
