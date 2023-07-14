@@ -5,6 +5,7 @@ import { createRenderer } from './systems/renderer.js';
 import { Resizer } from './systems/resizer.js';
 import { Spheres } from './components/spheres.js';
 import { Loop } from './systems/loop.js';
+import { StarsDataExchanger } from './systems/stars_data_exchanger.js';
 
 
 let scene;
@@ -12,9 +13,9 @@ let camera;
 let renderer;
 let io;
 let loop;
-const sphereCount = 500;
-const sphereRadius = .5;
-const shellRadius = 20;
+const sphereCount = 300;
+const sphereRadius = 30;
+const shellRadius = 850;
 let spheres;
 
 class StarfieldArena {
@@ -35,6 +36,11 @@ class StarfieldArena {
         spheres = new Spheres(sphereCount, sphereRadius, shellRadius);
         scene.add(spheres);
         loop.updateables.push(spheres);
+
+        io = new StarsDataExchanger(camera, scene, loop, spheres)
+        camera.loggable = io;
+        loop.loggable = io;
+        spheres.loggable = io;
         
         const resizer = new Resizer(container, camera, renderer);
     }

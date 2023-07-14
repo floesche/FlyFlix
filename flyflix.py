@@ -26,7 +26,7 @@ from jinja2 import TemplateNotFound
 
 from engineio.payload import Payload
 
-from Experiment import SpatialTemporal, Duration, OpenLoopCondition, SweepCondition, ClosedLoopCondition, Trial, CsvFormatter
+from Experiment import SpatialTemporal, Duration, OpenLoopCondition, SweepCondition, ClosedLoopCondition, Trial, StarTrial, CsvFormatter
 
 app = Flask(__name__)
 
@@ -391,8 +391,106 @@ def local_cshfly22():
     _ = socketio.start_background_task(target=cshlfly22)
     return render_template('cshlfly22.html')
 
+def starfield():
+    print(time.strftime("%H:%M:%S", time.localtime()))
+    block = []
+    counter = 0
+
+    ## rotation 
+    for alpha in [15]:
+        for speed in [4, 8]:
+            for direction in [-1, 1]:
+                for clrs in [(64, 190)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = clrs[1] << 8
+                    bg_color = clrs[0] << 8
+                    rotation_speed = alpha*2*speed*direction
+                    t = Trial(
+                        counter, 
+                        bar_deg=alpha, 
+                        rotate_deg_hz=rotation_speed,
+                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        fg_color=fg_color, bg_color=bg_color,
+                        comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
+                    block.append(t)
+                    counter += 1
+
+    # Oscillation
+    for alpha in [15]:
+        for freq in [0.333]:
+            for direction in [-1, 1]:
+                for clrs in [(190, 64)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = clrs[1] << 8
+                    bg_color = clrs[0] << 8
+                    t = Trial(
+                        counter, 
+                        bar_deg=alpha,
+                        osc_freq=freq, osc_width=90*direction,
+                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        fg_color=fg_color, bg_color=bg_color,
+                        #bar_height=0.04,
+                        comment=f"Oscillation with frequency {freq} direction {direction} brightness {bright} contrast {contrast}")
+                    block.append(t)
+                    counter += 1
+
+    # Small object
+    for alpha in [10]:
+        for speed in [2, 4]:
+            for direction in [-1, 1]:
+                for clrs in [(190, 64)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = clrs[1] << 8
+                    bg_color = clrs[0] << 8
+                    rotation_speed = alpha*2*speed*direction
+                    t = Trial(
+                        counter, 
+                        bar_deg=alpha, space_deg=180-alpha,
+                        rotate_deg_hz=rotation_speed,
+                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        fg_color=fg_color, bg_color=bg_color,
+                        bar_height=0.03,
+                        comment=f"Object alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
+                    block.append(t)
+                    counter += 1
+
+    
+
+    while not start:
+        time.sleep(0.1)
+    global RUN_FICTRAC
+    RUN_FICTRAC = True
+    log_metadata()
+    _ = socketio.start_background_task(target = log_fictrac_timestamp)
+
+    repetitions = 3
+    counter = 0
+    opening_black_screen = Duration(100)
+    opening_black_screen.trigger_delay(socketio)
+    for i in range(repetitions):
+        socketio.emit("meta", (time.time_ns(), "block-repetition", i))
+        block = random.sample(block, k=len(block))
+        for current_trial in block:
+            counter = counter + 1
+            progress = f"condition {counter} of {len(block*repetitions)}"
+            print(progress)
+            socketio.emit("condition-update", progress)
+            current_trial.set_id(counter)
+            current_trial.trigger(socketio)
+            if not start:
+                return
+
+    RUN_FICTRAC = False
+    socketio.emit("condition-update", "Completed")
+    print(time.strftime("%H:%M:%S", time.localtime()))
+
+
 @app.route('/starfield/')
 def local_starfield():
+    _ = socketio.start_background_task(target=starfield)
     return render_template('starfield.html')
 
 @app.route('/control-panel/')

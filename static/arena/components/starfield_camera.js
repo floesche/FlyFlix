@@ -13,7 +13,7 @@ function createStarfieldCamera(orientation=0) {
         90,                                         // fov. According to measurements with the Fire tablet, this is closest to true angles at a distance of around 35mm between fly and display.
         window.innerWidth / window.innerHeight,     // aspect ratio
         0.001,                                       // near clipping
-        100,                                        // far clipping
+        10000,                                        // far clipping
         orientation
     );
     return camera;
