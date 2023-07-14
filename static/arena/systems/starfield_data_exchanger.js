@@ -3,8 +3,7 @@
  * Only for starfield trials
  */
 import { Color, MathUtils } from '/static/vendor/three.module.js';
-class StarsDataExchanger{
-
+class StarfieldDataExchanger{
     /**
      * FlyFlix specific module for data exchange between server and client.
      * 
@@ -148,5 +147,4 @@ class StarsDataExchanger{
         }
     }
 }
-
-export { StarsDataExchanger };
+export { StarfieldDataExchanger };
