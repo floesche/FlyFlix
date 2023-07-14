@@ -48,53 +48,14 @@ class StarTrial():
         :rtype: None
         """
 
-        if sweep is not None and openloop_duration is not None:
-            warnings.warn("Cannot set sweep and duration. Duration will take precedence.")
-        if space_deg is None and bar_deg > 0:
-            space_deg = bar_deg
-        if 360 % (bar_deg + space_deg) != 0:
-            warnings.warn(f"Pattern is not seamless: Bars are {bar_deg}°, space is {space_deg}°.")
         self.conditions = []
         self.trial_id = trial_id
         self.comment = comment
-
-        openloop_spatial_temporal = SpatialTemporal(
-            bar_deg=bar_deg,
-            space_deg=space_deg,
-            rotate_deg_hz=rotate_deg_hz,
-            start_mask_deg=start_mask_deg, end_mask_deg=end_mask_deg,
-            osc_freq=osc_freq, osc_width=osc_width,
-            fg_color=fg_color, bg_color=bg_color,
-            bar_height=bar_height)
-        if openloop_duration is not None:
-            olc = OpenLoopCondition(
-                spatial_temporal=openloop_spatial_temporal,
-                trial_duration=openloop_duration,
-                fps=fps,
-                pretrial_duration=pretrial_duration, posttrial_duration=posttrial_duration)
-            self.conditions.append(olc)
-        elif sweep is not None:
-            olc = SweepCondition(
-                spatial_temporal=openloop_spatial_temporal,
-                sweep_count=1, fps=fps,
-                pretrial_duration=pretrial_duration, posttrial_duration=posttrial_duration)
-            self.conditions.append(olc)
-        else:
-            warnings.warn("Either sweep or duration needs to be set")
-
-        closedloop_spatial_temporal = openloop_spatial_temporal
-        if closedloop_bar_deg is not None:
-            if 0 < closedloop_bar_deg <= 180:
-                closedloop_spatial_temporal = SpatialTemporal(
-                    bar_deg=closedloop_bar_deg, space_deg=(180-closedloop_bar_deg))
-            elif 180 < closedloop_bar_deg <= 360:
-                closedloop_spatial_temporal = SpatialTemporal(
-                    bar_deg=closedloop_bar_deg-180, space_deg=360-closedloop_bar_deg)
-            clc = ClosedLoopCondition(
-                spatial_temporal=closedloop_spatial_temporal, trial_duration=closedloop_duration,
-                gain=gain, fps=fps,
-                pretrial_duration=pretrial_duration, posttrial_duration=posttrial_duration)
-            self.conditions.append(clc)
+        self.sphere_count = sphere_count
+        self.sphere_radius = sphere_radius
+        self.shell_radius = shell_radius
+        self.color = color
+        
 
 
     def trigger(self, socket_io) -> None:
@@ -105,6 +66,7 @@ class StarTrial():
         :param Socket socket_id: Socket.IO used for communication with the client.
         :rtype: None
         """
+        socket_io.emit('spatial-setup', ("self.lid", self.sphere_count, self.sphere_radius, self.shell_radius, self.color))
         shared_key = time.time_ns()
         socket_io.emit("ssync", (shared_key))
         socket_io.emit("meta", (shared_key, "trial-start", self.trial_id))

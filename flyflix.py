@@ -26,8 +26,8 @@ from jinja2 import TemplateNotFound
 
 from engineio.payload import Payload
 
-from Experiment import SpatialTemporal, Duration, OpenLoopCondition, SweepCondition, ClosedLoopCondition, Trial, StarTrial, CsvFormatter
-
+from Experiment import SpatialTemporal, Duration, OpenLoopCondition, SweepCondition, ClosedLoopCondition, Trial, CsvFormatter
+from Experiment.star_trial import StarTrial
 app = Flask(__name__)
 
 start = False
@@ -397,67 +397,21 @@ def starfield():
     counter = 0
 
     ## rotation 
-    for alpha in [15]:
+    for alpha in [400, 450]:
         for speed in [4, 8]:
             for direction in [-1, 1]:
-                for clrs in [(64, 190)]:
-                    bright = clrs[1]
-                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                    fg_color = clrs[1] << 8
-                    bg_color = clrs[0] << 8
-                    rotation_speed = alpha*2*speed*direction
-                    t = Trial(
-                        counter, 
-                        bar_deg=alpha, 
-                        rotate_deg_hz=rotation_speed,
-                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
-                        fg_color=fg_color, bg_color=bg_color,
-                        comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
-                    block.append(t)
-                    counter += 1
+                rotation_speed = 2*speed*direction
+                t = StarTrial(
+                    counter, 
+                    sphere_count=alpha,
+                    sphere_radius=30,
+                    shell_radius=850, 
+                    rotate_deg_hz=rotation_speed,
+                    pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                    comment=f"SphereCount {alpha} speed {speed} direction {direction}")
+                block.append(t)
+                counter += 1
 
-    # Oscillation
-    for alpha in [15]:
-        for freq in [0.333]:
-            for direction in [-1, 1]:
-                for clrs in [(190, 64)]:
-                    bright = clrs[1]
-                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                    fg_color = clrs[1] << 8
-                    bg_color = clrs[0] << 8
-                    t = Trial(
-                        counter, 
-                        bar_deg=alpha,
-                        osc_freq=freq, osc_width=90*direction,
-                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
-                        fg_color=fg_color, bg_color=bg_color,
-                        #bar_height=0.04,
-                        comment=f"Oscillation with frequency {freq} direction {direction} brightness {bright} contrast {contrast}")
-                    block.append(t)
-                    counter += 1
-
-    # Small object
-    for alpha in [10]:
-        for speed in [2, 4]:
-            for direction in [-1, 1]:
-                for clrs in [(190, 64)]:
-                    bright = clrs[1]
-                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                    fg_color = clrs[1] << 8
-                    bg_color = clrs[0] << 8
-                    rotation_speed = alpha*2*speed*direction
-                    t = Trial(
-                        counter, 
-                        bar_deg=alpha, space_deg=180-alpha,
-                        rotate_deg_hz=rotation_speed,
-                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
-                        fg_color=fg_color, bg_color=bg_color,
-                        bar_height=0.03,
-                        comment=f"Object alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
-                    block.append(t)
-                    counter += 1
-
-    
 
     while not start:
         time.sleep(0.1)
