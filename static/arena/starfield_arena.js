@@ -14,9 +14,9 @@ let camera;
 let renderer;
 let io;
 let loop;
-const sphereCount = 300;
-const sphereRadius = 30;
-const shellRadius = 850;
+const sphereCount = 0;
+const sphereRadius = 0;
+const shellRadius = 0;
 let spheres;
 
 class StarfieldArena {

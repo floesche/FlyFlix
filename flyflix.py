@@ -399,14 +399,17 @@ def starfield():
     print(time.strftime("%H:%M:%S", time.localtime()))
 
     # test trials
-    for count in [100,500]:
+    for count in [100, 200, 300, 400, 500]:
         for direction in [-1, 1]:
+            speed = direction*10
             t = StarfieldTrial(
                     sphere_count = count,
                     trial_id=30,
                     sphere_radius=30,
                     shell_radius=850,
-                    color=0x00ff00)
+                    color=0x00ff00,
+                    speed=speed
+                    )
             block.append(t)
             counter += 1
     
