@@ -402,7 +402,7 @@ def starfield():
     for count in [100, 200, 300, 400, 500]:
         for speed in [2, 4]:
             for direction in [-1, 1]:
-                rotate_deg_hz = direction*speed*.1
+                rotate_deg_hz = direction*speed*10
                 t = StarfieldTrial(
                         sphere_count = count,
                         trial_id=30,
@@ -435,7 +435,7 @@ def starfield():
             socketio.emit("condition-update", progress)
             #current_trial.set_id(counter)
             current_trial.trigger(socketio)
-            time.sleep(2.5)
+            #time.sleep(2.5)
             if not start:
                 return
     
