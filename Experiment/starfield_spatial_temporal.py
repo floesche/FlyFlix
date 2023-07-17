@@ -18,6 +18,7 @@ class StarfieldSpatialTemporal():
         shell_radius=850,
         color=0x00ff00,
         rotate_deg_hz=0,
+        osc_width=0, osc_freq=0
     ) -> None:
         """
         Constructor for a spatial-temporal description of a starfield stimulus. The assumption is that
@@ -36,10 +37,16 @@ class StarfieldSpatialTemporal():
         self.shell_radius = shell_radius
         self.color = color
         self.rotate_deg_hz = rotate_deg_hz
+        self.osc_width = osc_width
+        self.osc_freq = osc_freq
     
     def is_oscillation(self) -> bool:
-        # todo: update when oscillation is added
+        if self.osc_freq > 0:
+            return True
         return False
+
+    def get_oscillation_duration(self) -> Duration:
+        return Duration(1.0/self.osc_freq * 2 * 1000)
     
     def trigger_rotation(self, socket_io) -> None:
         """
@@ -54,7 +61,7 @@ class StarfieldSpatialTemporal():
         
     def trigger_oscillation(self, socket_io) -> None:
         shared_key = time.time_ns()
-        #socket_io.emit('oscillation', (shared_key, self.osc_freq, self.osc_width))
+        socket_io.emit('oscillation', (shared_key, self.osc_freq, self.osc_width))
         
     def trigger_stop(self, socket_io) -> None:
         """

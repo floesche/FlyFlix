@@ -15,6 +15,7 @@ class StarfieldTrial():
                  shell_radius=850,
                  color=0x00ff00,
                  rotate_deg_hz=0,
+                 osc_freq=0, osc_width=0,
                  openloop_duration=Duration(3000),
                  closedloop_duration=Duration(5000), gain = 1,
                  fps=60,
@@ -50,6 +51,8 @@ class StarfieldTrial():
             shell_radius=shell_radius,
             color=color,
             rotate_deg_hz=rotate_deg_hz,
+            osc_freq=osc_freq,
+            osc_width=osc_width
         )
         if openloop_duration is not None:
             olc = OpenLoopCondition(
