@@ -67,9 +67,10 @@ class ClosedLoopCondition():
         shared_key = time.time_ns()
         socket_io.emit("meta", (shared_key, "closedloop-start", 1))
         self.trigger_fps(socket_io)
-        self.spatial_temporal.trigger_spatial(socket_io)
         self.spatial_temporal.trigger_stop(socket_io)
         if (not self.is_starfield):
+            self.spatial_temporal.trigger_spatial(socket_io)
+            self.spatial_temporal.trigger_stop(socket_io)
             self.spatial_temporal.trigger_closedloop_start_position(socket_io)
         self.pretrial_duration.trigger_delay(socket_io)
         self.is_triggering = True
