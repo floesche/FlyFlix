@@ -400,18 +400,19 @@ def starfield():
 
     # test trials
     for count in [100, 200, 300, 400, 500]:
-        for direction in [-1, 1]:
-            speed = direction*10
-            t = StarfieldTrial(
-                    sphere_count = count,
-                    trial_id=30,
-                    sphere_radius=30,
-                    shell_radius=850,
-                    color=0x00ff00,
-                    speed=speed
-                    )
-            block.append(t)
-            counter += 1
+        for speed in [2, 4]:
+            for direction in [-1, 1]:
+                rotate_deg_hz = direction*speed*.1
+                t = StarfieldTrial(
+                        sphere_count = count,
+                        trial_id=30,
+                        sphere_radius=30,
+                        shell_radius=850,
+                        color=0x00ff00,
+                        rotate_deg_hz=rotate_deg_hz
+                        )
+                block.append(t)
+                counter += 1
     
     while not start:
         time.sleep(0.1)

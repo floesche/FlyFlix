@@ -145,8 +145,11 @@ class Spheres extends Group {
     tick(delta){
         //this.rotateX(-0.01);
         if (this.startTime === undefined){
-            //the following line is used for testing purposes - please use the line below it
-            this.rotation.x += delta * 0.1;
+            //the following line is used for testing purposes - please use the lines below it
+            //this.rotation.x += delta * 0.1;
+            if (this.rotateRadHz){
+                this.rotation.x += delta*this.rotateRadHz
+            }
             //this.rotation.x = (this.rotation.x + delta * this.rotateRadHz) % (2*Math.PI);
             this._log('spheres-tick-rotation', this.rotation.x);
         } else {
