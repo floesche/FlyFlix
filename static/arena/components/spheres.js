@@ -130,7 +130,7 @@ class Spheres extends Group {
      * @param {number} rotation - set the absolute rotation of the camera in radians
      */
     setRotationRad(rotation){
-        this.rotation.x = rotation % (2*Math.PI);
+        this.rotation.y = rotation % (2*Math.PI);
         this._log('spheres-set-rotationRad', rotation);
     }
 
@@ -145,16 +145,14 @@ class Spheres extends Group {
     tick(delta){
         //this.rotateX(-0.01);
         if (this.startTime === undefined){
-            //the following line is used for testing purposes - please use the lines below it
-            //this.rotation.x += delta * 0.1;
             if (this.rotateRadHz){
-                this.rotation.x = (this.rotation.x + delta * this.rotateRadHz) % (2*Math.PI);
+                this.rotation.y = (this.rotation.y + delta * this.rotateRadHz) % (2*Math.PI);
             }
-            this._log('spheres-tick-rotation', this.rotation.x);
+            this._log('spheres-tick-rotation', this.rotation.y);
         } else {
             const c_time = Date.now()/1000;
-            this.rotation.x = Math.sin((c_time - this.startTime) * this.osc_hz * (2*Math.PI)) * this.max_deg;
-            this._log('spheres-tick-rotation', this.rotation.x);
+            this.rotation.y = Math.sin((c_time - this.startTime) * this.osc_hz * (2*Math.PI)) * this.max_deg;
+            this._log('spheres-tick-rotation', this.rotation.y);
         }
     }
 
