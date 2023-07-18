@@ -96,7 +96,7 @@ class Spheres extends Group {
      * Set the rotational speed of the spheres (in radians)
      * 
      * @param {number} rotateRadHz - rotational speed of the spherical shell in radians per second, 
-     * positive is upwards
+     * positive is clockwise
      */
     setRotateRadHz(rotateRadHz){
         this.rotateRadHz = rotateRadHz;
@@ -107,7 +107,7 @@ class Spheres extends Group {
     * Set the rotational speed of the spherical shell (in degree)
     * 
     * @param {number} rotate_deg_hz - rotational speed of the spheres in degree per second, 
-    *      positive is up
+    *      positive is clockwise
     */
     setRotateDegHz(rotate_deg_hz){
         this.rotateRadHz = MathUtils.degToRad(rotate_deg_hz);
@@ -143,7 +143,6 @@ class Spheres extends Group {
      * To Do - update
      */
     tick(delta){
-        //this.rotateX(-0.01);
         if (this.startTime === undefined){
             if (this.rotateRadHz){
                 this.rotation.y = (this.rotation.y + delta * this.rotateRadHz) % (2*Math.PI);

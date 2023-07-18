@@ -403,12 +403,12 @@ def starfield():
         for speed in [2, 4]:
             for direction in [-1, 1]:
                 rotate_deg_hz = direction*speed*10
-                t = StarfieldTrial(
+                t = Trial(
                         sphere_count = count,
                         trial_id=30,
                         sphere_radius=30,
                         shell_radius=850,
-                        color=0x00ff00,
+                        fg_color=0x00ff00,
                         rotate_deg_hz=rotate_deg_hz
                         )
                 block.append(t)
@@ -418,12 +418,12 @@ def starfield():
     for count in [100, 300, 500]:
         for freq in [0.166]:
             for direction in [-1, 1]:
-                t = StarfieldTrial(
+                t = Trial(
                         sphere_count = count,
                         trial_id=30,
                         sphere_radius=30,
                         shell_radius=850,
-                        color=0x00ff00,
+                        fg_color=0x00ff00,
                         osc_freq=freq, osc_width=90*direction
                         )
                 block.append(t)
