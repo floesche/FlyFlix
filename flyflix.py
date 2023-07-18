@@ -27,7 +27,6 @@ from jinja2 import TemplateNotFound
 from engineio.payload import Payload
 
 from Experiment import SpatialTemporal, Duration, OpenLoopCondition, SweepCondition, ClosedLoopCondition, Trial, CsvFormatter
-from Experiment.starfield_trial import StarfieldTrial
 app = Flask(__name__)
 
 start = False
