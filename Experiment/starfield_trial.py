@@ -30,6 +30,8 @@ class StarfieldTrial():
         :param float sphere_radius: the radius of the spheres surrounding the fly's position
         :param float shell_radius: the distance between the fly's position and the spheres
         :param float rotate_deg_hz: movement speed in degree per second, positive is clockwise
+        :param float osc_freq: the frequency of the oscillation of a trial
+        :param float osc_width: the width of an oscillation in degrees
         :param Duration openloop_duration: duration of the openloop condition
         :param Duration closedloop_duration: duration of the closed loop condition
         :param float gain: multiplier for orientation change read from the FicTrac instance
@@ -40,6 +42,10 @@ class StarfieldTrial():
         :param str comment: additional comment that can be logged with the data
         :rtype: None
         """
+        
+        if rotate_deg_hz is not 0 and osc_freq is not 0:
+            warnings.warn("Cannot set rotation degrees hz and oscillation frequency, oscillation will take precedence")
+        
         self.trial_id = trial_id
         self.conditions = []
         self.comment = comment
