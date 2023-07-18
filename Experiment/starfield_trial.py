@@ -100,4 +100,12 @@ class StarfieldTrial():
         
         socket_io.emit("meta", (shared_key, "trial-end", self.trial_id))
     
+    def set_id(self, trial_id) -> None:
+        """
+        set ID for trial
+
+        :param str trial_id: ID of the trial, preferably an integer
+        :rtype: None
+        """
+        self.trial_id = trial_id
         

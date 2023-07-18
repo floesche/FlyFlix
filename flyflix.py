@@ -448,9 +448,8 @@ def starfield():
             progress = f"condition {counter} of {len(block*repetitions)}"
             print(progress)
             socketio.emit("condition-update", progress)
-            #current_trial.set_id(counter)
+            current_trial.set_id(counter)
             current_trial.trigger(socketio)
-            #time.sleep(2.5)
             if not start:
                 return
     
