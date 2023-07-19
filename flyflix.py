@@ -472,6 +472,66 @@ def local_starfield():
     return render_template('starfield.html')
 
 
+def starbars():
+    
+    print(time.strftime("%H:%M:%S", time.localtime()))
+    block = []
+    counter = 0
+    
+     ## rotation 
+    for alpha in [15]:
+        for speed in [4, 8]:
+            for direction in [-1, 1]:
+                for clrs in [(64, 190)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = clrs[1] << 8
+                    bg_color = clrs[0] << 8
+                    rotation_speed = alpha*2*speed*direction
+                    t = Trial(
+                        counter, 
+                        bar_deg=alpha, 
+                        rotate_deg_hz=rotation_speed,
+                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        fg_color=fg_color, bg_color=bg_color,
+                        comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
+                    block.append(t)
+                    counter += 1
+
+    
+    while not start:
+        time.sleep(0.1)
+    global RUN_FICTRAC
+    RUN_FICTRAC = True
+    log_metadata()
+    _ = socketio.start_background_task(target = log_fictrac_timestamp)
+
+    repetitions = 3
+    counter = 0
+    opening_black_screen = Duration(100)
+    opening_black_screen.trigger_delay(socketio)
+    for i in range(repetitions):
+        socketio.emit("meta", (time.time_ns(), "block-repetition", i))
+        block = random.sample(block, k=len(block))
+        for current_trial in block:
+            counter = counter + 1
+            progress = f"condition {counter} of {len(block*repetitions)}"
+            print(progress)
+            socketio.emit("condition-update", progress)
+            current_trial.set_id(counter)
+            current_trial.trigger(socketio)
+            if not start:
+                return
+
+@app.route('/starbars-experiment/')
+def local_starbars():
+    """
+    2 minute experiment with a mixture of starfield and bar trials.
+    """
+    _ = socketio.start_background_task(target=starbars)
+    return render_template('starbars.html')
+
+
 @app.route('/control-panel/')
 def control_panel():
     """
