@@ -96,7 +96,7 @@ class DataExchanger{
          * @param {number} barWidth - bar width in radians
          * @param {number} spaceWidth - interval width between bars in radians
          */
-        this.socket.on('spatial-setup', (lid, barWidth, spaceWidth, maskStart, maskEnd, fgColor, bgColor, barHeight) => {
+        this.socket.on('spatial-setup', (lid, barWidth, spaceWidth, fgColor, bgColor, barHeight) => {
             panels.setLid(lid);
             panels.changePanels(barWidth, spaceWidth, fgColor, bgColor, barHeight);
             //scene.changeBgColor(bgColor);
