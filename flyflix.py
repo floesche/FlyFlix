@@ -395,7 +395,6 @@ def starfield():
     print(time.strftime("%H:%M:%S", time.localtime()))
     block = []
     counter = 0
-    print(time.strftime("%H:%M:%S", time.localtime()))
     
     # spinning starfield
     for count in [500]:
@@ -409,7 +408,7 @@ def starfield():
                         shell_radius=10,
                         fg_color=0x00ff00,
                         rotate_deg_hz=rotate_deg_hz,
-                        seed=300,
+                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
                         )
                 block.append(t)
                 counter += 1
@@ -425,7 +424,7 @@ def starfield():
                         shell_radius=10,
                         fg_color=0x00ff00,
                         osc_freq=freq, osc_width=90*direction,
-                        seed=300,
+                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
                         )
                 block.append(t)
                 counter += 1
