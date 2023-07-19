@@ -41,13 +41,13 @@ class StarfieldDataExchanger{
          * @param {bigint} lid - Loop ID
          * @param {number} speed - set rotational speed for spheres in radians per second
          */
-        this.socket.on('speed', (lid, speed) => {
+        this.socket.on('star-speed', (lid, speed) => {
             spheres.setLid(lid);
             spheres.setRotateRadHz(speed);
             this.log(lid, 'de-sphere-speed', speed);
         });
 
-        this.socket.on('oscillation', (lid, osc_freq, osc_width) => {
+        this.socket.on('star-oscillation', (lid, osc_freq, osc_width) => {
             spheres.setLid(lid);
             spheres.setOscillation(osc_freq, osc_width);
             this.log(lid, 'de-spheres-oscillation', osc_freq);
