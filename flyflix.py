@@ -396,7 +396,7 @@ def starfield():
     block = []
     counter = 0
     print(time.strftime("%H:%M:%S", time.localtime()))
-    """
+    
     # spinning starfield
     for count in [100, 300, 500]:
         for speed in [2, 4]:
@@ -427,16 +427,7 @@ def starfield():
                         )
                 block.append(t)
                 counter += 1
-    """
-    t = Trial(
-        sphere_count=500,
-        trial_id=123,
-        sphere_radius=30,
-        shell_radius=850,
-        rotate_deg_hz=40,
-        seed=100,
-    )
-    block.append(t)
+    
     
     while not start:
         time.sleep(0.1)
@@ -468,6 +459,11 @@ def starfield():
 
 @socketio.on('print')
 def socket_print(msg):
+    """
+    prints msg
+    
+    used for debugging purposes
+    """
     print(msg)
 
 @app.route('/starfield/')

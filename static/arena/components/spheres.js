@@ -63,24 +63,6 @@ class Spheres extends Group {
 
 
     /**
-     * (private) method that takes in a center point (x0, y0, z0) and a radius 
-     * and returns a random point on the sphere surrounding the point with that radius
-     * taken from https://stackoverflow.com/questions/5531827/random-point-on-a-given-sphere answer from user Neil Lamoureux
-     * 
-    */
-    _randomSpherePoint(x0, y0, z0, radius, seed){
-        var u = Math.random();
-        var v = Math.random();
-        var theta = 2 * Math.PI * u;
-        var phi = Math.acos(2 * v - 1);
-        var x = x0 + (radius * Math.sin(phi) * Math.cos(theta));
-        var y = y0 + (radius * Math.sin(phi) * Math.sin(theta));
-        var z = z0 + (radius * Math.cos(phi));
-        return [x,y,z];
-    }
-
-
-    /**
      * Interface to change the sphere setup
      * @param {number} sphereCount - the amount of total spheres surrounding the fly
      * @param {number} sphereRadius - the radius of the spheres in the starfield

@@ -100,8 +100,6 @@ class StarfieldDataExchanger{
         */
         this.socket.on('spatial-setup', (lid, sphereCount, sphereRadius, shellRadius, seed, positionList, color) => {
             var positions = JSON.parse(positionList)
-            this.socket.emit("print", typeof positions)
-            this.socket.emit("print", positions[0][0])
             spheres.setLid(lid);
             spheres.changeSpheres(sphereCount, sphereRadius, shellRadius, seed, positions, color);
             this.log(lid, 'de-spatial-setup-sphereCount', sphereCount);
