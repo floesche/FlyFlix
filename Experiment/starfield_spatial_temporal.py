@@ -16,7 +16,7 @@ class StarfieldSpatialTemporal():
     """
     
     def __init__(self,
-        sphere_count=500, sphere_radius=30,
+        sphere_count=500, sphere_radius_deg=10,
         shell_radius=850, seed=0,
         color=0x00ff00,
         rotate_deg_hz=0,
@@ -35,7 +35,7 @@ class StarfieldSpatialTemporal():
         # todo: add warnings
         
         self.sphere_count = sphere_count
-        self.sphere_radius = sphere_radius
+        self.sphere_radius_deg = sphere_radius_deg
         self.shell_radius = shell_radius
         self.seed = seed
         self.color = color
@@ -93,7 +93,7 @@ class StarfieldSpatialTemporal():
         socket_io.emit('spatial-setup', (
             shared_key,
             self.sphere_count,
-            self.sphere_radius,
+            self.sphere_radius_deg,
             self.shell_radius,
             self.seed,
             json.dumps(self.positions),

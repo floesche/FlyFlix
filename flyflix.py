@@ -398,15 +398,15 @@ def starfield():
     print(time.strftime("%H:%M:%S", time.localtime()))
     
     # spinning starfield
-    for count in [100, 300, 500]:
-        for speed in [2, 4]:
+    for count in [500]:
+        for speed in [2, 4, 6]:
             for direction in [-1, 1]:
-                rotate_deg_hz = direction*speed*10
+                rotate_deg_hz = direction*speed*30
                 t = Trial(
                         sphere_count = count,
                         trial_id=30,
-                        sphere_radius=30,
-                        shell_radius=850,
+                        sphere_radius_deg=3,
+                        shell_radius=10,
                         fg_color=0x00ff00,
                         rotate_deg_hz=rotate_deg_hz,
                         seed=300,
@@ -415,14 +415,14 @@ def starfield():
                 counter += 1
                 
     # oscillations
-    for count in [100, 300, 500]:
+    for count in [500]:
         for freq in [0.166]:
             for direction in [-1, 1]:
                 t = Trial(
                         sphere_count = count,
                         trial_id=30,
-                        sphere_radius=30,
-                        shell_radius=850,
+                        sphere_radius_deg=3,
+                        shell_radius=10,
                         fg_color=0x00ff00,
                         osc_freq=freq, osc_width=90*direction,
                         seed=300,

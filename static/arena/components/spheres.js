@@ -13,14 +13,14 @@ class Spheres extends Group {
      * 
      * @constructor
      * @param {number} sphereCount - the amount of total spheres surrounding the fly
-     * @param {number} sphereRadius - the radius of the spheres in the starfield
+     * @param {number} sphereRadiusDeg - the radius of the spheres in the starfield in degrees
      * @param {number} shellRadius - the radius of the shell / distance between camera and spheres
      * @param {color} color - color of the spheres (default is green)
      */
-    constructor( sphereCount, sphereRadius, shellRadius, color=0x00ff00 ){
+    constructor( sphereCount, sphereRadiusDeg, shellRadius, color=0x00ff00 ){
         super();
         this.sphereCount = sphereCount;
-        this.sphereRadius = sphereRadius;
+        this.sphereRadiusDeg = sphereRadiusDeg;
         this.shellRadius = shellRadius;
         this.color = color;
         this.loggable = null;
@@ -28,24 +28,24 @@ class Spheres extends Group {
         this.startTime = undefined;
         this.seed = 0;
         this.positions = [];
-        this._setup(sphereCount, sphereRadius, shellRadius, this.seed, this.positions, color);
+        this._setup(sphereCount, sphereRadiusDeg, shellRadius, this.seed, this.positions, color);
     }
 
 
     /**
      * (private) method to set up the arena with stars
      * @param {number} sphereCount - the amount of total spheres surrounding the fly
-     * @param {number} sphereRadius - the radius of the spheres in the starfield
+     * @param {number} sphereRadiusDeg - the radius of the spheres in the starfield in degrees
      * @param {number} shellRadius - the radius of the shell / distance between camera and spheres
      * @param {color} color - color of the spheres
      */
-    _setup( sphereCount, sphereRadius, shellRadius, seed, positions, color){
-
-        const geometry = new SphereGeometry( sphereRadius, 32, 16 );
+    _setup( sphereCount, sphereRadiusDeg, shellRadius, seed, positions, color){
+        const sphereRadiusRad = MathUtils.degToRad(sphereRadiusDeg)
+        const geometry = new SphereGeometry( ((shellRadius*Math.sin(sphereRadiusRad))), 32, 16 );
         const material = new MeshBasicMaterial( { color: color } );
 
         this._log('spheres-sphere-count', sphereCount);
-        this._log('spheres-sphere-radius', sphereRadius);
+        this._log('spheres-sphere-radius-degrees', sphereRadiusDeg);
         this._log('spheres-shell-radius',shellRadius);
         this._log('spheres-seed', seed)
         this._log('spheres-sphere-color', color);
@@ -65,15 +65,15 @@ class Spheres extends Group {
     /**
      * Interface to change the sphere setup
      * @param {number} sphereCount - the amount of total spheres surrounding the fly
-     * @param {number} sphereRadius - the radius of the spheres in the starfield
+     * @param {number} sphereRadiusDeg - the radius of the spheres in the starfield in degrees
      * @param {number} shellRadius - the radius of the shell / distance between camera and spheres
      * @param {color} color - color of the spheres (default is green)
      */
-    changeSpheres(sphereCount, sphereRadius, shellRadius, seed, positions, color=0x00ff00) {
+    changeSpheres(sphereCount, sphereRadiusDeg, shellRadius, seed, positions, color=0x00ff00) {
         this.clear();
         this.setRotationRad(0);
         this._log('spheres-change-clear');
-        this._setup(sphereCount, sphereRadius, shellRadius, seed, positions, color);
+        this._setup(sphereCount, sphereRadiusDeg, shellRadius, seed, positions, color);
     }
 
 
