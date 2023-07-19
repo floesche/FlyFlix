@@ -98,13 +98,17 @@ class StarfieldDataExchanger{
          * @param {number} shellRadius - the radius of the shell / distance between camera and spheres
          * @param {color} color - color of the spheres (default is green)
         */
-        this.socket.on('spatial-setup', (lid, sphereCount, sphereRadius, shellRadius, color) => {
+        this.socket.on('spatial-setup', (lid, sphereCount, sphereRadius, shellRadius, seed, positionList, color) => {
+            var positions = JSON.parse(positionList)
+            this.socket.emit("print", typeof positions)
+            this.socket.emit("print", positions[0][0])
             spheres.setLid(lid);
-            spheres.changeSpheres(sphereCount, sphereRadius, shellRadius, color);
+            spheres.changeSpheres(sphereCount, sphereRadius, shellRadius, seed, positions, color);
             this.log(lid, 'de-spatial-setup-sphereCount', sphereCount);
             this.log(lid, 'de-spatial-setup-color', color);
             this.log(lid, 'de-spatial-setup-sphereRadius', sphereRadius);
             this.log(lid, 'de-spatial-setup-shellRadius', shellRadius);
+            this.log(lid, 'de-spatial-setup-seed', seed)
             loop.start();
         });
 

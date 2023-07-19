@@ -26,7 +26,9 @@ class Spheres extends Group {
         this.loggable = null;
         this.lid = 0;
         this.startTime = undefined;
-        this._setup(sphereCount, sphereRadius, shellRadius, color);
+        this.seed = 0;
+        this.positions = [];
+        this._setup(sphereCount, sphereRadius, shellRadius, this.seed, this.positions, color);
     }
 
 
@@ -37,7 +39,7 @@ class Spheres extends Group {
      * @param {number} shellRadius - the radius of the shell / distance between camera and spheres
      * @param {color} color - color of the spheres
      */
-    _setup( sphereCount, sphereRadius, shellRadius, color){
+    _setup( sphereCount, sphereRadius, shellRadius, seed, positions, color){
 
         const geometry = new SphereGeometry( sphereRadius, 32, 16 );
         const material = new MeshBasicMaterial( { color: color } );
@@ -45,15 +47,15 @@ class Spheres extends Group {
         this._log('spheres-sphere-count', sphereCount);
         this._log('spheres-sphere-radius', sphereRadius);
         this._log('spheres-shell-radius',shellRadius);
+        this._log('spheres-seed', seed)
         this._log('spheres-sphere-color', color);
         this._log('spheres-type', 'SphereGeometry');
 
         for ( let i=0; i<sphereCount; i++){
             const sphereMesh = new Mesh( geometry, material );
-            let positions = this._randomSpherePoint(0,0,0, shellRadius);
-            sphereMesh.position.x = positions[0];
-            sphereMesh.position.y = positions[1];
-            sphereMesh.position.z = positions[2];
+            sphereMesh.position.x = positions[i][0];
+            sphereMesh.position.y = positions[i][1];
+            sphereMesh.position.z = positions[i][2];
             this.add(sphereMesh);
         }
 
@@ -66,7 +68,7 @@ class Spheres extends Group {
      * taken from https://stackoverflow.com/questions/5531827/random-point-on-a-given-sphere answer from user Neil Lamoureux
      * 
     */
-    _randomSpherePoint(x0,y0,z0,radius){
+    _randomSpherePoint(x0, y0, z0, radius, seed){
         var u = Math.random();
         var v = Math.random();
         var theta = 2 * Math.PI * u;
@@ -85,10 +87,10 @@ class Spheres extends Group {
      * @param {number} shellRadius - the radius of the shell / distance between camera and spheres
      * @param {color} color - color of the spheres (default is green)
      */
-    changeSpheres(sphereCount, sphereRadius, shellRadius, color=0x00ff00) {
+    changeSpheres(sphereCount, sphereRadius, shellRadius, seed, positions, color=0x00ff00) {
         this.clear();
         this._log('spheres-change-clear');
-        this._setup(sphereCount, sphereRadius, shellRadius, color);
+        this._setup(sphereCount, sphereRadius, shellRadius, seed, positions, color);
     }
 
 

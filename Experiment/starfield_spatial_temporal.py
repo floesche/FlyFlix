@@ -5,6 +5,8 @@ This is part of the FlyFlix server.
 import warnings
 import math
 import time
+import random
+import json
 
 from . import Duration
 
@@ -15,7 +17,7 @@ class StarfieldSpatialTemporal():
     
     def __init__(self,
         sphere_count=500, sphere_radius=30,
-        shell_radius=850,
+        shell_radius=850, seed=0,
         color=0x00ff00,
         rotate_deg_hz=0,
         osc_width=0, osc_freq=0
@@ -35,10 +37,12 @@ class StarfieldSpatialTemporal():
         self.sphere_count = sphere_count
         self.sphere_radius = sphere_radius
         self.shell_radius = shell_radius
+        self.seed = seed
         self.color = color
         self.rotate_deg_hz = rotate_deg_hz
         self.osc_width = osc_width
         self.osc_freq = osc_freq
+        self.positions = []
     
     def is_oscillation(self) -> bool:
         if self.osc_freq > 0:
@@ -82,11 +86,44 @@ class StarfieldSpatialTemporal():
         :param socket socket_io: Socket for sending the update.
         :rtype: None
         """
+        
+        self.generate_points()
+        
         shared_key = time.time_ns()
         socket_io.emit('spatial-setup', (
             shared_key,
             self.sphere_count,
             self.sphere_radius,
             self.shell_radius,
+            self.seed,
+            json.dumps(self.positions),
             self.color,
         ))
+        
+    def generate_points(self):
+        """
+        Generates a list of coordinates for random points on a sphere of radius shell_radius
+        based on the seed value and updates the list of positions. Assumes the center of the sphere is at (0,0,0).
+        
+        Inspired by https://stackoverflow.com/questions/5531827/random-point-on-a-given-sphere answer from user Neil Lamoureux
+        
+        :rtype: None
+        """
+        next_seed = self.seed
+        
+        for k in range(self.sphere_count):
+            random.seed(next_seed)
+            u = random.random()
+            next_seed = int(u * 10000)
+            random.seed(next_seed)
+            v = random.random()
+            next_seed = int(v * 10000)
+            theta = 2 * math.pi * u
+            phi = math.acos(2 * v - 1)
+            x = self.shell_radius * math.sin(phi) * math.cos(theta)
+            y = self.shell_radius * math.sin(phi) * math.sin(theta)
+            z = self.shell_radius * math.cos(phi)
+            self.positions.append([x,y,z])
+            
+            
+        

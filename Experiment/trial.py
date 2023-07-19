@@ -2,6 +2,7 @@
 
 import warnings
 import time
+import random
 
 from . import Duration, SpatialTemporal, OpenLoopCondition, SweepCondition, ClosedLoopCondition
 from Experiment.starfield_spatial_temporal import StarfieldSpatialTemporal
@@ -30,7 +31,7 @@ class Trial():
                  
                  #starfield variables
                  sphere_count=None, sphere_radius=None,
-                 shell_radius=None
+                 shell_radius=None, seed=None
                 ) -> None:
         """
         Define trial
@@ -61,6 +62,7 @@ class Trial():
         :param int sphere_count: the number of spheres surrounding the fly's position
         :param float sphere_radius: the radius of the spheres surrounding the fly's position in degrees
         :param float shell_radius: the distance between the fly's position and the spheres
+        :param int seed: a seed that generates a set of random points
     
         :rtype: None
         """
@@ -122,11 +124,15 @@ class Trial():
                     pretrial_duration=pretrial_duration, posttrial_duration=posttrial_duration)
                 self.conditions.append(clc)
         else: #if sphere_count
+            if seed is None:
+                warnings.warn("No seed set, generating random seed")
+                seed = random.randint(0, 10000)
             #create starfield spatial-temporal
             openloop_spatial_temporal = StarfieldSpatialTemporal(
                 sphere_count=sphere_count, 
                 sphere_radius=sphere_radius,
                 shell_radius=shell_radius,
+                seed=seed,
                 color=fg_color,
                 rotate_deg_hz=rotate_deg_hz,
                 osc_freq=osc_freq,
