@@ -12,7 +12,7 @@ class DataExchanger{
      * @param {Loop} loop - The animation loop
      * @param {Panels} panels - the group of panels
      */
-    constructor(camera, scene, loop, panels, masks){
+    constructor(camera, scene, loop, panels,){
 
         // The data exchanger connects to a Socket IO at port 17000
         const socketurl = window.location.hostname + ":17000";
@@ -101,12 +101,8 @@ class DataExchanger{
             panels.changePanels(barWidth, spaceWidth, fgColor, bgColor, barHeight);
             //scene.changeBgColor(bgColor);
             scene.background = new Color(bgColor);
-            masks.setLid(lid);
-            masks.changeMask(maskStart+mr, maskEnd+mr, bgColor);
             this.log(lid, 'de-spatial-setup-bar', barWidth);
             this.log(lid, 'de-spatial-setup-space', spaceWidth);
-            this.log(lid, 'de-spatial-setup-mask-start', maskStart);
-            this.log(lid, 'de-spatial-setup-mask-end', maskEnd);
             this.log(lid, 'de-spatial-setup-fgcolor', fgColor);
             this.log(lid, 'de-spatial-setup-bgcolor', bgColor);
             this.log(lid, 'de-spatial-setup-barheight', barHeight);
