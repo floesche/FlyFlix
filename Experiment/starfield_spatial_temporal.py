@@ -90,7 +90,7 @@ class StarfieldSpatialTemporal():
         self.generate_points()
         
         shared_key = time.time_ns()
-        socket_io.emit('spatial-setup', (
+        socket_io.emit('star-spatial-setup', (
             shared_key,
             self.sphere_count,
             self.sphere_radius_deg,
