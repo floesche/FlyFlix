@@ -31,7 +31,8 @@ class Trial():
                  
                  #starfield variables
                  sphere_count=None, sphere_radius_deg=None,
-                 shell_radius=None, seed=None
+                 shell_radius=None, seed=None,
+                 starfield_closedloop=False
                 ) -> None:
         """
         Define trial
@@ -63,6 +64,7 @@ class Trial():
         :param float sphere_radius_deg: the radius of the spheres surrounding the fly's position in degrees
         :param float shell_radius: the distance between the fly's position and the spheres
         :param int seed: a seed that generates a set of random points
+        :param bool starfield_closedloop: boolean that determines if there is a closed loop condition for the trial
     
         :rtype: None
         """
@@ -150,7 +152,7 @@ class Trial():
                 warnings.warn("Duration needs to be set")
             
             closedloop_spatial_temporal = openloop_spatial_temporal
-            if closedloop_duration is not None:
+            if starfield_closedloop:
                 clc = ClosedLoopCondition(
                     spatial_temporal=closedloop_spatial_temporal, trial_duration=closedloop_duration,
                     gain=gain, fps=fps,
