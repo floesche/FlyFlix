@@ -71,6 +71,7 @@ class Spheres extends Group {
      */
     changeSpheres(sphereCount, sphereRadius, shellRadius, seed, positions, color=0x00ff00) {
         this.clear();
+        this.setRotationRad(0);
         this._log('spheres-change-clear');
         this._setup(sphereCount, sphereRadius, shellRadius, seed, positions, color);
     }
