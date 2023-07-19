@@ -252,7 +252,15 @@ def trigger_restart(empty):
 def manual_restart(empty):
     print('manually restarted - recieved')
     socketio.emit('condition-update', "Once the experiment is started, status will be shown here.")
-    
+
+@socketio.on('print')
+def socket_print(msg):
+    """
+    prints msg
+    used for debugging purposes
+    """
+    print(msg)
+
 
 def log_fictrac_timestamp():
     shared_key = time.time_ns()
@@ -458,19 +466,11 @@ def starfield():
     socketio.emit("condition-update", "Completed")
     print(time.strftime("%H:%M:%S", time.localtime()))
 
-@socketio.on('print')
-def socket_print(msg):
-    """
-    prints msg
-    
-    used for debugging purposes
-    """
-    print(msg)
-
 @app.route('/starfield/')
 def local_starfield():
     _ = socketio.start_background_task(target=starfield)
     return render_template('starfield.html')
+
 
 @app.route('/control-panel/')
 def control_panel():
