@@ -408,7 +408,8 @@ def starfield():
                         sphere_radius=30,
                         shell_radius=850,
                         fg_color=0x00ff00,
-                        rotate_deg_hz=rotate_deg_hz
+                        rotate_deg_hz=rotate_deg_hz,
+                        seed=300,
                         )
                 block.append(t)
                 counter += 1
@@ -423,7 +424,8 @@ def starfield():
                         sphere_radius=30,
                         shell_radius=850,
                         fg_color=0x00ff00,
-                        osc_freq=freq, osc_width=90*direction
+                        osc_freq=freq, osc_width=90*direction,
+                        seed=300,
                         )
                 block.append(t)
                 counter += 1
