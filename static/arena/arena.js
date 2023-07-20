@@ -53,11 +53,11 @@ class Arena {
         loop.updateables.push(masks);
 
         io = new DataExchanger(camera, scene, loop, panels, spheres, masks);
-        // }
 
         camera.loggable = io;
         loop.loggable = io;
         panels.loggable = io;
+        spheres.loggable = io;
         masks.loggable = io;
 
         const resizer = new Resizer(container, camera, renderer);
