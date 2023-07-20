@@ -2,13 +2,15 @@ import { createCamera } from './components/camera.js';
 import { createScene } from './components/scene.js';
 
 import { Panels } from './components/panels.js';
+import { Spheres } from './components/spheres.js';
 
 import { createRenderer } from './systems/renderer.js';
 import { Resizer } from './systems/resizer.js';
 import { Loop } from './systems/loop.js';
 
 import { DataExchanger } from './systems/data_exchanger.js';
-//import { DadaExchanger } from './systems/dada_exchanger.js';
+import { StarfieldDataExchanger } from './systems/starfield_data_exchanger.js';
+
 import { Mask } from './components/mask.js';
 
 let camera;
@@ -42,10 +44,14 @@ class Arena {
         container.append(renderer.domElement);
 
         const panels = new Panels(10, 170);
+        const spheres = new Spheres(0,0,0);
         const masks = new Mask(0,0);
         scene.add(panels);
+        scene.add(spheres);
         scene.add(masks);
         loop.updateables.push(panels);
+        loop.updateables.push(spheres);
+        loop.updateables.push(masks);
         // if (orientation < 180){
         //     io = new DadaExchanger(camera, scene, loop, panels, masks);
         // } else {
