@@ -117,13 +117,17 @@ class DataExchanger{
          * @param {number} spaceWidth - interval width between bars in radians
          */
         this.socket.on('panels-spatial-setup', (lid, barWidth, spaceWidth, maskStart, maskEnd, fgColor, bgColor, barHeight) => {
+            
             spheres.clearSpheres();
+            masks.clearMasks();
+            
             panels.setLid(lid);
             panels.changePanels(barWidth, spaceWidth, fgColor, bgColor, barHeight);
-            //scene.changeBgColor(bgColor);
+            
             scene.background = new Color(bgColor);
             masks.setLid(lid);
             masks.changeMask(maskStart+mr, maskEnd+mr, bgColor);
+            
             this.log(lid, 'de-panels-spatial-setup-bar', barWidth);
             this.log(lid, 'de-panels-spatial-setup-space', spaceWidth);
             this.log(lid, 'de-panels-spatial-setup-mask-start', maskStart);
@@ -146,14 +150,20 @@ class DataExchanger{
         */
         this.socket.on('spheres-spatial-setup', (lid, sphereCount, sphereRadius, shellRadius, seed, positionList, color) => {
             panels.clearPanels();
+            masks.clearMasks();
+
+            scene.background = new Color(0x000000);
+
             var positions = JSON.parse(positionList)
             spheres.setLid(lid);
             spheres.changeSpheres(sphereCount, sphereRadius, shellRadius, seed, positions, color);
+            
             this.log(lid, 'de-spheres-spatial-setup-sphereCount', sphereCount);
             this.log(lid, 'de-spheres-spatial-setup-color', color);
             this.log(lid, 'de-spheres-spatial-setup-sphereRadius', sphereRadius);
             this.log(lid, 'de-spheres-spatial-setup-shellRadius', shellRadius);
             this.log(lid, 'de-spheres-spatial-setup-seed', seed)
+
             loop.start();
         });
 
