@@ -34,7 +34,7 @@ SWEEPCOUNTERREACHED = False
 RUN_FICTRAC = False
 
 
-Payload.max_decode_packets = 1500
+Payload.max_decode_packets = 2500
 
 # metadata variable - DO NOT CHANGE
 # use control panel to update values or defaultsconfig.yaml to set defaults
