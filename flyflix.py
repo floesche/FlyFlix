@@ -497,8 +497,24 @@ def starbars():
                         comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
                     block.append(t)
                     counter += 1
+                    
+    # spinning starfield
+    for count in [500]:
+        for speed in [2, 4, 6]:
+            for direction in [-1, 1]:
+                rotate_deg_hz = direction*speed*30
+                t = Trial(
+                        sphere_count = count,
+                        trial_id=30,
+                        sphere_radius_deg=3,
+                        shell_radius=10,
+                        fg_color=0x00ff00,
+                        rotate_deg_hz=rotate_deg_hz,
+                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        )
+                block.append(t)
+                counter += 1
 
-    
     while not start:
         time.sleep(0.1)
     global RUN_FICTRAC
