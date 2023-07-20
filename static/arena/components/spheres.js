@@ -76,6 +76,14 @@ class Spheres extends Group {
         this._setup(sphereCount, sphereRadiusDeg, shellRadius, seed, positions, color);
     }
 
+    /**
+     * Interface to clear the sphere setup
+     * Used whenever a non-sphere trial starts
+     */
+    clearSpheres(){
+        this.clear();
+        this._log("spheres-clear");
+    }
 
     /**
      * Set the rotational speed of the spheres (in radians)
