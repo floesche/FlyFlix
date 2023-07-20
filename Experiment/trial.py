@@ -23,6 +23,7 @@ class Trial():
                  
                  #panel/bar variables
                  bar_deg=None, space_deg=None,
+                 start_mask_deg=0, end_mask_deg=0,
                  sweep=None,
                  closedloop_bar_deg = None,
                  bg_color=0x000000,
@@ -91,6 +92,7 @@ class Trial():
                 bar_deg=bar_deg,
                 space_deg=space_deg,
                 rotate_deg_hz=rotate_deg_hz,
+                start_mask_deg=start_mask_deg, end_mask_deg=end_mask_deg,
                 osc_freq=osc_freq, osc_width=osc_width,
                 fg_color=fg_color, bg_color=bg_color,
                 bar_height=bar_height)

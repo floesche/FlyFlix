@@ -16,6 +16,7 @@ class SpatialTemporal():
     def __init__(self,
         bar_deg=60, space_deg=60, 
         rotate_deg_hz=0, 
+        start_mask_deg=0, end_mask_deg=0,
         osc_freq=0, osc_width=0,
         fg_color=0x00ff00, bg_color=0x000000,
         bar_height=0.8
@@ -38,6 +39,8 @@ class SpatialTemporal():
                 f"Spatial pattern is not seamless with bar {bar_deg}° and space {space_deg}")
         if rotate_deg_hz is None:
             warnings.warn("temporal components needs to be set.")
+        if start_mask_deg > end_mask_deg:
+            warnings.warn("mask has invalid range.")
         if fg_color<0 or fg_color>0xffffff:
             warnings.warn("foreground color outside of range")
         if bg_color<0 or bg_color>0xffffff:
@@ -45,6 +48,8 @@ class SpatialTemporal():
         self.bar_deg = bar_deg
         self.space_deg = space_deg
         self.rotate_deg_hz = rotate_deg_hz
+        self.start_mask_deg = start_mask_deg
+        self.end_mask_deg = end_mask_deg
         self.fg_color = fg_color
         self.bg_color = bg_color
         self.osc_freq = osc_freq
@@ -153,6 +158,8 @@ class SpatialTemporal():
             shared_key,
             math.radians(self.bar_deg),
             math.radians(self.space_deg),
+            math.radians(self.start_mask_deg),
+            math.radians(self.end_mask_deg),
             self.fg_color,
             self.bg_color,
             self.bar_height))
