@@ -117,6 +117,7 @@ class DataExchanger{
          * @param {number} spaceWidth - interval width between bars in radians
          */
         this.socket.on('panels-spatial-setup', (lid, barWidth, spaceWidth, maskStart, maskEnd, fgColor, bgColor, barHeight) => {
+            spheres.clearSpheres();
             panels.setLid(lid);
             panels.changePanels(barWidth, spaceWidth, fgColor, bgColor, barHeight);
             //scene.changeBgColor(bgColor);
@@ -144,6 +145,7 @@ class DataExchanger{
          * @param {color} color - color of the spheres (default is green)
         */
         this.socket.on('spheres-spatial-setup', (lid, sphereCount, sphereRadius, shellRadius, seed, positionList, color) => {
+            panels.clearPanels();
             var positions = JSON.parse(positionList)
             spheres.setLid(lid);
             spheres.changeSpheres(sphereCount, sphereRadius, shellRadius, seed, positions, color);
