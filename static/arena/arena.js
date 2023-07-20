@@ -9,7 +9,6 @@ import { Resizer } from './systems/resizer.js';
 import { Loop } from './systems/loop.js';
 
 import { DataExchanger } from './systems/data_exchanger.js';
-import { StarfieldDataExchanger } from './systems/starfield_data_exchanger.js';
 
 import { Mask } from './components/mask.js';
 
@@ -52,10 +51,8 @@ class Arena {
         loop.updateables.push(panels);
         loop.updateables.push(spheres);
         loop.updateables.push(masks);
-        // if (orientation < 180){
-        //     io = new DadaExchanger(camera, scene, loop, panels, masks);
-        // } else {
-        io = new DataExchanger(camera, scene, loop, panels, masks);
+
+        io = new DataExchanger(camera, scene, loop, panels, spheres, masks);
         // }
 
         camera.loggable = io;
