@@ -85,6 +85,14 @@ class Panels extends Group {
     }
 
     /**
+     * Interface to clear the panel setup, specifically to complete different types of trials
+     */
+    clearPanels(){
+        this.clear();
+        this._log('panels-clear');
+    }
+
+    /**
      * Set the rotational speed of the panels (in radians)
      * 
      * @param {number} rotateRadHz - rotational speed of the panels in radians per second, positive
