@@ -61,11 +61,11 @@ class StarfieldSpatialTemporal():
         :rtype: None
         """
         shared_key = time.time_ns()
-        socket_io.emit('star-speed', (shared_key, math.radians(self.rotate_deg_hz)))
+        socket_io.emit('spheres-speed', (shared_key, math.radians(self.rotate_deg_hz)))
         
     def trigger_oscillation(self, socket_io) -> None:
         shared_key = time.time_ns()
-        socket_io.emit('star-oscillation', (shared_key, self.osc_freq, self.osc_width))
+        socket_io.emit('spheres-oscillation', (shared_key, self.osc_freq, self.osc_width))
         
     def trigger_stop(self, socket_io) -> None:
         """
@@ -76,8 +76,8 @@ class StarfieldSpatialTemporal():
         :rtype: None
         """
         shared_key = time.time_ns()
-        socket_io.emit('star-speed', (shared_key, 0))
-        socket_io.emit('star-oscillation', (shared_key, 0, 0))
+        socket_io.emit('spheres-speed', (shared_key, 0))
+        socket_io.emit('spheres-oscillation', (shared_key, 0, 0))
         
     def trigger_spatial(self, socket_io) -> None:
         """
@@ -88,9 +88,9 @@ class StarfieldSpatialTemporal():
         """
         
         self.generate_points()
-        
+        print('spheres spatial triggered')
         shared_key = time.time_ns()
-        socket_io.emit('star-spatial-setup', (
+        socket_io.emit('spheres-spatial-setup', (
             shared_key,
             self.sphere_count,
             self.sphere_radius_deg,
