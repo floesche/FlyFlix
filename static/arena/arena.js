@@ -9,7 +9,7 @@ import { Loop } from './systems/loop.js';
 
 import { DataExchanger } from './systems/data_exchanger.js';
 //import { DadaExchanger } from './systems/dada_exchanger.js';
-
+import { Mask } from './components/mask.js';
 
 let camera;
 let renderer;
@@ -42,15 +42,20 @@ class Arena {
         container.append(renderer.domElement);
 
         const panels = new Panels(10, 170);
+        const masks = new Mask(0,0);
         scene.add(panels);
+        scene.add(masks);
         loop.updateables.push(panels);
-
-        io = new DataExchanger(camera, scene, loop, panels, );
-
+        // if (orientation < 180){
+        //     io = new DadaExchanger(camera, scene, loop, panels, masks);
+        // } else {
+        io = new DataExchanger(camera, scene, loop, panels, masks);
+        // }
 
         camera.loggable = io;
         loop.loggable = io;
         panels.loggable = io;
+        masks.loggable = io;
 
         const resizer = new Resizer(container, camera, renderer);
     }
