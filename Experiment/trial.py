@@ -15,7 +15,7 @@ class Trial():
                  trial_id,
                  rotate_deg_hz=0,
                  osc_freq=0, osc_width=0,
-                 fg_color=0x00ff00, 
+                 fg_color=0x00ff00, bg_color=0x000000,
                  openloop_duration=Duration(3000), closedloop_duration=Duration(5000), 
                  gain=1, fps=60, 
                  pretrial_duration=Duration(500), posttrial_duration=Duration(500),
@@ -26,11 +26,11 @@ class Trial():
                  start_mask_deg=0, end_mask_deg=0,
                  sweep=None,
                  closedloop_bar_deg = None,
-                 bg_color=0x000000,
                  bar_height=0.8,
                  
                  #starfield variables
-                 sphere_count=None, sphere_radius_deg=None,
+                 sphere_count=None, sphere_radius_deg=3,
+                 radius_dev=None,
                  shell_radius=None, seed=None,
                  starfield_closedloop=False
                 ) -> None:
@@ -62,6 +62,7 @@ class Trial():
         params used only in trials with starfield
         :param int sphere_count: the number of spheres surrounding the fly's position
         :param float sphere_radius_deg: the radius of the spheres surrounding the fly's position in degrees
+        :param float radius_dev: the deviation of possible radius sizes from the sphere_radius_range in degrees
         :param float shell_radius: the distance between the fly's position and the spheres
         :param int seed: a seed that generates a set of random points
         :param bool starfield_closedloop: boolean that determines if there is a closed loop condition for the trial
@@ -133,6 +134,7 @@ class Trial():
             openloop_spatial_temporal = StarfieldSpatialTemporal(
                 sphere_count=sphere_count, 
                 sphere_radius_deg=sphere_radius_deg,
+                radius_dev=radius_dev,
                 shell_radius=shell_radius,
                 seed=seed,
                 fg_color=fg_color, bg_color=bg_color,

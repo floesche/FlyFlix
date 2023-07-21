@@ -40,8 +40,7 @@ class Spheres extends Group {
      * @param {color} color - color of the spheres
      */
     _setup( sphereCount, sphereRadiusDeg, shellRadius, seed, positions, color){
-        const sphereRadiusRad = MathUtils.degToRad(sphereRadiusDeg)
-        const geometry = new SphereGeometry( ((shellRadius*Math.sin(sphereRadiusRad))), 32, 16 );
+        
         const material = new MeshBasicMaterial( { color: color } );
 
         this._log('spheres-sphere-count', sphereCount);
@@ -52,6 +51,9 @@ class Spheres extends Group {
         this._log('spheres-type', 'SphereGeometry');
 
         for ( let i=0; i<sphereCount; i++){
+            const sphereRadiusRad = MathUtils.degToRad(sphereRadiusDeg + positions[i][3])
+            const geometry = new SphereGeometry( ((shellRadius*Math.sin(sphereRadiusRad))), 32, 16 );
+
             const sphereMesh = new Mesh( geometry, material );
             sphereMesh.position.x = positions[i][0];
             sphereMesh.position.y = positions[i][1];

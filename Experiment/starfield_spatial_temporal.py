@@ -16,7 +16,8 @@ class StarfieldSpatialTemporal():
     """
     
     def __init__(self,
-        sphere_count=500, sphere_radius_deg=10,
+        sphere_count=500, sphere_radius_deg=3,
+        radius_dev = None,
         shell_radius=850, seed=0,
         fg_color=0x00ff00, bg_color=0x000000,
         rotate_deg_hz=0,
@@ -36,6 +37,7 @@ class StarfieldSpatialTemporal():
         
         self.sphere_count = sphere_count
         self.sphere_radius_deg = sphere_radius_deg
+        self.radius_dev = radius_dev
         self.shell_radius = shell_radius
         self.seed = seed
         self.fg_color = fg_color
@@ -89,7 +91,7 @@ class StarfieldSpatialTemporal():
         """
         
         self.generate_points()
-        print('spheres spatial triggered')
+
         shared_key = time.time_ns()
         socket_io.emit('spheres-spatial-setup', (
             shared_key,
@@ -114,18 +116,37 @@ class StarfieldSpatialTemporal():
         next_seed = self.seed
         
         for k in range(self.sphere_count):
+            
             random.seed(next_seed)
+            
+            t = random.random()
+            
+            next_seed = int(t * 10000)
+            random.seed(next_seed)
+            
             u = random.random()
             next_seed = int(u * 10000)
-            random.seed(next_seed)
+            
             v = random.random()
             next_seed = int(v * 10000)
-            theta = 2 * math.pi * u
-            phi = math.acos(2 * v - 1)
+            
+            w = random.random()
+            next_seed = int(w * 10000)
+            
+            theta = 2 * math.pi * t
+            phi = math.acos(2 * u - 1)
+            
+            if self.radius_dev is not None:
+                dev = v*self.radius_dev
+                dev *= (w * 2 - 1)
+            else:
+                dev = 0
+            
             x = self.shell_radius * math.sin(phi) * math.cos(theta)
             y = self.shell_radius * math.sin(phi) * math.sin(theta)
             z = self.shell_radius * math.cos(phi)
-            self.positions.append([x,y,z])
+            
+            self.positions.append([x,y,z, dev])
             
             
         

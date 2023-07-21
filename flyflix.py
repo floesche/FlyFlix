@@ -512,6 +512,7 @@ def starbars():
                             sphere_count = count,
                             trial_id=30,
                             sphere_radius_deg=3,
+                            #radius_dev=2,
                             shell_radius=10,
                             rotate_deg_hz=rotate_deg_hz,
                             pretrial_duration=Duration(250), posttrial_duration=Duration(250),
