@@ -148,18 +148,19 @@ class DataExchanger{
          * @param {number} shellRadius - the radius of the shell / distance between camera and spheres
          * @param {color} color - color of the spheres (default is green)
         */
-        this.socket.on('spheres-spatial-setup', (lid, sphereCount, sphereRadius, shellRadius, seed, positionList, color) => {
+        this.socket.on('spheres-spatial-setup', (lid, sphereCount, sphereRadius, shellRadius, seed, positionList, fgColor, bgColor) => {
             panels.clearPanels();
             masks.clearMasks();
 
-            scene.background = new Color(0x000000);
+            scene.background = new Color(bgColor);
 
             var positions = JSON.parse(positionList)
             spheres.setLid(lid);
-            spheres.changeSpheres(sphereCount, sphereRadius, shellRadius, seed, positions, color);
+            spheres.changeSpheres(sphereCount, sphereRadius, shellRadius, seed, positions, fgColor);
             
             this.log(lid, 'de-spheres-spatial-setup-sphereCount', sphereCount);
-            this.log(lid, 'de-spheres-spatial-setup-color', color);
+            this.log(lid, 'de-panels-spatial-setup-fgcolor', fgColor);
+            this.log(lid, 'de-panels-spatial-setup-bgcolor', bgColor);
             this.log(lid, 'de-spheres-spatial-setup-sphereRadius', sphereRadius);
             this.log(lid, 'de-spheres-spatial-setup-shellRadius', shellRadius);
             this.log(lid, 'de-spheres-spatial-setup-seed', seed)

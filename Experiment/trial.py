@@ -135,7 +135,7 @@ class Trial():
                 sphere_radius_deg=sphere_radius_deg,
                 shell_radius=shell_radius,
                 seed=seed,
-                color=fg_color,
+                fg_color=fg_color, bg_color=bg_color,
                 rotate_deg_hz=rotate_deg_hz,
                 osc_freq=osc_freq,
                 osc_width=osc_width

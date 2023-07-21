@@ -18,7 +18,7 @@ class StarfieldSpatialTemporal():
     def __init__(self,
         sphere_count=500, sphere_radius_deg=10,
         shell_radius=850, seed=0,
-        color=0x00ff00,
+        fg_color=0x00ff00, bg_color=0x000000,
         rotate_deg_hz=0,
         osc_width=0, osc_freq=0
     ) -> None:
@@ -38,7 +38,8 @@ class StarfieldSpatialTemporal():
         self.sphere_radius_deg = sphere_radius_deg
         self.shell_radius = shell_radius
         self.seed = seed
-        self.color = color
+        self.fg_color = fg_color
+        self.bg_color = bg_color
         self.rotate_deg_hz = rotate_deg_hz
         self.osc_width = osc_width
         self.osc_freq = osc_freq
@@ -97,7 +98,8 @@ class StarfieldSpatialTemporal():
             self.shell_radius,
             self.seed,
             json.dumps(self.positions),
-            self.color,
+            self.fg_color,
+            self.bg_color
         ))
         
     def generate_points(self):
