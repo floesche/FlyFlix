@@ -480,7 +480,7 @@ def starbars():
     
      ## rotation 
     for alpha in [15]:
-        for speed in [4, 8]:
+        for speed in [2, 4, 6]:
             for direction in [-1, 1]:
                 for clrs in [(64, 190)]:
                     bright = clrs[1]
@@ -538,11 +538,15 @@ def starbars():
             current_trial.trigger(socketio)
             if not start:
                 return
+    
+    RUN_FICTRAC = False
+    socketio.emit("condition-update", "Completed")
+    print(time.strftime("%H:%M:%S", time.localtime()))
 
 @app.route('/starbars-experiment/')
 def local_starbars():
     """
-    2 minute experiment with a mixture of starfield and bar trials.
+    Just over 2 minute experiment with a mixture of starfield and bar trials.
     """
     _ = socketio.start_background_task(target=starbars)
     return render_template('starbars.html')
