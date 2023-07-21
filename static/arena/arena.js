@@ -60,7 +60,7 @@ class Arena {
         spheres.loggable = io;
         masks.loggable = io;
 
-        camera.position.z = 20
+        //camera.position.z = 20
 
         const resizer = new Resizer(container, camera, renderer);
     }
