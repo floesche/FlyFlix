@@ -295,7 +295,7 @@ def log_fictrac_timestamp():
             socketio.emit("meta", (shared_key, "fictrac-frame", cnt))
             #    prevfrm = cnt
 
-
+'''
 def cshlfly22():
     print(time.strftime("%H:%M:%S", time.localtime()))
     block = []
@@ -397,7 +397,7 @@ def cshlfly22():
 def local_cshfly22():
     _ = socketio.start_background_task(target=cshlfly22)
     return render_template('cshlfly22.html')
-
+'''
 def starfield():
     
     print(time.strftime("%H:%M:%S", time.localtime()))
