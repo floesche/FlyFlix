@@ -113,25 +113,15 @@ class StarfieldSpatialTemporal():
         
         :rtype: None
         """
-        next_seed = self.seed
+
+        random.seed(self.seed)
         
         for k in range(self.sphere_count):
-            
-            random.seed(next_seed)
-            
+
             t = random.random()
-            
-            next_seed = int(t * 10000)
-            random.seed(next_seed)
-            
             u = random.random()
-            next_seed = int(u * 10000)
-            
             v = random.random()
-            next_seed = int(v * 10000)
-            
             w = random.random()
-            next_seed = int(w * 10000)
             
             theta = 2 * math.pi * t
             phi = math.acos(2 * u - 1)

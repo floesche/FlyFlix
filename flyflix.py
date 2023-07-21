@@ -417,6 +417,7 @@ def starfield():
                         fg_color=0x00ff00,
                         rotate_deg_hz=rotate_deg_hz,
                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        seed=20
                         )
                 block.append(t)
                 counter += 1
@@ -433,6 +434,7 @@ def starfield():
                         fg_color=0x00ff00,
                         osc_freq=freq, osc_width=90*direction,
                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        seed=20
                         )
                 block.append(t)
                 counter += 1
