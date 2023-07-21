@@ -478,7 +478,7 @@ def starbars():
     block = []
     counter = 0
     
-     ## rotation 
+    ## bar rotation 
     for alpha in [15]:
         for speed in [2, 4, 6]:
             for direction in [-1, 1]:
@@ -494,7 +494,7 @@ def starbars():
                         rotate_deg_hz=rotation_speed,
                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
                         fg_color=fg_color, bg_color=bg_color,
-                        comment=f"Rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
+                        comment=f"Bar rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
                     block.append(t)
                     counter += 1
                     
@@ -502,18 +502,24 @@ def starbars():
     for count in [500]:
         for speed in [2, 4, 6]:
             for direction in [-1, 1]:
-                rotate_deg_hz = direction*speed*30
-                t = Trial(
-                        sphere_count = count,
-                        trial_id=30,
-                        sphere_radius_deg=3,
-                        shell_radius=10,
-                        fg_color=0x00ff00,
-                        rotate_deg_hz=rotate_deg_hz,
-                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
-                        )
-                block.append(t)
-                counter += 1
+                for clrs in [(64, 190)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = clrs[1] << 8
+                    bg_color = clrs[0] << 8
+                    rotate_deg_hz = direction*speed*30
+                    t = Trial(
+                            sphere_count = count,
+                            trial_id=30,
+                            sphere_radius_deg=3,
+                            shell_radius=10,
+                            rotate_deg_hz=rotate_deg_hz,
+                            pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                            fg_color=fg_color, bg_color=bg_color,
+                            comment=f"Star rotation count {count} speed {speed} direction {direction} brightness {bright} contrast {contrast}"
+                            )
+                    block.append(t)
+                    counter += 1
 
     while not start:
         time.sleep(0.1)
