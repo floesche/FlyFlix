@@ -410,8 +410,8 @@ def starfield():
             for direction in [-1, 1]:
                 rotate_deg_hz = direction*speed*30
                 t = Trial(
+                        counter,
                         sphere_count = count,
-                        trial_id=30,
                         sphere_radius_deg=3,
                         shell_radius=10,
                         fg_color=0x00ff00,
@@ -426,8 +426,8 @@ def starfield():
         for freq in [0.166]:
             for direction in [-1, 1]:
                 t = Trial(
+                        counter,
                         sphere_count = count,
-                        trial_id=30,
                         sphere_radius_deg=3,
                         shell_radius=10,
                         fg_color=0x00ff00,
@@ -509,8 +509,8 @@ def starbars():
                     bg_color = clrs[0] << 8
                     rotate_deg_hz = direction*speed*30
                     t = Trial(
+                            counter,
                             sphere_count = count,
-                            trial_id=30,
                             sphere_radius_deg=3,
                             #radius_dev=2,
                             shell_radius=10,
@@ -556,6 +556,98 @@ def local_starbars():
     Just over 2 minute experiment with a mixture of starfield and bar trials.
     """
     _ = socketio.start_background_task(target=starbars)
+    return render_template('starbars.html')
+
+def starfield2():
+    print(time.strftime("%H:%M:%S", time.localtime()))
+    block = []
+    counter = 0
+    
+    #rotation with range of sphere sizes
+    for count in [500]:
+        for dev in [0, 1, 2]:
+            for speed in [2, 4]:
+                for direction in [-1, 1]:
+                    for clrs in [(64, 190)]:
+                        bright = clrs[1]
+                        contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                        fg_color = clrs[1] << 8
+                        bg_color = clrs[0] << 8
+                        rotate_speed = 20*speed*direction
+                        radius = 3
+                        t = Trial(
+                            counter,
+                            sphere_count = count,
+                            sphere_radius_deg=radius,
+                            radius_dev=dev,
+                            shell_radius=10   ,
+                            rotate_deg_hz=rotate_speed,
+                            pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                            fg_color=fg_color, bg_color=bg_color,
+                            comment=f"Star rotation count {count} radius {radius} deviation {dev} speed {rotate_speed} direction {direction} brightness {bright} contrast {contrast}")
+                        block.append(t)
+                        counter += 1
+                        
+    #oscillation with range of sphere sizes
+    for count in [500]:
+        for dev in [0, 1, 2]:
+            for freq in [0.166]:
+                for direction in [-1, 1]:
+                    for clrs in [(64, 190)]:
+                        bright = clrs[1]
+                        contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                        fg_color = clrs[1] << 8
+                        bg_color = clrs[0] << 8
+                        radius = 3
+                        t = Trial(
+                                counter,
+                                sphere_count = count,
+                                sphere_radius_deg=radius,
+                                shell_radius=10,
+                                radius_dev = dev,
+                                fg_color=fg_color, bg_color=bg_color,
+                                osc_freq= freq, osc_width=90*direction,
+                                pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                                comment=f"Star oscillation count {count} radius {radius} deviation {dev} frequency {freq} direction {direction} brightness {bright} contrast {contrast}"
+                            )
+                        block.append(t)
+                        counter += 1
+    
+    
+    while not start:
+        time.sleep(0.1)
+    global RUN_FICTRAC
+    RUN_FICTRAC = True
+    log_metadata()
+    _ = socketio.start_background_task(target = log_fictrac_timestamp)
+
+    repetitions = 3
+    counter = 0
+    opening_black_screen = Duration(100)
+    opening_black_screen.trigger_delay(socketio)
+    for i in range(repetitions):
+        socketio.emit("meta", (time.time_ns(), "block-repetition", i))
+        block = random.sample(block, k=len(block))
+        for current_trial in block:
+            counter = counter + 1
+            progress = f"condition {counter} of {len(block*repetitions)}"
+            print(progress)
+            socketio.emit("condition-update", progress)
+            current_trial.set_id(counter)
+            current_trial.trigger(socketio)
+            if not start:
+                return
+    
+    RUN_FICTRAC = False
+    socketio.emit("condition-update", "Completed")
+    print(time.strftime("%H:%M:%S", time.localtime()))
+
+@app.route('/starfield2')
+def local_starfield2():
+    """
+
+    """
+    _ = socketio.start_background_task(target=starfield2)
     return render_template('starbars.html')
 
 
