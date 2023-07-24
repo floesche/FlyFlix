@@ -645,7 +645,7 @@ def starfield2():
 @app.route('/starfield2')
 def local_starfield2():
     """
-
+    Starfield experiment with both oscillations and rotations. The spheres have varying radius size as well.
     """
     _ = socketio.start_background_task(target=starfield2)
     return render_template('starbars.html')
