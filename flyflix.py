@@ -559,6 +559,7 @@ def local_starbars():
     return render_template('starbars.html')
 
 def starfield2():
+    
     print(time.strftime("%H:%M:%S", time.localtime()))
     block = []
     counter = 0
@@ -668,11 +669,9 @@ def handle_data(data):
     stores the dictionary in the metadata variable that is used in log_metadata()
     """
     metadata_string = json.dumps(data)
-    print(metadata_string)
     global metadata
     with metadata_lock:
         metadata.update(json.loads(metadata_string))
-    print(metadata)
 
 def log_metadata():
     """
