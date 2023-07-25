@@ -18,7 +18,7 @@ class StarfieldSpatialTemporal():
     def __init__(self,
         sphere_count=500, sphere_radius_deg=3,
         radius_dev = None,
-        shell_radius=850, seed=0,
+        shell_radius=10, seed=0,
         fg_color=0x00ff00, bg_color=0x000000,
         rotate_deg_hz=0,
         osc_width=0, osc_freq=0
@@ -33,7 +33,12 @@ class StarfieldSpatialTemporal():
         :param float rotate_deg_hz: Rotation speed in degree per second.
         :rtype: None
         """
-        # todo: add warnings
+        
+        if shell_radius>1000:
+            warnings.warn("Shell radius is too large and will not display. Set to a size less than or equal to 1000")
+        if fg_color == bg_color:
+            warnings.warn("Background and foreground colors are the same.")
+        
         
         self.sphere_count = sphere_count
         self.sphere_radius_deg = sphere_radius_deg
@@ -106,7 +111,7 @@ class StarfieldSpatialTemporal():
         
     def generate_points(self):
         """
-        Generates a list of coordinates for random points on a sphere of radius shell_radius
+        Generates a list of coordinates for random points on a sphere of radius shell_radius +- some level of deviation
         based on the seed value and updates the list of positions. Assumes the center of the sphere is at (0,0,0).
         
         Inspired by https://stackoverflow.com/questions/5531827/random-point-on-a-given-sphere answer from user Neil Lamoureux
