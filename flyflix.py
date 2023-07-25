@@ -236,12 +236,9 @@ def trigger_stop(empty):
     global start
     start = False
 
-
 @socketio.on('start-pressed')
 def trigger_start(empty):
     socketio.emit('start-triggered', empty)
-    #socketio.broadcast.emit('start-triggered', num)
-    #print("recieved by flyflix")
 
 @socketio.on('restart-pressed')
 def trigger_restart(empty):
@@ -250,7 +247,6 @@ def trigger_restart(empty):
 
 @socketio.on('manual-restart')
 def manual_restart(empty):
-    print('manually restarted - recieved')
     socketio.emit('condition-update', "Once the experiment is started, status will be shown here.")
 
 @socketio.on('print')
