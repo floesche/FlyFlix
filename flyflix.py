@@ -417,6 +417,7 @@ def starfield():
                         fg_color=0x00ff00,
                         rotate_deg_hz=rotate_deg_hz,
                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        comment=f"Star rotation count {count} speed {rotate_deg_hz} direction {direction}"
                         )
                 block.append(t)
                 counter += 1
@@ -433,6 +434,7 @@ def starfield():
                         fg_color=0x00ff00,
                         osc_freq=freq, osc_width=90*direction,
                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        comment=f"Star oscillation count {count} frequency {freq} direction {direction}"
                         )
                 block.append(t)
                 counter += 1
@@ -498,7 +500,7 @@ def starbars():
                     block.append(t)
                     counter += 1
                     
-    # spinning starfield
+    # star rotation
     for count in [500]:
         for speed in [2, 4, 6]:
             for direction in [-1, 1]:
@@ -512,7 +514,6 @@ def starbars():
                             counter,
                             sphere_count = count,
                             sphere_radius_deg=3,
-                            #radius_dev=2,
                             shell_radius=10,
                             rotate_deg_hz=rotate_deg_hz,
                             pretrial_duration=Duration(250), posttrial_duration=Duration(250),
@@ -658,7 +659,6 @@ def control_panel():
     Control panel for experiments. Only use if you have multiple devices connected to the server.
     """
     return render_template('control-panel.html', metadata=json.dumps(metadata))
-
 
 
 @socketio.on('metadata-submit')
