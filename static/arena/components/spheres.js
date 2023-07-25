@@ -37,7 +37,9 @@ class Spheres extends Group {
      * @param {number} sphereCount - the amount of total spheres surrounding the fly
      * @param {number} sphereRadiusDeg - the radius of the spheres in the starfield in degrees
      * @param {number} shellRadius - the radius of the shell / distance between camera and spheres
-     * @param {color} color - color of the spheres
+     * @param {number} seed - the seed that was used to generate the location of all points and radius sizes in positions
+     * @param {array} positions - 2d array of x, y, and z locations of the spheres as well as the radius size
+     * @param {color} color - color of the spheres (default is green)
      */
     _setup( sphereCount, sphereRadiusDeg, shellRadius, seed, positions, color){
         
@@ -69,6 +71,8 @@ class Spheres extends Group {
      * @param {number} sphereCount - the amount of total spheres surrounding the fly
      * @param {number} sphereRadiusDeg - the radius of the spheres in the starfield in degrees
      * @param {number} shellRadius - the radius of the shell / distance between camera and spheres
+     * @param {number} seed - the seed that was used to generate the location of all points and radius sizes in positions
+     * @param {array} positions - 2d array of x, y, and z locations of the spheres as well as the radius size
      * @param {color} color - color of the spheres (default is green)
      */
     changeSpheres(sphereCount, sphereRadiusDeg, shellRadius, seed, positions, color=0x00ff00) {
@@ -109,6 +113,12 @@ class Spheres extends Group {
         this._log('spheres-set-rotate_deg_hz', rotate_deg_hz);
     }
 
+    /**
+     * Set the oscilllation speed in hz and the range of oscillation
+     * 
+     * @param {number} osc_hz - the speed of the oscillation in hz
+     * @param {number} max_deg - the maximum angle of the oscillation
+     */
     setOscillation(osc_hz, max_deg){
         if (osc_hz>0){
             this.startTime = Date.now()/1000;
@@ -122,7 +132,7 @@ class Spheres extends Group {
     /**
      * Rotate the spherical shell to an absolute angle.
      * 
-     * @param {number} rotation - set the absolute rotation of the camera in radians
+     * @param {number} rotation - set the absolute rotation of the starfield in radians
      */
     setRotationRad(rotation){
         this.rotation.y = rotation % (2*Math.PI);
@@ -134,16 +144,14 @@ class Spheres extends Group {
      * Interface to allow arena to be animated.
      * 
      * @param {number} delta - time interval since last tick
-     * 
-     * To Do - update
      */
     tick(delta){
-        if (this.startTime === undefined){
+        if (this.startTime === undefined){ //rotation
             if (this.rotateRadHz){
                 this.rotation.y = (this.rotation.y + delta * this.rotateRadHz) % (2*Math.PI);
             }
             this._log('spheres-tick-rotation', this.rotation.y);
-        } else {
+        } else { //oscillation
             const c_time = Date.now()/1000;
             this.rotation.y = Math.sin((c_time - this.startTime) * this.osc_hz * (2*Math.PI)) * this.max_deg;
             this._log('spheres-tick-rotation', this.rotation.y);
