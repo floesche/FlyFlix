@@ -30,7 +30,14 @@ class StarfieldSpatialTemporal():
 
         :param in sphere_count: Amount of spheres surrounding the fly's position.
         :param float sphere_radius: The radius size of each of the spheres surrounding the fly
+        :param float radius_dev: the deviation of possible radius sizes from the sphere_radius_range in degrees
+            For example, if sphere_radius is 3 and radius_dev is 1 then the spheres' radius would range in size from 2-4 degrees
+        :param float shell_radius: the distance between the fly's position and the spheres
+        :param int seed: a seed that generates a set of random points
         :param float rotate_deg_hz: Rotation speed in degree per second.
+        :param float osc_freq: frequency of oscillations - overrides rotate_deg_hz
+        :param float osc_width: the width of an oscillation in degrees
+        
         :rtype: None
         """
         
@@ -72,6 +79,13 @@ class StarfieldSpatialTemporal():
         socket_io.emit('spheres-speed', (shared_key, math.radians(self.rotate_deg_hz)))
         
     def trigger_oscillation(self, socket_io) -> None:
+        """
+        Triggers the start of the spatial-temporal pattern by sending the according command through
+        the socket.
+
+        :param socket socket_io: Socket used for sending the update
+        :rtype: None
+        """
         shared_key = time.time_ns()
         socket_io.emit('spheres-oscillation', (shared_key, self.osc_freq, self.osc_width))
         
