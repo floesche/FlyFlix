@@ -4,6 +4,8 @@ This repository is a supplement to our publication [An Inexpensive, High-Precisi
 
 Here we will first give a quick introduction [how to use FlyFlix](#usage), followed by a description [how to install FlyFLix](#installation), and finally an [overview about the architecture](#architecture) of FlyFlix.
 
+We also have a [description of the available stimuli](stimulus-description.md) and a brief introduction on how to [get started if you want to modify FlyFlix](getting-started-with-development.md) to your own needs.
+
 ## Usage
 
 ### Run FlyFlix
