@@ -1,8 +1,11 @@
-.PHONY: localhost update-dependencies install-dependencies show-dependencies
+.PHONY: localhost reinstall-venv update-dependencies install-dependencies show-dependencies
 
 localhost:
-	@echo "FlyFlix should be available at http://`ip route get 9.9.9.9 | grep -oP 'src \K[^ ]+'`:17000"
 	@python flyflix.py
+
+reinstall-venv:
+	@rm -rf .venv
+	@python -m venv .venv
 
 update-dependencies:
 	@pip install --upgrade pip

@@ -7,7 +7,9 @@ import random
 import inspect
 import warnings
 import json
+import netifaces
 from threading import Lock
+
 
 from pathlib import Path
 from logging import FileHandler
@@ -694,6 +696,17 @@ def sitemap():
     return render_template("sitemap.html", links=links)
 
 
+def print_ip(port=17000):
+    for iface in netifaces.interfaces():
+        iface_details = netifaces.ifaddresses(iface)
+        if netifaces.AF_INET in iface_details:
+            for ip_interfaces in iface_details[netifaces.AF_INET]:
+                for key, ip_add in ip_interfaces.items():
+                    if key == 'addr' and ip_add != '127.0.0.1':
+                        print(f"FlyFlix is available at http://{ip_add}:{port}")
+
 if __name__ == '__main__':
     before_first_request()
-    socketio.run(app, host='0.0.0.0', port = 17000)
+    port=17000
+    print_ip(port=port)
+    socketio.run(app, host='0.0.0.0', port=port)
