@@ -275,14 +275,6 @@ def trigger_start(empty):
 def trigger_restart(empty):
     socketio.emit('restart-triggered', empty)
 
-@app.route('/control-panel/')
-def control_panel():
-    """
-    Control panel for experiments. Only use if you have multiple devices connected to the server.
-    """
-    #_ = socketio.start_background_task(target = localmove)
-    return render_template('control-panel.html', metadata=json.dumps(metadata))
-
 
 def log_fictrac_timestamp():
     shared_key = time.time_ns()
