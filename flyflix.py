@@ -308,7 +308,7 @@ def starfield():
                         sphere_count = count,
                         sphere_radius_deg=[3],
                         shell_radius=10,
-                        fg_color=0x00ff00,
+                        fg_color=[0x00ff00],
                         rotate_deg_hz=rotate_deg_hz,
                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
                         comment=f"Star rotation count {count} speed {rotate_deg_hz} direction {direction}"
@@ -325,7 +325,7 @@ def starfield():
                         sphere_count = count,
                         sphere_radius_deg=[3],
                         shell_radius=10,
-                        fg_color=0x00ff00,
+                        fg_color=[0x00ff00],
                         osc_freq=freq, osc_width=90*direction,
                         pretrial_duration=Duration(250), posttrial_duration=Duration(250),
                         comment=f"Star oscillation count {count} frequency {freq} direction {direction}"
@@ -381,7 +381,7 @@ def starbars():
                 for clrs in [(64, 190)]:
                     bright = clrs[1]
                     contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                    fg_color = clrs[1] << 8
+                    fg_color = [clrs[1] << 8]
                     bg_color = clrs[0] << 8
                     rotation_speed = alpha*2*speed*direction
                     t = Trial(
@@ -401,7 +401,7 @@ def starbars():
                 for clrs in [(64, 190)]:
                     bright = clrs[1]
                     contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                    fg_color = clrs[1] << 8
+                    fg_color = [clrs[1] << 8]
                     bg_color = clrs[0] << 8
                     rotate_deg_hz = direction*speed*30
                     t = Trial(
@@ -466,7 +466,7 @@ def starfield2():
                 for clrs in [(64, 190)]:
                     bright = clrs[1]
                     contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                    fg_color = clrs[1] << 8
+                    fg_color = [clrs[1] << 8, 0x0000ff]
                     bg_color = clrs[0] << 8
                     rotate_speed = 20*speed*direction
                     radius = [3, 2, 1]
@@ -489,7 +489,7 @@ def starfield2():
                 for clrs in [(64, 190)]:
                     bright = clrs[1]
                     contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                    fg_color = clrs[1] << 8
+                    fg_color = [clrs[1] << 8, 0x0000ff]
                     bg_color = clrs[0] << 8
                     radius = [3, 2, 1]
                     t = Trial(

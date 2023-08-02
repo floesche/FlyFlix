@@ -39,11 +39,9 @@ class Spheres extends Group {
      * @param {number} shellRadius - the radius of the shell / distance between camera and spheres
      * @param {number} seed - the seed that was used to generate the location of all points and radius sizes in positions
      * @param {array} positions - 2d array of x, y, and z locations of the spheres as well as the radius size
-     * @param {color} color - color of the spheres (default is green)
+     * @param {array of colors} color - color of the spheres (default is green)
      */
     _setup( sphereCount, sphereRadiusDeg, shellRadius, seed, positions, color){
-        
-        const material = new MeshBasicMaterial( { color: color } );
 
         this._log('spheres-sphere-count', sphereCount);
         this._log('spheres-sphere-radius-degrees', sphereRadiusDeg);
@@ -53,6 +51,7 @@ class Spheres extends Group {
         this._log('spheres-type', 'SphereGeometry');
 
         for ( let i=0; i<sphereCount; i++){
+            const material = new MeshBasicMaterial( { color: color[i % color.length] } );
             const sphereRadiusRad = MathUtils.degToRad(sphereRadiusDeg[i % sphereRadiusDeg.length])
             const geometry = new SphereGeometry( ((shellRadius*Math.sin(sphereRadiusRad))), 32, 16 );
 
