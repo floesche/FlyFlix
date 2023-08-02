@@ -1,6 +1,8 @@
 /**
  * Module with fullscreen button
  */
+
+
 class FullScreener{
 
     /**
@@ -8,7 +10,7 @@ class FullScreener{
      * 
      * @param {Element} container - HTML element to which the fullscreen button is attached.
      */
-    constructor(container){
+    constructor(container, socket){
         const fullscreenButton = document.createElement("button");
         fullscreenButton.innerHTML = "Fullscreen";
         fullscreenButton.id = "fullscreen";
@@ -20,10 +22,12 @@ class FullScreener{
         fullscreenButton.style.left = "5%";
         container.appendChild(fullscreenButton);
         
+
         fullscreenButton.addEventListener('click', () =>{
             document.body.requestFullscreen();
         });
 
+        
         window.addEventListener('fullscreenchange', () => {
             if (document.fullscreenElement){
                 fullscreenButton.style.visibility = "hidden";
@@ -31,6 +35,32 @@ class FullScreener{
                 fullscreenButton.style.visibility = "visible";
             }
         })
+
+
+        //control panel configuration
+        /*
+        *
+        * turns out fullscreen can only be activated by certain events within the page :/
+        * deleted button
+        * 
+        fullscreenButton.addEventListener('full-send', () => {
+            fullscreenButton.style.visibility = 'hidden';
+            document.body.requestFullscreen();
+        })
+
+        socket.on('fullscreen-go', function(empty){
+            //fullscreenButton.style.visibility = "hidden"; //<-- works
+            //document.body.requestFullscreen(); // <-- doesnt
+            //container.parentNode.body.requestFullscreen(); // <-- nope
+            //fullscreenButton.parentNode.body.requestFullscreen(); <-- no
+            //const doc = fullscreenButton.parentNode();
+            //doc.body.requestFullscreen();
+            //container.requestFullscreen();
+            const fullEvent = new Event('full-send');
+            fullscreenButton.dispatchEvent(fullEvent);
+
+        })
+        */
     }
 }
 

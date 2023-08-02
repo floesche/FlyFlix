@@ -3,6 +3,8 @@
 # ex. 
 # strain: Dl
 # sex: female
+# note: single or double quotes may be necessary in order to preserve certain formats
+# ex. time in the format 19:00:00 needs to be in quotes
 fly-strain: DL
 fly-batch: 2022-07-06
 day-night-since: 2022-07-06
@@ -17,8 +19,8 @@ tether-end: 2022-07-11 10:05:00
 fly:
 sex: f
 
-day-start: 07:00:00
-day-end: 19:00:00
+day-start: '07:00:00'
+day-end: '19:00:00'
 
 ball: 1
 air: wall

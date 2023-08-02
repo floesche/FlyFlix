@@ -34,6 +34,10 @@ start = False
 SWEEPCOUNTERREACHED = False
 RUN_FICTRAC = False
 
+# metadata variable - DO NOT CHANGE
+# use control panel to update values or defaultsconfig.yaml to set defaults
+metadata = {}
+metadata_lock = Lock()
 
 Payload.max_decode_packets = 1500
 
@@ -174,6 +178,27 @@ def disconnect():
     print("Client disconnected", request.sid)
 
 
+@socketio.on('stop-pressed')
+def trigger_stop(empty):
+    socketio.emit('stop-triggered', empty)
+
+@socketio.on('start-pressed')
+def trigger_start(empty):
+    socketio.emit('start-triggered', empty)
+    #socketio.broadcast.emit('start-triggered', num)
+    #print("recieved by flyflix")
+
+@socketio.on('restart-pressed')
+def trigger_restart(empty):
+    socketio.emit('condition-update', "Once the experiment is started, status will be shown here.")
+    socketio.emit('restart-triggered', empty)
+    
+@socketio.on('manual-restart')
+def manual_restart(empty):
+    print('manually restarted - recieved')
+    socketio.emit('condition-update', "Once the experiment is started, status will be shown here.")
+
+
 @socketio.on('start-experiment')
 def finally_start(number):
     """
@@ -249,6 +274,14 @@ def trigger_start(empty):
 @socketio.on('restart-pressed')
 def trigger_restart(empty):
     socketio.emit('restart-triggered', empty)
+
+@app.route('/control-panel/')
+def control_panel():
+    """
+    Control panel for experiments. Only use if you have multiple devices connected to the server.
+    """
+    #_ = socketio.start_background_task(target = localmove)
+    return render_template('control-panel.html', metadata=json.dumps(metadata))
 
 
 def log_fictrac_timestamp():
@@ -627,6 +660,21 @@ def handle_data(data):
     global metadata
     with metadata_lock:
         metadata.update(json.loads(metadata_string))
+
+
+@socketio.on('metadata-submit')
+def handle_data(data):
+    """
+    Triggered when metadata is submitted via the control panel
+    takes the javascript objects and converts it to a python dictionary
+    stores the dictionary in the metadata variable that is used in log_metadata()
+    """
+    metadata_string = json.dumps(data)
+    print(metadata_string)
+    global metadata
+    metadata.update(json.loads(metadata_string))
+    print(metadata)
+
 
 
 def log_metadata():
