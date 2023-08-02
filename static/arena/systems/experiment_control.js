@@ -60,14 +60,6 @@ function manualRestart(socket){
 
 
 /**
- * function to trigger control panel update after restart is pressed
- */
-function manualRestart(socket){
-    socket.emit('manual-restart', {});
-}
-
-
-/**
  * Module to add restart and start button.
  */
 class ExperimentControl{

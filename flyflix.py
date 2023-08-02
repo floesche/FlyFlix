@@ -254,20 +254,13 @@ def data_logger(client_timestamp, request_timestamp, key, value):
 
 
 @socketio.on('display')
-<<<<<<< HEAD
 def display_event(data):
     savedata(request.sid, data['cnt'], "display-offset", data['counter'])
 
-=======
-def display_event(json):
-    savedata(request.sid, json['cnt'], "display-offset", json['counter'])
-    
->>>>>>> quinnwall/starfield
 
 @socketio.on('stop-pressed')
 def trigger_stop(empty):
     socketio.emit('stop-triggered', empty)
-<<<<<<< HEAD
     print("Stopped")
     global start
     start = False
@@ -278,34 +271,10 @@ def trigger_start(empty):
     socketio.emit('start-triggered', empty)
     #socketio.broadcast.emit('start-triggered', num)
     #print("recieved by flyflix")
-=======
-    global start
-    start = False
-
-@socketio.on('start-pressed')
-def trigger_start(empty):
-    socketio.emit('start-triggered', empty)
->>>>>>> quinnwall/starfield
 
 @socketio.on('restart-pressed')
 def trigger_restart(empty):
     socketio.emit('restart-triggered', empty)
-<<<<<<< HEAD
-=======
-    socketio.emit('condition-update', "Once the experiment is started, status will be shown here.")
-
-@socketio.on('manual-restart')
-def manual_restart(empty):
-    socketio.emit('condition-update', "Once the experiment is started, status will be shown here.")
-
-@socketio.on('print')
-def socket_print(msg):
-    """
-    prints msg
-    used for debugging purposes
-    """
-    print(msg)
->>>>>>> quinnwall/starfield
 
 
 def log_fictrac_timestamp():
@@ -675,13 +644,6 @@ def local_starfield():
     _ = socketio.start_background_task(target=starfield)
     return render_template('starfield.html')
 
-@app.route('/control-panel/')
-def control_panel():
-    """
-    Control panel for experiments.
-    """
-    return render_template('control-panel.html', metadata=json.dumps(metadata))
-
 
 @app.route('/optomotor_4-directions/')
 def optomotor_4dir():
@@ -729,21 +691,6 @@ def handle_data(data):
     global metadata
     with metadata_lock:
         metadata.update(json.loads(metadata_string))
-
-
-@socketio.on('metadata-submit')
-def handle_data(data):
-    """
-    Triggered when metadata is submitted via the control panel
-    takes the javascript objects and converts it to a python dictionary
-    stores the dictionary in the metadata variable that is used in log_metadata()
-    """
-    metadata_string = json.dumps(data)
-    print(metadata_string)
-    global metadata
-    metadata.update(json.loads(metadata_string))
-    print(metadata)
-
 
 def starbars():
     
