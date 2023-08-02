@@ -14,7 +14,8 @@ class ClosedLoopCondition():
         self,
         spatial_temporal=None, trial_duration=None,
         gain=1.0, fps=60,
-        pretrial_duration=Duration(500), posttrial_duration=Duration(500)) -> None:
+        pretrial_duration=Duration(500), posttrial_duration=Duration(500),
+        is_starfield=False) -> None:
         """
         Initialize the closed loop condition.
 
@@ -26,6 +27,7 @@ class ClosedLoopCondition():
         :param Duration pretrial_duration: duration of the pre-trial period, when stimulus is
             shown but not animated.
         :param Duration posttrial_duration: duration of the post-trial period.
+        :param Boolean is_starfield: defines whether the trial is a starfield trial or not
         :rtype: None
         """
 
@@ -42,6 +44,7 @@ class ClosedLoopCondition():
         self.pretrial_duration = pretrial_duration
         self.posttrial_duration = posttrial_duration
         self.is_triggering = False
+        self.is_starfield = is_starfield
 
     def trigger(self, socket_io) -> None:
         """
@@ -64,9 +67,11 @@ class ClosedLoopCondition():
         shared_key = time.time_ns()
         socket_io.emit("meta", (shared_key, "closedloop-start", 1))
         self.trigger_fps(socket_io)
-        self.spatial_temporal.trigger_spatial(socket_io)
         self.spatial_temporal.trigger_stop(socket_io)
-        self.spatial_temporal.trigger_closedloop_start_position(socket_io)
+        if (not self.is_starfield):
+            self.spatial_temporal.trigger_spatial(socket_io)
+            self.spatial_temporal.trigger_stop(socket_io)
+            self.spatial_temporal.trigger_closedloop_start_position(socket_io)
         self.pretrial_duration.trigger_delay(socket_io)
         self.is_triggering = True
         loopthread = socket_io.start_background_task(self.loop, socket_io)

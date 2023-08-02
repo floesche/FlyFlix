@@ -28,8 +28,7 @@ from flask_socketio import SocketIO
 
 from engineio.payload import Payload
 
-from Experiment import Duration, Trial, CsvFormatter
-
+from Experiment import SpatialTemporal, Duration, OpenLoopCondition, SweepCondition, ClosedLoopCondition, Trial, CsvFormatter
 app = Flask(__name__)
 
 start = False
@@ -255,13 +254,20 @@ def data_logger(client_timestamp, request_timestamp, key, value):
 
 
 @socketio.on('display')
+<<<<<<< HEAD
 def display_event(data):
     savedata(request.sid, data['cnt'], "display-offset", data['counter'])
 
+=======
+def display_event(json):
+    savedata(request.sid, json['cnt'], "display-offset", json['counter'])
+    
+>>>>>>> quinnwall/starfield
 
 @socketio.on('stop-pressed')
 def trigger_stop(empty):
     socketio.emit('stop-triggered', empty)
+<<<<<<< HEAD
     print("Stopped")
     global start
     start = False
@@ -272,10 +278,34 @@ def trigger_start(empty):
     socketio.emit('start-triggered', empty)
     #socketio.broadcast.emit('start-triggered', num)
     #print("recieved by flyflix")
+=======
+    global start
+    start = False
+
+@socketio.on('start-pressed')
+def trigger_start(empty):
+    socketio.emit('start-triggered', empty)
+>>>>>>> quinnwall/starfield
 
 @socketio.on('restart-pressed')
 def trigger_restart(empty):
     socketio.emit('restart-triggered', empty)
+<<<<<<< HEAD
+=======
+    socketio.emit('condition-update', "Once the experiment is started, status will be shown here.")
+
+@socketio.on('manual-restart')
+def manual_restart(empty):
+    socketio.emit('condition-update', "Once the experiment is started, status will be shown here.")
+
+@socketio.on('print')
+def socket_print(msg):
+    """
+    prints msg
+    used for debugging purposes
+    """
+    print(msg)
+>>>>>>> quinnwall/starfield
 
 
 def log_fictrac_timestamp():
@@ -571,6 +601,48 @@ def proto_cshlfly22():
                     block.append(trial)
                     counter += 1
 
+def starfield():
+    
+    print(time.strftime("%H:%M:%S", time.localtime()))
+    block = []
+    counter = 0
+    
+    # spinning starfield
+    for count in [450]:
+        for speed in [2, 4, 6]:
+            for direction in [-1, 1]:
+                rotate_deg_hz = direction*speed*30
+                t = Trial(
+                        counter,
+                        sphere_count = count,
+                        sphere_radius_deg=[3],
+                        shell_radius=10,
+                        fg_color=[0x00ff00],
+                        rotate_deg_hz=rotate_deg_hz,
+                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        comment=f"Star rotation count {count} speed {rotate_deg_hz} direction {direction}"
+                        )
+                block.append(t)
+                counter += 1
+                
+    # oscillations
+    for count in [450]:
+        for freq in [0.166]:
+            for direction in [-1, 1]:
+                t = Trial(
+                        counter,
+                        sphere_count = count,
+                        sphere_radius_deg=[3],
+                        shell_radius=10,
+                        fg_color=[0x00ff00],
+                        osc_freq=freq, osc_width=90*direction,
+                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        comment=f"Star oscillation count {count} frequency {freq} direction {direction}"
+                        )
+                block.append(t)
+                counter += 1
+    
+    
     while not start:
         time.sleep(0.1)
     global RUN_FICTRAC
@@ -594,11 +666,14 @@ def proto_cshlfly22():
             current_trial.trigger(socketio)
             if not start:
                 return
-
     RUN_FICTRAC = False
     socketio.emit("condition-update", "Completed")
     print(time.strftime("%H:%M:%S", time.localtime()))
 
+@app.route('/starfield/')
+def local_starfield():
+    _ = socketio.start_background_task(target=starfield)
+    return render_template('starfield.html')
 
 @app.route('/control-panel/')
 def control_panel():
@@ -670,13 +745,206 @@ def handle_data(data):
     print(metadata)
 
 
+def starbars():
+    
+    print(time.strftime("%H:%M:%S", time.localtime()))
+    block = []
+    counter = 0
+    
+    ## bar rotation 
+    for alpha in [15]:
+        for speed in [2, 4, 6]:
+            for direction in [-1, 1]:
+                for clrs in [(64, 190)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = [clrs[1] << 8]
+                    bg_color = clrs[0] << 8
+                    rotation_speed = alpha*2*speed*direction
+                    t = Trial(
+                        counter, 
+                        bar_deg=alpha, 
+                        rotate_deg_hz=rotation_speed,
+                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        fg_color=fg_color, bg_color=bg_color,
+                        comment=f"Bar rotation alpha {alpha} speed {speed} direction {direction} brightness {bright} contrast {contrast}")
+                    block.append(t)
+                    counter += 1
+                    
+    # star rotation
+    for count in [500]:
+        for speed in [2, 4, 6]:
+            for direction in [-1, 1]:
+                for clrs in [(64, 190)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = [clrs[1] << 8]
+                    bg_color = clrs[0] << 8
+                    rotate_deg_hz = direction*speed*30
+                    t = Trial(
+                            counter,
+                            sphere_count = count,
+                            sphere_radius_deg=[3],
+                            shell_radius=10,
+                            rotate_deg_hz=rotate_deg_hz,
+                            pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                            fg_color=fg_color, bg_color=bg_color,
+                            comment=f"Star rotation count {count} speed {speed} direction {direction} brightness {bright} contrast {contrast}"
+                            )
+                    block.append(t)
+                    counter += 1
+
+    while not start:
+        time.sleep(0.1)
+    global RUN_FICTRAC
+    RUN_FICTRAC = True
+    log_metadata()
+    _ = socketio.start_background_task(target = log_fictrac_timestamp)
+
+    repetitions = 3
+    counter = 0
+    opening_black_screen = Duration(100)
+    opening_black_screen.trigger_delay(socketio)
+    for i in range(repetitions):
+        socketio.emit("meta", (time.time_ns(), "block-repetition", i))
+        block = random.sample(block, k=len(block))
+        for current_trial in block:
+            counter = counter + 1
+            progress = f"condition {counter} of {len(block*repetitions)}"
+            print(progress)
+            socketio.emit("condition-update", progress)
+            current_trial.set_id(counter)
+            current_trial.trigger(socketio)
+            if not start:
+                return
+    
+    RUN_FICTRAC = False
+    socketio.emit("condition-update", "Completed")
+    print(time.strftime("%H:%M:%S", time.localtime()))
+
+@app.route('/starbars-experiment/')
+def local_starbars():
+    """
+    Just over 2 minute experiment with a mixture of starfield and bar trials.
+    """
+    _ = socketio.start_background_task(target=starbars)
+    return render_template('starbars.html')
+
+def starfield2():
+    
+    print(time.strftime("%H:%M:%S", time.localtime()))
+    block = []
+    counter = 0
+    
+    #rotation with range of sphere sizes
+    for count in [500]:
+        for speed in [2, 4]:
+            for direction in [-1, 1]:
+                for clrs in [(64, 190)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = [clrs[1] << 8, 0x0000ff]
+                    bg_color = clrs[0] << 8
+                    rotate_speed = 20*speed*direction
+                    radius = [3, 2, 1]
+                    t = Trial(
+                        counter,
+                        sphere_count = count,
+                        sphere_radius_deg=radius,
+                        shell_radius=10   ,
+                        rotate_deg_hz=rotate_speed,
+                        pretrial_duration=Duration(1000), posttrial_duration=Duration(250),
+                        fg_color=fg_color, bg_color=bg_color,
+                        comment=f"Star rotation count {count} radius {radius} speed {rotate_speed} direction {direction} brightness {bright} contrast {contrast}")
+                    block.append(t)
+                    counter += 1
+                        
+    #oscillation with range of sphere sizes
+    for count in [500]:
+        for freq in [0.166]:
+            for direction in [-1, 1]:
+                for clrs in [(64, 190)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = [clrs[1] << 8, 0x0000ff]
+                    bg_color = clrs[0] << 8
+                    radius = [3, 2, 1]
+                    t = Trial(
+                            counter,
+                            sphere_count = count,
+                            sphere_radius_deg=radius,
+                            shell_radius=10,
+                            fg_color=fg_color, bg_color=bg_color,
+                            osc_freq= freq, osc_width=90*direction,
+                            pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                            comment=f"Star oscillation count {count} radius {radius} frequency {freq} direction {direction} brightness {bright} contrast {contrast}"
+                        )
+                    block.append(t)
+                    counter += 1
+    
+    
+    while not start:
+        time.sleep(0.1)
+    global RUN_FICTRAC
+    RUN_FICTRAC = True
+    log_metadata()
+    _ = socketio.start_background_task(target = log_fictrac_timestamp)
+
+    repetitions = 3
+    counter = 0
+    opening_black_screen = Duration(100)
+    opening_black_screen.trigger_delay(socketio)
+    for i in range(repetitions):
+        socketio.emit("meta", (time.time_ns(), "block-repetition", i))
+        block = random.sample(block, k=len(block))
+        for current_trial in block:
+            counter = counter + 1
+            progress = f"condition {counter} of {len(block*repetitions)}"
+            print(progress)
+            socketio.emit("condition-update", progress)
+            current_trial.set_id(counter)
+            current_trial.trigger(socketio)
+            if not start:
+                return
+    
+    RUN_FICTRAC = False
+    socketio.emit("condition-update", "Completed")
+    print(time.strftime("%H:%M:%S", time.localtime()))
+
+@app.route('/starfield2')
+def local_starfield2():
+    """
+    Starfield experiment with both oscillations and rotations. The spheres have varying radius size and color as well.
+    """
+    _ = socketio.start_background_task(target=starfield2)
+    return render_template('starbars.html')
+
+
+@app.route('/control-panel/')
+def control_panel():
+    """
+    Control panel for experiments. Only use if you have multiple devices connected to the server.
+    """
+    return render_template('control-panel.html', metadata=json.dumps(metadata))
+
+
+@socketio.on('metadata-submit')
+def handle_data(data):
+    """
+    Triggered when metadata is submitted via the control panel
+    takes the javascript objects and converts it to a python dictionary
+    stores the dictionary in the metadata variable that is used in log_metadata()
+    """
+    metadata_string = json.dumps(data)
+    global metadata
+    with metadata_lock:
+        metadata.update(json.loads(metadata_string))
 
 def log_metadata():
     """
     The content of the `metadata` dictionary gets logged.
 
-    This is a rudimentary way to save information related to the experiment to a file. Edit the
-    content of the dictionary for each experiment.
+    This is a way to save information related to the experiment to a file.
     """
     shared_key = time.time_ns()
     for key, value in metadata.items():

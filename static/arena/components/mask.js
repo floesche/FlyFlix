@@ -64,6 +64,14 @@ class Mask extends Group {
     }
 
     /**
+     * Interface to clear the masks
+     */
+    clearMasks(){
+        this.clear();
+        this._log('mask-clear');
+    }
+
+    /**
      * Set the rotational speed of the camera (in radians)
      * 
      * @param {number} rotateRadHz - rotational speed of the camera in radians per second, positive

@@ -130,11 +130,11 @@ class SpatialTemporal():
         :rtype: None
         """
         shared_key = time.time_ns()
-        socket_io.emit('speed', (shared_key, math.radians(self.rotate_deg_hz)))
+        socket_io.emit('panels-speed', (shared_key, math.radians(self.rotate_deg_hz)))
 
     def trigger_oscillation(self, socket_io) -> None:
         shared_key = time.time_ns()
-        socket_io.emit('oscillation', (shared_key, self.osc_freq, self.osc_width))
+        socket_io.emit('panels-oscillation', (shared_key, self.osc_freq, self.osc_width))
 
     def trigger_stop(self, socket_io) -> None:
         """
@@ -145,8 +145,8 @@ class SpatialTemporal():
         :rtype: None
         """
         shared_key = time.time_ns()
-        socket_io.emit('speed', (shared_key, 0))
-        socket_io.emit('oscillation', (shared_key, 0, 0))
+        socket_io.emit('panels-speed', (shared_key, 0))
+        socket_io.emit('panels-oscillation', (shared_key, 0, 0))
 
     def trigger_spatial(self, socket_io) -> None:
         """
@@ -156,7 +156,7 @@ class SpatialTemporal():
         :rtype: None
         """
         shared_key = time.time_ns()
-        socket_io.emit('spatial-setup', (
+        socket_io.emit('panels-spatial-setup', (
             shared_key,
             math.radians(self.bar_deg),
             math.radians(self.space_deg),
@@ -190,7 +190,7 @@ class SpatialTemporal():
                 start_angle = 220 + self.space_deg
         else:
             warnings.warn("not 2 item pattern. Rotate to 0")
-        socket_io.emit('rotate-to', (shared_key, math.radians(start_angle)))
+        socket_io.emit('panels-rotate-to', (shared_key, math.radians(start_angle)))
 
     def trigger_closedloop_start_position(self, socket_io) -> None:
         """
@@ -210,4 +210,4 @@ class SpatialTemporal():
             start_angle = 112
         else:
             warnings.warn("not 2 item pattern. Rotate to 0")
-        socket_io.emit('rotate-to', (shared_key, math.radians(start_angle)))
+        socket_io.emit('panels-rotate-to', (shared_key, math.radians(start_angle)))

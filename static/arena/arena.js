@@ -2,6 +2,7 @@ import { createCamera } from './components/camera.js';
 import { createScene } from './components/scene.js';
 
 import { Panels } from './components/panels.js';
+import { Spheres } from './components/spheres.js';
 
 import { createRenderer } from './systems/renderer.js';
 import { Resizer } from './systems/resizer.js';
@@ -41,16 +42,24 @@ class Arena {
         container.append(renderer.domElement);
 
         const panels = new Panels(10, 170);
+        const spheres = new Spheres(0,0,0);
         const masks = new Mask(0,0);
         scene.add(panels);
+        scene.add(spheres);
         scene.add(masks);
         loop.updateables.push(panels);
-        io = new DataExchanger(camera, scene, loop, panels, masks);
+        loop.updateables.push(spheres);
+        loop.updateables.push(masks);
+
+        io = new DataExchanger(camera, scene, loop, panels, spheres, masks);
 
         camera.loggable = io;
         loop.loggable = io;
         panels.loggable = io;
+        spheres.loggable = io;
         masks.loggable = io;
+
+        //camera.position.z = 20
 
         const resizer = new Resizer(container, camera, renderer);
     }

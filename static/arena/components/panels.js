@@ -53,6 +53,7 @@ class Panels extends Group {
             true, // TODO Test with "false" instead of "true" to have it openEnded
             0, panelAngle);
 
+
         const material = new MeshBasicMaterial({ color: fgColor, side:BackSide });
 
         for (let alpha = 0; alpha < 2*Math.PI; alpha += panelAngle + intervalAngle) {
@@ -75,6 +76,14 @@ class Panels extends Group {
         this._log('panels-change-clear');
         this._log('xxxx',barHeight )
         this._setup(panelAngle, intervalAngle, fgColor, bgColor, barHeight);
+    }
+
+    /**
+     * Interface to clear the panel setup, specifically to complete different types of trials
+     */
+    clearPanels(){
+        this.clear();
+        this._log('panels-clear');
     }
 
     /**

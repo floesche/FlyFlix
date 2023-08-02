@@ -51,6 +51,13 @@ const addStartButton = (container) => {
 
 };
 
+/**
+ * function to trigger control panel update after restart is pressed
+ */
+function manualRestart(socket){
+    socket.emit('manual-restart', {});
+}
+
 
 /**
  * function to trigger control panel update after restart is pressed
@@ -72,7 +79,7 @@ class ExperimentControl{
      * @param {Element} container - HTML element to which the start and restart button attaches
      */
     constructor(container, socket, add_start=true){
-        addRestartButton(container);
+        addRestartButton(container, socket);
         if (add_start){
             addStartButton(container);
         }
@@ -97,7 +104,6 @@ class ExperimentControl{
 
         socket.on('restart-triggered', function(empty){
             window.location.reload();
-            socket.emit("restart-freeze")
         })
 
         socket.on('stop-triggered', function(empty){
