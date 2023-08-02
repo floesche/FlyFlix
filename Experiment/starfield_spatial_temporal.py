@@ -134,13 +134,11 @@ class StarfieldSpatialTemporal():
         
         for k in range(self.sphere_count):
 
-            t = random.random()
             u = random.random()
             v = random.random()
-            w = random.random()
             
-            theta = 2 * math.pi * t
-            phi = math.acos(2 * u - 1)
+            theta = 2 * math.pi * u
+            phi = math.acos(2 * v - 1)
             
             x = self.shell_radius * math.sin(phi) * math.cos(theta)
             y = self.shell_radius * math.sin(phi) * math.sin(theta)

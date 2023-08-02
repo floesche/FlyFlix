@@ -67,7 +67,6 @@ def read_metadata():
             print(exc)
     with metadata_lock:
         metadata = data_as_string(filedata)
-    print(metadata)
 
 
 def data_as_string(dictionary):
@@ -232,7 +231,6 @@ def display_event(json):
 @socketio.on('stop-pressed')
 def trigger_stop(empty):
     socketio.emit('stop-triggered', empty)
-    print("Stopped")
     global start
     start = False
 
@@ -476,7 +474,7 @@ def starfield2():
                         sphere_radius_deg=radius,
                         shell_radius=10   ,
                         rotate_deg_hz=rotate_speed,
-                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        pretrial_duration=Duration(1000), posttrial_duration=Duration(250),
                         fg_color=fg_color, bg_color=bg_color,
                         comment=f"Star rotation count {count} radius {radius} speed {rotate_speed} direction {direction} brightness {bright} contrast {contrast}")
                     block.append(t)
@@ -499,7 +497,7 @@ def starfield2():
                             shell_radius=10,
                             fg_color=fg_color, bg_color=bg_color,
                             osc_freq= freq, osc_width=90*direction,
-                            pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                            pretrial_duration=Duration(1000), posttrial_duration=Duration(250),
                             comment=f"Star oscillation count {count} radius {radius} frequency {freq} direction {direction} brightness {bright} contrast {contrast}"
                         )
                     block.append(t)
@@ -572,7 +570,6 @@ def log_metadata():
     shared_key = time.time_ns()
     for key, value in metadata.items():
         logdata(1, 0, shared_key, key, value)
-        print(key, ": ", value)
 
 
 @app.route("/")
