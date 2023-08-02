@@ -497,7 +497,7 @@ def starfield2():
                             shell_radius=10,
                             fg_color=fg_color, bg_color=bg_color,
                             osc_freq= freq, osc_width=90*direction,
-                            pretrial_duration=Duration(1000), posttrial_duration=Duration(250),
+                            pretrial_duration=Duration(250), posttrial_duration=Duration(250),
                             comment=f"Star oscillation count {count} radius {radius} frequency {freq} direction {direction} brightness {bright} contrast {contrast}"
                         )
                     block.append(t)
@@ -535,7 +535,7 @@ def starfield2():
 @app.route('/starfield2')
 def local_starfield2():
     """
-    Starfield experiment with both oscillations and rotations. The spheres have varying radius size as well.
+    Starfield experiment with both oscillations and rotations. The spheres have varying radius size and color as well.
     """
     _ = socketio.start_background_task(target=starfield2)
     return render_template('starbars.html')

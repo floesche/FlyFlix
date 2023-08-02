@@ -1,6 +1,6 @@
 import { Group, 
     MathUtils, 
-    SphereGeometry, 
+    SphereBufferGeometry, 
     MeshBasicMaterial, 
     Mesh,
     Color,
@@ -53,7 +53,7 @@ class Spheres extends Group {
         for ( let i=0; i<sphereCount; i++){
             const material = new MeshBasicMaterial( { color: color[i % color.length] } );
             const sphereRadiusRad = MathUtils.degToRad(sphereRadiusDeg[i % sphereRadiusDeg.length])
-            const geometry = new SphereGeometry( ((shellRadius*Math.sin(sphereRadiusRad))), 32, 16 );
+            const geometry = new SphereBufferGeometry( ((shellRadius*Math.sin(sphereRadiusRad))), 32, 16 );
 
             const sphereMesh = new Mesh( geometry, material );
             sphereMesh.position.x = positions[i][0];
