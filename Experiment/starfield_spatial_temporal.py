@@ -29,9 +29,7 @@ class StarfieldSpatialTemporal():
         with uniform distance.
 
         :param in sphere_count: Amount of spheres surrounding the fly's position.
-        :param float sphere_radius: The radius size of each of the spheres surrounding the fly
-        :param float radius_dev: the deviation of possible radius sizes from the sphere_radius_range in degrees
-            For example, if sphere_radius is 3 and radius_dev is 1 then the spheres' radius would range in size from 2-4 degrees
+        :param list of floats sphere_radius: The radius size of each of the spheres surrounding the fly
         :param float shell_radius: the distance between the fly's position and the spheres
         :param int seed: a seed that generates a set of random points
         :param float rotate_deg_hz: Rotation speed in degree per second.
@@ -49,7 +47,6 @@ class StarfieldSpatialTemporal():
         
         self.sphere_count = sphere_count
         self.sphere_radius_deg = sphere_radius_deg
-        self.radius_dev = radius_dev
         self.shell_radius = shell_radius
         self.seed = seed
         self.fg_color = fg_color
@@ -125,7 +122,7 @@ class StarfieldSpatialTemporal():
         
     def generate_points(self):
         """
-        Generates a list of coordinates for random points on a sphere of radius shell_radius +- some level of deviation
+        Generates a list of coordinates for random points on a sphere of radius shell_radius
         based on the seed value and updates the list of positions. Assumes the center of the sphere is at (0,0,0).
         
         Inspired by https://stackoverflow.com/questions/5531827/random-point-on-a-given-sphere answer from user Neil Lamoureux
@@ -145,17 +142,11 @@ class StarfieldSpatialTemporal():
             theta = 2 * math.pi * t
             phi = math.acos(2 * u - 1)
             
-            if self.radius_dev is not None:
-                dev = v*self.radius_dev
-                dev *= (w * 2 - 1)
-            else:
-                dev = 0
-            
             x = self.shell_radius * math.sin(phi) * math.cos(theta)
             y = self.shell_radius * math.sin(phi) * math.sin(theta)
             z = self.shell_radius * math.cos(phi)
             
-            self.positions.append([x,y,z, dev])
+            self.positions.append([x,y,z])
             
             
         

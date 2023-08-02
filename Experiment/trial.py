@@ -30,7 +30,6 @@ class Trial():
                  
                  #starfield variables
                  sphere_count=None, sphere_radius_deg=3,
-                 radius_dev=None,
                  shell_radius=None, seed=None,
                  starfield_closedloop=False
                 ) -> None:
@@ -61,8 +60,7 @@ class Trial():
             
         params used only in trials with starfield
         :param int sphere_count: the number of spheres surrounding the fly's position
-        :param float sphere_radius_deg: the radius of the spheres surrounding the fly's position in degrees
-        :param float radius_dev: the deviation of possible radius sizes from the sphere_radius_range in degrees
+        :param list of floats sphere_radius_deg: the radius of the spheres surrounding the fly's position in degrees
         :param float shell_radius: the distance between the fly's position and the spheres
         :param int seed: a seed that generates a set of random points
         :param bool starfield_closedloop: boolean that determines if there is a closed loop condition for the trial
@@ -134,7 +132,6 @@ class Trial():
             openloop_spatial_temporal = StarfieldSpatialTemporal(
                 sphere_count=sphere_count, 
                 sphere_radius_deg=sphere_radius_deg,
-                radius_dev=radius_dev,
                 shell_radius=shell_radius,
                 seed=seed,
                 fg_color=fg_color, bg_color=bg_color,

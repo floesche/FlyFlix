@@ -53,7 +53,7 @@ class Spheres extends Group {
         this._log('spheres-type', 'SphereGeometry');
 
         for ( let i=0; i<sphereCount; i++){
-            const sphereRadiusRad = MathUtils.degToRad(sphereRadiusDeg + positions[i][3])
+            const sphereRadiusRad = MathUtils.degToRad(sphereRadiusDeg[i % sphereRadiusDeg.length])
             const geometry = new SphereGeometry( ((shellRadius*Math.sin(sphereRadiusRad))), 32, 16 );
 
             const sphereMesh = new Mesh( geometry, material );

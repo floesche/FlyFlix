@@ -306,7 +306,7 @@ def starfield():
                 t = Trial(
                         counter,
                         sphere_count = count,
-                        sphere_radius_deg=3,
+                        sphere_radius_deg=[3],
                         shell_radius=10,
                         fg_color=0x00ff00,
                         rotate_deg_hz=rotate_deg_hz,
@@ -323,7 +323,7 @@ def starfield():
                 t = Trial(
                         counter,
                         sphere_count = count,
-                        sphere_radius_deg=3,
+                        sphere_radius_deg=[3],
                         shell_radius=10,
                         fg_color=0x00ff00,
                         osc_freq=freq, osc_width=90*direction,
@@ -407,7 +407,7 @@ def starbars():
                     t = Trial(
                             counter,
                             sphere_count = count,
-                            sphere_radius_deg=3,
+                            sphere_radius_deg=[3],
                             shell_radius=10,
                             rotate_deg_hz=rotate_deg_hz,
                             pretrial_duration=Duration(250), posttrial_duration=Duration(250),
@@ -461,53 +461,49 @@ def starfield2():
     
     #rotation with range of sphere sizes
     for count in [500]:
-        for dev in [0, 1, 2]:
-            for speed in [2, 4]:
-                for direction in [-1, 1]:
-                    for clrs in [(64, 190)]:
-                        bright = clrs[1]
-                        contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                        fg_color = clrs[1] << 8
-                        bg_color = clrs[0] << 8
-                        rotate_speed = 20*speed*direction
-                        radius = 3
-                        t = Trial(
-                            counter,
-                            sphere_count = count,
-                            sphere_radius_deg=radius,
-                            radius_dev=dev,
-                            shell_radius=10   ,
-                            rotate_deg_hz=rotate_speed,
-                            pretrial_duration=Duration(250), posttrial_duration=Duration(250),
-                            fg_color=fg_color, bg_color=bg_color,
-                            comment=f"Star rotation count {count} radius {radius} deviation {dev} speed {rotate_speed} direction {direction} brightness {bright} contrast {contrast}")
-                        block.append(t)
-                        counter += 1
+        for speed in [2, 4]:
+            for direction in [-1, 1]:
+                for clrs in [(64, 190)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = clrs[1] << 8
+                    bg_color = clrs[0] << 8
+                    rotate_speed = 20*speed*direction
+                    radius = [3, 2, 1]
+                    t = Trial(
+                        counter,
+                        sphere_count = count,
+                        sphere_radius_deg=radius,
+                        shell_radius=10   ,
+                        rotate_deg_hz=rotate_speed,
+                        pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                        fg_color=fg_color, bg_color=bg_color,
+                        comment=f"Star rotation count {count} radius {radius} speed {rotate_speed} direction {direction} brightness {bright} contrast {contrast}")
+                    block.append(t)
+                    counter += 1
                         
     #oscillation with range of sphere sizes
     for count in [500]:
-        for dev in [0, 1, 2]:
-            for freq in [0.166]:
-                for direction in [-1, 1]:
-                    for clrs in [(64, 190)]:
-                        bright = clrs[1]
-                        contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
-                        fg_color = clrs[1] << 8
-                        bg_color = clrs[0] << 8
-                        radius = 3
-                        t = Trial(
-                                counter,
-                                sphere_count = count,
-                                sphere_radius_deg=radius,
-                                shell_radius=10,
-                                radius_dev = dev,
-                                fg_color=fg_color, bg_color=bg_color,
-                                osc_freq= freq, osc_width=90*direction,
-                                pretrial_duration=Duration(250), posttrial_duration=Duration(250),
-                                comment=f"Star oscillation count {count} radius {radius} deviation {dev} frequency {freq} direction {direction} brightness {bright} contrast {contrast}"
-                            )
-                        block.append(t)
-                        counter += 1
+        for freq in [0.166]:
+            for direction in [-1, 1]:
+                for clrs in [(64, 190)]:
+                    bright = clrs[1]
+                    contrast = round((clrs[1]-clrs[0])/(clrs[1]+clrs[0]), 1)
+                    fg_color = clrs[1] << 8
+                    bg_color = clrs[0] << 8
+                    radius = [3, 2, 1]
+                    t = Trial(
+                            counter,
+                            sphere_count = count,
+                            sphere_radius_deg=radius,
+                            shell_radius=10,
+                            fg_color=fg_color, bg_color=bg_color,
+                            osc_freq= freq, osc_width=90*direction,
+                            pretrial_duration=Duration(250), posttrial_duration=Duration(250),
+                            comment=f"Star oscillation count {count} radius {radius} frequency {freq} direction {direction} brightness {bright} contrast {contrast}"
+                        )
+                    block.append(t)
+                    counter += 1
     
     
     while not start:
