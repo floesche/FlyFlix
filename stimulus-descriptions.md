@@ -36,7 +36,7 @@ In the 3D environment of Three.js, the bars are projected onto a cylindrical vir
 - [`Experiment/spatial_temporal.py`](Experiment/spatial_temporal.py)
 - [`Experiment/sweep_condition.py`](Experiment/sweep_condition.py)
 
-## Starfield / Spheres
+## Starfield
 
 The starfield stimulus is a second type of stimulus in FlyFlix that also produces strong, reliable behavioral responses from drosophila. It is currently only found in the `starfield` branch. It is made up of small spheres that are positioned randomly on a spherical shell that has a center at the `camera`'s position. This ensures that all spheres are equally distant from the `camera`. An example of starfield stimulus can be seen below.
 

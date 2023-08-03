@@ -4,23 +4,27 @@ This guide serves as a basic introduction to developing with FlyFlix. It wil cov
 
 ## File Overview
 
-### flyflix.py
+### `flyflix.py`
 
-This is the main file that the server is hosted on. It handles the majority of communication with clients through socket events. For example, when the server recieves the event 'start-pressed' it emits the event `start-triggered` which then gets sent to the `experiment_control.js` class and triggers an event there. It also handles routing to each page in flyflix. When experiment pages are routed, `flyflix.py` starts a background function that defines the experiment and creates trials.
+This is the main file that the server is hosted on. It handles the majority of communication with clients through [Socket.IO](https://socket.io/) events. Socket.IO is a library using the [WebSocket](https://en.wikipedia.org/wiki/WebSocket) standard or, if not available, falls back on HTTP polling.
 
-### arena.js
+Socket.IO provides a bidirectional low-latency event-based communication channel between server and client. For example, when the server recieves the event 'start-pressed' from one of the clients, it emits the event `start-triggered`. This event is then read by a client in `experiment_control.js`, which triggers some action to start the stimulus movement.
 
-The `arena.js` class defines the environment that the experiment takes place in. This includes the creation of the `camera`, `scene`, `renderer`, and `loop`. These are all [three.js](https://threejs.org/) components to handle 3D rendering. It also creates any additional classes used in the experiment like the `panels.js` class (used for vertical bar trials) or the `spheres.js` class in the starfield branch (used for starfield trials).
+The file `flyFlix.py` also handles routing to the different websites that FlyFlix provides. For example, it reads the `control-panel.html` template, fills in the variables, and sends the final HTML website to the client's web browser. For experiment pages, `flyflix.py` starts a background function that stays alive during the experiment.
+
+### `arena.js`
+
+The `Arena` class in [`static/arena/arena.js`](static/arena/arena.js) defines the virtual environment that the experiment takes place in. This includes the creation of the `camera`, `scene`, `renderer`, and `loop`. These are all [three.js](https://threejs.org/) components to handle 3D rendering. `Arena` also creates any additional classes used in the experiment like the `Panels` class in [`static/arena/components/panels.js`](static/arena/components/panels.js) (used for [bar stimuli](stimulus-descriptions.md#bars)) or the `Spheres` class in [`static/arena/components/spheres.js`](static/arena/components/spheres.js) in the `starfield` branch (used for [starfield stimuli](stimulus-descriptions.md#starfield)).
 
 ### trial.py
 
-The Trial class is used to define each trial in an experiment. A trial consists of an open loop and closed loop condition. The trial class is compatable with all types of stimulus, however each type has its own parameters to trigger it's use. It also creates the spatial-temporal descriptions of each trial that are used to create the open and closed loop conditions. When a trial is triggered through `trigger()`, it starts the trial through calling methods in `open_loop_condition.py` and `closed_loop_condition.py`. For more information, look at the documentation within `trial.py`.
+The `Trial` class in [`Experiment/trial.py`](Experiment/trial.py) is used to define each trial in an experiment. A trial consists of an open loop and closed loop condition. The trial class is compatible with all types of stimulus, however each type has its own parameters to trigger it's use. It also creates the spatial-temporal descriptions of each trial that are used to create the open and closed loop conditions. When a trial is triggered through `trigger()`, it starts the trial through calling methods in `open_loop_condition.py` and `closed_loop_condition.py`. For more information, look at the documentation within `trial.py`.
 
 ### data_exchanger.js
 
 The data exchanger class handles communication between the spatial temporal classes (like `spatial_temporal.py` or `starfield_spatial_temporal.py` in the starfield branch) and the stimulus classes (like `panels.js` or `starfield.js`) through [Flask-SocketIO](https://pypi.org/project/Flask-SocketIO/) events. The `DataExchanger` waits for events (that were emitted by the spatial temporal class) and then calls stimulus methods accordingly. For example, the event `spatial-setup` or `panels-spatial-setup` results in `panels.changePanels(barWidth, spaceWidth, fgColor, bgColor, barHeight)` being called. Here is an example of one of these event handlers for setting the speed of panels for a vertical bar trial:
 
-```sh
+```javascript
 /**
  * Event handler for `speed` sets rotational speed and loop ID for the panels object.
  * 
@@ -48,7 +52,7 @@ In order to implement existing stimulus, follow these steps:
 
 1. Create a new javascript file in the static folder that creates the arena as well as the experiment buttons. The following code can be used as a template and does not require any changes:
 
-```sh
+```javascript
 
 import { Arena } from './arena/arena.js';
 
@@ -82,7 +86,7 @@ main();
 ```
 2. Create a new html file in templates that uses the previously created file for the script. The following is a template for this file:
 
-```sh
+```html
 <!DOCTYPE html>
 <html>
   <head>
@@ -102,7 +106,7 @@ main();
 
 3. Create a new page in `flyflix.py` that returns the template file and starts a background task which is a function in `flyflix.py`. An example on how to do this is:
 
-```sh
+```javascript
 @app.route('/example-experiment/')
 def local_example_experiment():
     """
@@ -114,7 +118,7 @@ def local_example_experiment():
 
 4. Create the function that was set as the background task for the experiment. All trials will be created and triggered in this function. To create trials, look at the documentation within `trial.py` to determine what variables need to be set for the type of stimulus you are using. There are more options for stimulus and better documentation within the starfield branch. Follow the following format for the function:
 
-```sh
+```python
 def example_experiment():
     print(time.strftime("%H:%M:%S", time.localtime()))
     block = []
